@@ -43,9 +43,12 @@ namespace mRemoteNG.Connection.Protocol.RDP
                     base.UpdateSessionDisplaySettings(width, height);
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 // target OS does not support newer method, fallback to an older method
+                // sysprep fork: logged as a warning instead of being swallowed silently
+                App.Runtime.MessageCollector?.AddMessage(Messages.MessageClass.WarningMsg,
+                    $"UpdateSessionDisplaySettings({width}, {height}) failed for '{connectionInfo?.Hostname}' (DesktopScaleFactor={DesktopScaleFactor}, DeviceScaleFactor={DeviceScaleFactor}): {ex.Message}", true);
                 base.UpdateSessionDisplaySettings(width, height);
             }
         }

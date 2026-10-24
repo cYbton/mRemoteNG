@@ -937,7 +937,7 @@ namespace mRemoteNG.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool SingleClickSwitchesToOpenConnection {
             get {
                 return ((bool)(this["SingleClickSwitchesToOpenConnection"]));
@@ -2483,6 +2483,18 @@ namespace mRemoteNG.Properties {
             }
             set {
                 this["PluginPanelAssignments"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool EnableUserProfiles {
+            get {
+                return ((bool)(this["EnableUserProfiles"]));
+            }
+            set {
+                this["EnableUserProfiles"] = value;
             }
         }
     }

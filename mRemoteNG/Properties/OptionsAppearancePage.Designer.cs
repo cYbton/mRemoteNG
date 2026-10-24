@@ -106,5 +106,29 @@ namespace mRemoteNG.Properties {
                 this["EnableConnectionTreeAnimations"] = value;
             }
         }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("8.25")]
+        public float TreeAndTabFontSize {
+            get {
+                return ((float)(this["TreeAndTabFontSize"]));
+            }
+            set {
+                this["TreeAndTabFontSize"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("16")]
+        public int ConnectionTreeIconSize {
+            get {
+                return ((int)(this["ConnectionTreeIconSize"]));
+            }
+            set {
+                this["ConnectionTreeIconSize"] = value;
+            }
+        }
     }
 }

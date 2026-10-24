@@ -17,11 +17,13 @@ namespace mRemoteNG.UI
         public StatusImageList()
         {
             DisplayProperties display = new();
+            // sysprep fork: icon size of the connection tree as set in the options (Appearance), scaled with the display
+            int iconSize = Math.Clamp(Properties.OptionsAppearancePage.Default.ConnectionTreeIconSize, 16, 48);
 
             ImageList = new ImageList
             {
                 ColorDepth = ColorDepth.Depth32Bit,
-                ImageSize = new Size((int)Math.Round(16 * display.ResolutionScalingFactor.Width), (int)Math.Round(16 * display.ResolutionScalingFactor.Height)),
+                ImageSize = new Size((int)Math.Round(iconSize * display.ResolutionScalingFactor.Width), (int)Math.Round(iconSize * display.ResolutionScalingFactor.Height)),
                 TransparentColor = Color.Transparent
             };
 

@@ -750,6 +750,17 @@ namespace mRemoteNG.Connection.Protocol.RDP
                         Control.Dock = DockStyle.None;
                         Control.Location = fitRect.Location;
                         Control.Size = fitRect.Size;
+                        if (InterfaceControl.Info.AutomaticResize)
+                        {
+                            // sysprep fork: with AutomaticResize the control follows the panel (anchored) and
+                            // SmartSizing scales the current picture while the window is being resized - no
+                            // black area, no scrollbars. On ResizeEnd the session gets the new size (RdpProtocol8),
+                            // after which the picture is 1:1 again and SmartSizing has nothing left to scale.
+                            _rdpClient.AdvancedSettings2.SmartSizing = true;
+                            Control.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+                            InterfaceControl.AutoScroll = false;
+                            break;
+                        }
                         InterfaceControl.AutoScroll = true;
                         InterfaceControl.AutoScrollMinSize = fitRect.Size;
                         break;

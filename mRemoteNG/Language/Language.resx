@@ -1725,6 +1725,15 @@ If you run into such an error, please create a new connection file!</value>
   <data name="EnableConnectionTreeAnimations" xml:space="preserve">
     <value>Enable connection tree expand/collapse animations</value>
   </data>
+  <data name="TreeAndTabFontSize" xml:space="preserve">
+    <value>Font size of connection tree and tabs (pt)</value>
+  </data>
+  <data name="ConnectionTreeIconSize" xml:space="preserve">
+    <value>Icon size in connection tree (px)</value>
+  </data>
+  <data name="TakesEffectAfterRestart" xml:space="preserve">
+    <value>Takes effect after mRemoteNG has been restarted.</value>
+  </data>
   <data name="ShowFullConsFilePath" xml:space="preserve">
     <value>Show full connections file path in window title</value>
   </data>

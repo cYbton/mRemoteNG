@@ -15,7 +15,10 @@ namespace mRemoteNG.App.Initialization
             if (Properties.App.Default.FirstStart && !Properties.OptionsBackupPage.Default.LoadConsFromCustomLocation && !File.Exists(Runtime.ConnectionsService.GetStartupConnectionFileName()))
                 Runtime.ConnectionsService.NewConnectionsFile(Runtime.ConnectionsService.GetStartupConnectionFileName());
 
-            Runtime.TryInitializeUserProfile();
+            // sysprep fork: the password-protected user profiles are opt-in (EnableUserProfiles) - without
+            // them the connections load from the connections file as before, with no password prompt
+            if (Properties.Settings.Default.EnableUserProfiles)
+                Runtime.TryInitializeUserProfile();
             Runtime.LoadConnections();
         }
     }

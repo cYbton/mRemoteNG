@@ -483,6 +483,15 @@ namespace mRemoteNG.UI.Window
             InterfaceControl ic = GetInterfaceControl();
             if (ic?.Info == null) return;
             FrmMain.Default.SelectedConnection = ic.Info;
+
+            // sysprep fork: the connection tree follows the active tab, so the selected node is always the
+            // server whose session is in front - users went by the tree's selection, not by the tab. Only the
+            // selection moves, the keyboard focus stays in the session.
+            var tree = AppWindows.ExistingTreeForm?.ConnectionTree;
+            if (tree == null || ReferenceEquals(tree.SelectedObject, ic.Info)) return;
+            tree.SelectedObject = ic.Info;
+            if (ReferenceEquals(tree.SelectedObject, ic.Info))
+                tree.EnsureModelVisible(ic.Info);
         }
 
         #endregion

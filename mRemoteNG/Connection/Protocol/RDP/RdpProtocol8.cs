@@ -31,6 +31,10 @@ namespace mRemoteNG.Connection.Protocol.RDP
         private Size _pendingResizeSize;
         private bool _hasPendingResize = false;
 
+        // sysprep fork: the size last sent to the session - a resize to the same size again is skipped,
+        // each one makes the server rebuild the desktop
+        private Size _lastSessionSize = Size.Empty;
+
         public RdpProtocol8()
         {
             // Initialize debounce timer (300ms delay).
@@ -94,7 +98,10 @@ namespace mRemoteNG.Connection.Protocol.RDP
 
             // Update control size during resize to keep UI synchronized
             // Actual RDP session resize is deferred to ResizeEnd() to prevent flickering
-            DoResizeControl();
+            // sysprep fork: not for FitToWindow with AutomaticResize - re-laying out the control on
+            // every mouse move while dragging made it flicker; it is fitted once on ResizeEnd instead
+            if (!(InterfaceControl?.Info?.Resolution == RDPResolutions.FitToWindow && InterfaceControl.Info.AutomaticResize))
+                DoResizeControl();
 
             // Only resize RDP session on window state changes (Maximize/Restore)
             // Manual drag-resizing will be handled by ResizeEnd()
@@ -239,13 +246,16 @@ namespace mRemoteNG.Connection.Protocol.RDP
                 return;
             }
 
-            // FitToWindow: fixed resolution set at connect time, scrollbars handle overflow.
-            // SmartSize: SmartSizing scales the image client-side, no session resize needed.
-            // Only Fullscreen benefits from dynamically changing the remote session resolution.
-            if (InterfaceControl.Info.Resolution != RDPResolutions.Fullscreen)
+            // sysprep fork: FitToWindow follows the window again, as it did in 1.76 - now through
+            // UpdateSessionDisplaySettings (RDP client 9+), so the session is resized in place instead
+            // of reconnecting. The SmartSize resolution only scales the picture client-side and needs
+            // no session resize. (FitToWindow with AutomaticResize switches SmartSizing on itself, to
+            // scale the picture while the window is being dragged - see RdpProtocol.SetResolution.)
+            if (InterfaceControl.Info.Resolution != RDPResolutions.Fullscreen &&
+                InterfaceControl.Info.Resolution != RDPResolutions.FitToWindow)
             {
                 Runtime.MessageCollector.AddMessage(MessageClass.DebugMsg,
-                    $"Resize skipped for '{connectionInfo.Hostname}': Resolution is {InterfaceControl.Info.Resolution} (only Fullscreen supports dynamic resize)");
+                    $"Resize skipped for '{connectionInfo.Hostname}': Resolution is {InterfaceControl.Info.Resolution} (only Fullscreen and FitToWindow support dynamic resize)");
                 return;
             }
 
@@ -256,14 +266,34 @@ namespace mRemoteNG.Connection.Protocol.RDP
             {
                 // Use InterfaceControl.Size instead of Control.Size because Control may be docked
                 // and not reflect the actual available space
+                // sysprep fork: FitToWindow gets the panel's client area inside its padding (the connection frame)
+                bool fitToWindow = InterfaceControl.Info.Resolution == RDPResolutions.FitToWindow;
                 Size size = Fullscreen
                     ? Screen.FromControl(Control).Bounds.Size
-                    : InterfaceControl.Size;
+                    : fitToWindow
+                        ? new Size(Math.Max(1, InterfaceControl.ClientSize.Width - InterfaceControl.Padding.Horizontal),
+                                   Math.Max(1, InterfaceControl.ClientSize.Height - InterfaceControl.Padding.Vertical))
+                        : InterfaceControl.Size;
+
+                // sysprep fork: the same size again (window state change and ResizeEnd often both arrive)
+                // would only make the server rebuild the desktop once more
+                if (size == _lastSessionSize)
+                {
+                    Runtime.MessageCollector.AddMessage(MessageClass.DebugMsg,
+                        $"Resize skipped for '{connectionInfo.Hostname}': session already has {size.Width}x{size.Height}");
+                    return;
+                }
 
                 Runtime.MessageCollector.AddMessage(MessageClass.DebugMsg,
                     $"Calling UpdateSessionDisplaySettings({size.Width}, {size.Height}) for '{connectionInfo.Hostname}' (Control.Size={Control.Size}, InterfaceControl.Size={InterfaceControl.Size})");
 
                 UpdateSessionDisplaySettings((uint)size.Width, (uint)size.Height);
+                _lastSessionSize = size;
+
+                // sysprep fork: the control may refuse to become smaller than the session until the
+                // session itself has been resized - fit it to the panel once more afterwards
+                if (fitToWindow)
+                    FitControlToPanel();
 
                 Runtime.MessageCollector.AddMessage(MessageClass.DebugMsg,
                     $"Successfully resized RDP session for '{connectionInfo.Hostname}' to {size.Width}x{size.Height}");
@@ -284,8 +314,14 @@ namespace mRemoteNG.Connection.Protocol.RDP
             if (Control.IsDisposed || InterfaceControl.IsDisposed) return false;
 
             // FitToWindow: control is undocked at a fixed size with scrollbars; don't touch it.
-            if (InterfaceControl.Info.Resolution == RDPResolutions.FitToWindow)
+            // sysprep fork: unless AutomaticResize is on - then the session follows the window
+            // (DoResizeClient), and the control has to follow it too or the resized session stays
+            // inside the old, larger control with scrollbars.
+            if (InterfaceControl.Info.Resolution == RDPResolutions.FitToWindow && !InterfaceControl.Info.AutomaticResize)
                 return false;
+
+            if (InterfaceControl.Info.Resolution == RDPResolutions.FitToWindow)
+                return FitControlToPanel();
 
             Runtime.MessageCollector?.AddMessage(MessageClass.DebugMsg,
                 $"DoResizeControl - Before: Control.Size={Control.Size}, InterfaceControl.Size={InterfaceControl.Size}, Control.Dock={Control.Dock}");
@@ -328,11 +364,36 @@ namespace mRemoteNG.Connection.Protocol.RDP
             return true;
         }
 
+        // sysprep fork: FitToWindow with AutomaticResize - the control fills the panel's client area
+        // (inside its padding, the connection frame), with no scroll area of the size at connect time
+        // left over. Positioned in the panel's own coordinates, not at the panel's location in its parent.
+        private bool FitControlToPanel()
+        {
+            if (InterfaceControl.AutoScroll || InterfaceControl.AutoScrollMinSize != Size.Empty)
+            {
+                InterfaceControl.AutoScrollMinSize = Size.Empty;
+                InterfaceControl.AutoScroll = false;
+            }
+
+            Padding padding = InterfaceControl.Padding;
+            Rectangle target = new(padding.Left, padding.Top,
+                Math.Max(1, InterfaceControl.ClientSize.Width - padding.Horizontal),
+                Math.Max(1, InterfaceControl.ClientSize.Height - padding.Vertical));
+            if (Control.Bounds == target) return false;
+
+            Control.Dock = DockStyle.None;
+            Control.Bounds = target;
+            return true;
+        }
+
         protected virtual void UpdateSessionDisplaySettings(uint width, uint height)
         {
+            // sysprep fork: without a resize in place (RDP client 8, or the newer call failed) the session is
+            // reconnected with the new size, as 1.76 always did - the resolution follows the window either way
             string host = connectionInfo?.Hostname ?? "unknown";
-            Runtime.MessageCollector?.AddMessage(MessageClass.DebugMsg,
-                $"Dynamic session resize is not supported for RDP client v8; keeping current resolution for '{host}'.");
+            Runtime.MessageCollector?.AddMessage(MessageClass.InformationMsg,
+                $"Resizing the session for '{host}' to {width}x{height} by reconnecting.", true);
+            RdpClient8.Reconnect(width, height);
         }
 
         public override void Close()

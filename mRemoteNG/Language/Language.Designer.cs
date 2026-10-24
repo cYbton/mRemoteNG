@@ -6808,6 +6808,33 @@ namespace mRemoteNG.Resources.Language {
                 return ResourceManager.GetString("EnableConnectionTreeAnimations", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Font size of connection tree and tabs (pt).
+        /// </summary>
+        internal static string TreeAndTabFontSize {
+            get {
+                return ResourceManager.GetString("TreeAndTabFontSize", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Icon size in connection tree (px).
+        /// </summary>
+        internal static string ConnectionTreeIconSize {
+            get {
+                return ResourceManager.GetString("ConnectionTreeIconSize", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Takes effect after mRemoteNG has been restarted..
+        /// </summary>
+        internal static string TakesEffectAfterRestart {
+            get {
+                return ResourceManager.GetString("TakesEffectAfterRestart", resourceCulture);
+            }
+        }
         
         /// <summary>
         ///   Looks up a localized string similar to Show for user.

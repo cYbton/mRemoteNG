@@ -92,7 +92,7 @@ public sealed class PluginService
                 continue;
             }
 
-            string[] pluginFiles = Directory.EnumerateFiles(pluginDirectory, "*.dll", SearchOption.TopDirectoryOnly).ToArray();
+            string[] pluginFiles = GetPluginCandidateFiles(pluginDirectory).ToArray();
             App.Runtime.MessageCollector.AddMessage(Messages.MessageClass.InformationMsg, $"Plugin scan directory '{pluginDirectory}' found {pluginFiles.Length} DLL(s).", true);
 
             foreach (string pluginPath in pluginFiles)
@@ -145,7 +145,7 @@ public sealed class PluginService
                 continue;
             }
 
-            foreach (string pluginPath in Directory.EnumerateFiles(pluginDirectory, "*.dll", SearchOption.TopDirectoryOnly))
+            foreach (string pluginPath in GetPluginCandidateFiles(pluginDirectory))
             {
                 try
                 {
@@ -226,6 +226,20 @@ public sealed class PluginService
         }
 
         return directories.Distinct(StringComparer.OrdinalIgnoreCase);
+    }
+
+    // sysprep fork: the program folder holds the whole bundled .NET runtime (300+ DLLs in the
+    // self-contained build) - loading each of them as a plugin candidate on the UI thread froze the
+    // start for up to a minute. There only DLLs named like a plugin are candidates; the plugin
+    // folders themselves are still scanned completely.
+    private static IEnumerable<string> GetPluginCandidateFiles(string pluginDirectory)
+    {
+        string appBaseDirectory = AppContext.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+        string pattern = string.Equals(pluginDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar), appBaseDirectory, StringComparison.OrdinalIgnoreCase)
+            ? "*Plugin*.dll"
+            : "*.dll";
+        return Directory.EnumerateFiles(pluginDirectory, pattern, SearchOption.TopDirectoryOnly)
+            .Where(file => !Path.GetFileName(file).Equals("mRemoteNG.PluginContracts.dll", StringComparison.OrdinalIgnoreCase));
     }
 
     private static IEnumerable<Type> GetLoadableTypes(Assembly assembly)

@@ -44,6 +44,10 @@ namespace mRemoteNG.UI.Window
             DockPnl = panel;
             Icon = Resources.ImageConverter.GetImageAsIcon(Properties.Resources.ASPWebSite_16x);
             InitializeComponent();
+            // sysprep fork: font size of the connection tree as set in the options (Appearance)
+            float treeFontSize = OptionsAppearancePage.Default.TreeAndTabFontSize;
+            if (treeFontSize > 0 && System.Math.Abs(treeFontSize - ConnectionTree.Font.Size) >= 0.01f)
+                ConnectionTree.Font = new Font(ConnectionTree.Font.FontFamily, treeFontSize, ConnectionTree.Font.Style);
             // the designer docks the search bar at the bottom; apply the saved preference at startup
             PlaceSearchBar(Settings.Default.PlaceSearchBarAboveConnectionTree);
             SetMenuEventHandlers();

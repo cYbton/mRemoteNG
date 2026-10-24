@@ -188,7 +188,27 @@ namespace mRemoteNG.UI.Tabs
 
         private IContainer Components { get; }
 
-        public Font TextFont => DockPane.DockPanel.Theme.Skin.DockPaneStripSkin.TextFont;
+        // sysprep fork: the theme's tab font in the size set in the options (Appearance)
+        public Font TextFont => GetSizedTabFont(DockPane.DockPanel.Theme.Skin.DockPaneStripSkin.TextFont);
+
+        private static Font s_tabFontSource;
+        private static Font s_sizedTabFont;
+
+        private static Font GetSizedTabFont(Font themeFont)
+        {
+            float size = OptionsAppearancePage.Default.TreeAndTabFontSize;
+            if (themeFont == null || size <= 0 || Math.Abs(themeFont.Size - size) < 0.01f)
+                return themeFont;
+
+            // one cached font per theme font, so the strip doesn't create a new font on every paint
+            if (!ReferenceEquals(s_tabFontSource, themeFont) || s_sizedTabFont == null || Math.Abs(s_sizedTabFont.Size - size) >= 0.01f)
+            {
+                s_tabFontSource = themeFont;
+                s_sizedTabFont = new Font(themeFont.FontFamily, size, themeFont.Style);
+            }
+
+            return s_sizedTabFont;
+        }
 
         private Font DocumentTextFont
         {
