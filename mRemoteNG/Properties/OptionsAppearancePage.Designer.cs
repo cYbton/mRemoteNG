@@ -130,5 +130,17 @@ namespace mRemoteNG.Properties {
                 this["ConnectionTreeIconSize"] = value;
             }
         }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("8.25")]
+        public float ProgramFontSize {
+            get {
+                return ((float)(this["ProgramFontSize"]));
+            }
+            set {
+                this["ProgramFontSize"] = value;
+            }
+        }
     }
 }

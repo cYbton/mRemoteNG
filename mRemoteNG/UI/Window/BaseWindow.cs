@@ -31,6 +31,13 @@ namespace mRemoteNG.UI.Window
             InitializeComponent();
         }
 
+        protected override void OnLoad(System.EventArgs e)
+        {
+            base.OnLoad(e);
+            // sysprep fork: program font size from the options
+            UiFontScaler.Apply(this);
+        }
+
         public void SetFormText(string t)
         {
             Text = t;

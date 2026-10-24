@@ -29,5 +29,8 @@
     <Setting Name="ConnectionTreeIconSize" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">16</Value>
     </Setting>
+    <Setting Name="ProgramFontSize" Type="System.Single" Scope="User">
+      <Value Profile="(Default)">8.25</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

@@ -129,6 +129,7 @@ namespace mRemoteNG.UI.Window
             vsToolStripExtender.SetStyle(msMain, activeTheme.Version, activeTheme.Theme);
             vsToolStripExtender.SetStyle(ConnectionTree.ContextMenuStrip, activeTheme.Version,
                 activeTheme.Theme);
+            DarkThemeIcons.ApplyTo(msMain); // sysprep fork: no white icon fills in a dark theme
 
             if (!_themeManager.ActiveAndExtended)
                 return;
@@ -221,13 +222,13 @@ namespace mRemoteNG.UI.Window
                 if (_sortedAz)
                 {
                     ConnectionTree.SortRecursive(ConnectionTree.GetRootConnectionNode(), ListSortDirection.Ascending);
-                    mMenSort.Image = Properties.Resources.SortDescending_16x;
+                    mMenSort.Image = DarkThemeIcons.Adapt(Properties.Resources.SortDescending_16x);
                     _sortedAz = false;
                 }
                 else
                 {
                     ConnectionTree.SortRecursive(ConnectionTree.GetRootConnectionNode(), ListSortDirection.Descending);
-                    mMenSort.Image = Properties.Resources.SortAscending_16x;
+                    mMenSort.Image = DarkThemeIcons.Adapt(Properties.Resources.SortAscending_16x);
                     _sortedAz = true;
                 }
             };

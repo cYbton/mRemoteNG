@@ -20,6 +20,18 @@ namespace mRemoteNG.Connection
         // in case the connection is through a SSH tunnel the Info of the SSHTunnelConnection is also saved for reference in log messages etc.
         public ConnectionInfo SSHTunnelInfo { get; set; }
 
+        // sysprep fork: background of the connection area in the theme colour, so opening a connection
+        // does not flash a white (system colour) area in a dark theme
+        internal static Color ThemedBackColor
+        {
+            get
+            {
+                Themes.ThemeManager themeManager = Themes.ThemeManager.getInstance();
+                return themeManager.ThemingActive
+                    ? themeManager.ActiveTheme.Theme.ColorPalette.MainWindowActive.Background
+                    : SystemColors.Control;
+            }
+        }
 
         public InterfaceControl(Control parent, ProtocolBase protocol, ConnectionInfo info)
         {
@@ -32,7 +44,8 @@ namespace mRemoteNG.Connection
                 Size = Parent.Size;
                 Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top;
                 InitializeComponent();
-                
+                BackColor = ThemedBackColor;
+
                 // Enable custom painting for border
                 this.Paint += InterfaceControl_Paint;
                 

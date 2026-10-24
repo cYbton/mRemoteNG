@@ -6810,7 +6810,7 @@ namespace mRemoteNG.Resources.Language {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Font size of connection tree and tabs (pt).
+        ///   Looks up a localized string similar to Font size of connection tree (pt).
         /// </summary>
         internal static string TreeAndTabFontSize {
             get {
@@ -6824,6 +6824,15 @@ namespace mRemoteNG.Resources.Language {
         internal static string ConnectionTreeIconSize {
             get {
                 return ResourceManager.GetString("ConnectionTreeIconSize", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Font size of menus, tabs, panels and dialogs (pt).
+        /// </summary>
+        internal static string ProgramFontSize {
+            get {
+                return ResourceManager.GetString("ProgramFontSize", resourceCulture);
             }
         }
 

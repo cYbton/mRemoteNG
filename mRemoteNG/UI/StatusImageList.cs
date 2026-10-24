@@ -98,9 +98,11 @@ namespace mRemoteNG.UI
         {
             try
             {
-                imageList.Images.Add("Root", Properties.Resources.ASPWebSite_16x);
-                imageList.Images.Add("Folder", Properties.Resources.FolderClosed_16x);
-                imageList.Images.Add("PuttySessions", Properties.Resources.PuttySessions);
+                // sysprep fork: root and folder icons without their white fills in a dark theme; the
+                // connection icons are left alone, they are drawn for any background
+                imageList.Images.Add("Root", DarkThemeIcons.Adapt(Properties.Resources.ASPWebSite_16x));
+                imageList.Images.Add("Folder", DarkThemeIcons.Adapt(Properties.Resources.FolderClosed_16x));
+                imageList.Images.Add("PuttySessions", DarkThemeIcons.Adapt(Properties.Resources.PuttySessions));
             }
             catch (Exception ex)
             {

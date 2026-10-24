@@ -34,6 +34,7 @@ namespace mRemoteNG.UI.Tabs
         public ConnectionTab()
         {
             InitializeComponent();
+            BackColor = InterfaceControl.ThemedBackColor; // sysprep fork: no white flash in a dark theme
             GotFocus += ConnectionTab_GotFocus;
             DockStateChanged += ConnectionTab_DockStateChanged;
         }

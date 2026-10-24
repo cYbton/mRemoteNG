@@ -4,6 +4,7 @@ using mRemoteNG.UI.Forms.OptionsPages;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using mRemoteNG.Themes;
@@ -77,6 +78,13 @@ namespace mRemoteNG.UI.Forms
         {
             base.OnHandleCreated(e);
             ThemeManager.getInstance().ApplyThemeToTitleBar(this);
+        }
+
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+            // sysprep fork: program font size from the options
+            UiFontScaler.Apply(this);
         }
 
         private void FrmOptions_Load(object sender, EventArgs e)
@@ -326,8 +334,17 @@ namespace mRemoteNG.UI.Forms
         private object ImageGetter(object rowobject)
         {
             OptionsPage page = rowobject as OptionsPage;
-            return page?.PageIcon == null ? _display.ScaleImage(Properties.Resources.F1Help_16x) : _display.ScaleImage(page.PageIcon);
+            // sysprep fork: one image per page, adapted to a dark theme (no white icon fills)
+            if (page != null && _pageImages.TryGetValue(page, out Image image))
+                return image;
+
+            image = DarkThemeIcons.Adapt(page?.PageIcon == null ? _display.ScaleImage(Properties.Resources.F1Help_16x) : _display.ScaleImage(page.PageIcon));
+            if (page != null)
+                _pageImages[page] = image;
+            return image;
         }
+
+        private readonly Dictionary<OptionsPage, Image> _pageImages = new();
 
         public void SetActivatedPage(string? pageName = default)
         {

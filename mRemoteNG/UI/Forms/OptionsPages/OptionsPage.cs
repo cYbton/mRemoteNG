@@ -16,6 +16,13 @@ namespace mRemoteNG.UI.Forms.OptionsPages
             //ThemeManager.getInstance().ThemeChanged += ApplyTheme;
         }
 
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+            // sysprep fork: program font size from the options
+            UiFontScaler.Apply(this);
+        }
+
         #region Public Properties
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Global

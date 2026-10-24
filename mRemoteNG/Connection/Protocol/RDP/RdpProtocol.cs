@@ -33,6 +33,7 @@ namespace mRemoteNG.Connection.Protocol.RDP
          */
 
         private MsRdpClient6NotSafeForScripting _rdpClient; // lowest version supported
+        private Panel _connectingCover; // sysprep fork
         protected virtual RdpVersion RdpProtocolVersion => RDP.RdpVersion.Rdc6;
         protected ConnectionInfo connectionInfo;
         protected Version RdpVersion;
@@ -139,6 +140,7 @@ namespace mRemoteNG.Connection.Protocol.RDP
             Runtime.MessageCollector.AddMessage(MessageClass.DebugMsg, $"Requesting RDP version: {connectionInfo.RdpVersion}. Using: {RdpProtocolVersion}");
             Control = CreateActiveXRdpClientControl();
             base.Initialize();
+            AddConnectingCover();
 
             try
             {
@@ -973,6 +975,7 @@ namespace mRemoteNG.Connection.Protocol.RDP
 
         private void RDPEvent_OnDisconnected(int discReason)
         {
+            RemoveConnectingCover();
             const int UI_ERR_NORMAL_DISCONNECT = 0xB08;
             if (discReason != UI_ERR_NORMAL_DISCONNECT)
             {
@@ -1003,7 +1006,28 @@ namespace mRemoteNG.Connection.Protocol.RDP
 
         private void RDPEvent_OnConnected()
         {
+            RemoveConnectingCover();
             Event_Connected(this);
+        }
+
+        // sysprep fork: until the session is connected the RDP control shows a white area, which flashes
+        // in a dark theme. A panel in the theme background lies over it until then.
+        private void AddConnectingCover()
+        {
+            if (InterfaceControl == null || Control == null) return;
+
+            _connectingCover = new Panel { Dock = DockStyle.Fill, BackColor = InterfaceControl.BackColor };
+            InterfaceControl.Controls.Add(_connectingCover);
+            _connectingCover.BringToFront();
+        }
+
+        private void RemoveConnectingCover()
+        {
+            if (_connectingCover == null) return;
+
+            _connectingCover.Parent?.Controls.Remove(_connectingCover);
+            _connectingCover.Dispose();
+            _connectingCover = null;
         }
 
         private void RDPEvent_OnLoginComplete()

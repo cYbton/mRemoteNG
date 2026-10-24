@@ -188,7 +188,8 @@ namespace mRemoteNG.UI.Tabs
 
         private IContainer Components { get; }
 
-        // sysprep fork: the theme's tab font in the size set in the options (Appearance)
+        // sysprep fork: the theme's tab font in the program font size set in the options (Appearance);
+        // the default 8.25 leaves the theme's font as it is
         public Font TextFont => GetSizedTabFont(DockPane.DockPanel.Theme.Skin.DockPaneStripSkin.TextFont);
 
         private static Font s_tabFontSource;
@@ -196,8 +197,8 @@ namespace mRemoteNG.UI.Tabs
 
         private static Font GetSizedTabFont(Font themeFont)
         {
-            float size = OptionsAppearancePage.Default.TreeAndTabFontSize;
-            if (themeFont == null || size <= 0 || Math.Abs(themeFont.Size - size) < 0.01f)
+            float size = OptionsAppearancePage.Default.ProgramFontSize;
+            if (themeFont == null || size <= 0 || Math.Abs(size - 8.25f) < 0.01f || Math.Abs(themeFont.Size - size) < 0.01f)
                 return themeFont;
 
             // one cached font per theme font, so the strip doesn't create a new font on every paint
@@ -1111,6 +1112,15 @@ namespace mRemoteNG.UI.Tabs
             }
 
             g.FillRectangle(DockPane.DockPanel.Theme.PaintingService.GetBrush(paint), rect);
+
+            // sysprep fork: a thin frame around every tab so the tabs stand apart from each other and from
+            // the strip - the active one in a lighter shade of its own colour, the others in the text colour
+            Color borderColor = DockPane.ActiveContent == tab.Content
+                ? ControlPaint.Light(paint, 0.6f)
+                : Color.FromArgb(90, text);
+            using (Pen borderPen = new(borderColor))
+                g.DrawRectangle(borderPen, rect.X, rect.Y, rect.Width - 1, rect.Height - 1);
+
             TextRenderer.DrawText(g, tab.Content.DockHandler.TabText, DocumentTextFont, rectText, text, DocumentTextFormat);
             if (!rectMinimizeButtonVisual.IsEmpty)
                 g.DrawImage(Properties.Resources.GlyphDown_16x, rectMinimizeButtonVisual);

@@ -15,12 +15,16 @@ namespace mRemoteNG.UI.Forms.OptionsPages
     {
         private OptRegistryAppearancePage pageRegSettingsInstance;
 
-        // sysprep fork: font size of the connection tree and the tabs, icon size in the connection tree.
+        // sysprep fork: font size of the connection tree, icon size in the connection tree,
+        // font size of the rest of the program (menus, tabs, panels, dialogs).
+        // The setting behind the tree font is still called TreeAndTabFontSize so existing values are kept.
         // Created here instead of in the designer to keep the change easy to merge with upstream.
         private MrngLabel lblTreeAndTabFontSize;
         private MrngNumericUpDown numTreeAndTabFontSize;
         private MrngLabel lblConnectionTreeIconSize;
         private MrngNumericUpDown numConnectionTreeIconSize;
+        private MrngLabel lblProgramFontSize;
+        private MrngNumericUpDown numProgramFontSize;
         private MrngLabel lblSizesRestartRequired;
 
         public AppearancePage()
@@ -37,20 +41,24 @@ namespace mRemoteNG.UI.Forms.OptionsPages
             numTreeAndTabFontSize = new MrngNumericUpDown { DecimalPlaces = 2, Increment = 0.75M, Minimum = 7.5M, Maximum = 16.5M, Width = 70, Margin = new Padding(6, 3, 3, 3) };
             lblConnectionTreeIconSize = new MrngLabel { AutoSize = true, Anchor = AnchorStyles.Left, Margin = new Padding(6, 6, 3, 3) };
             numConnectionTreeIconSize = new MrngNumericUpDown { Increment = 4M, Minimum = 16M, Maximum = 48M, Width = 70, Margin = new Padding(6, 3, 3, 3) };
+            lblProgramFontSize = new MrngLabel { AutoSize = true, Anchor = AnchorStyles.Left, Margin = new Padding(6, 6, 3, 3) };
+            numProgramFontSize = new MrngNumericUpDown { DecimalPlaces = 2, Increment = 0.75M, Minimum = 7.5M, Maximum = 16.5M, Width = 70, Margin = new Padding(6, 3, 3, 3) };
             lblSizesRestartRequired = new MrngLabel { AutoSize = true, Margin = new Padding(6, 3, 3, 6) };
 
-            TableLayoutPanel sizes = new() { ColumnCount = 2, RowCount = 3, AutoSize = true, Dock = DockStyle.Fill, Margin = new Padding(0, 6, 0, 0) };
+            TableLayoutPanel sizes = new() { ColumnCount = 2, RowCount = 4, AutoSize = true, Dock = DockStyle.Fill, Margin = new Padding(0, 6, 0, 0) };
             sizes.Controls.Add(lblTreeAndTabFontSize, 0, 0);
             sizes.Controls.Add(numTreeAndTabFontSize, 1, 0);
             sizes.Controls.Add(lblConnectionTreeIconSize, 0, 1);
             sizes.Controls.Add(numConnectionTreeIconSize, 1, 1);
-            sizes.Controls.Add(lblSizesRestartRequired, 0, 2);
+            sizes.Controls.Add(lblProgramFontSize, 0, 2);
+            sizes.Controls.Add(numProgramFontSize, 1, 2);
+            sizes.Controls.Add(lblSizesRestartRequired, 0, 3);
             sizes.SetColumnSpan(lblSizesRestartRequired, 2);
 
             tableLayoutPanelAppearance.RowCount++;
             tableLayoutPanelAppearance.RowStyles.Add(new RowStyle());
             tableLayoutPanelAppearance.Controls.Add(sizes, 0, tableLayoutPanelAppearance.RowCount - 1);
-            pnlOptions.Height += 96;
+            pnlOptions.Height += 128;
         }
 
         public override string PageName
@@ -73,6 +81,7 @@ namespace mRemoteNG.UI.Forms.OptionsPages
             chkEnableConnectionTreeAnimations.Text = Language.EnableConnectionTreeAnimations;
             lblTreeAndTabFontSize.Text = Language.TreeAndTabFontSize;
             lblConnectionTreeIconSize.Text = Language.ConnectionTreeIconSize;
+            lblProgramFontSize.Text = Language.ProgramFontSize;
             lblSizesRestartRequired.Text = Language.TakesEffectAfterRestart;
             lblRegistrySettingsUsedInfo.Text = Language.OptionsCompanyPolicyMessage;
         }
@@ -106,6 +115,7 @@ namespace mRemoteNG.UI.Forms.OptionsPages
             chkEnableConnectionTreeAnimations.Checked = Properties.OptionsAppearancePage.Default.EnableConnectionTreeAnimations;
             numTreeAndTabFontSize.Value = Math.Clamp((decimal)Properties.OptionsAppearancePage.Default.TreeAndTabFontSize, numTreeAndTabFontSize.Minimum, numTreeAndTabFontSize.Maximum);
             numConnectionTreeIconSize.Value = Math.Clamp(Properties.OptionsAppearancePage.Default.ConnectionTreeIconSize, numConnectionTreeIconSize.Minimum, numConnectionTreeIconSize.Maximum);
+            numProgramFontSize.Value = Math.Clamp((decimal)Properties.OptionsAppearancePage.Default.ProgramFontSize, numProgramFontSize.Minimum, numProgramFontSize.Maximum);
         }
 
         public override void SaveSettings()
@@ -146,6 +156,7 @@ namespace mRemoteNG.UI.Forms.OptionsPages
             Properties.OptionsAppearancePage.Default.EnableConnectionTreeAnimations = chkEnableConnectionTreeAnimations.Checked;
             Properties.OptionsAppearancePage.Default.TreeAndTabFontSize = (float)numTreeAndTabFontSize.Value;
             Properties.OptionsAppearancePage.Default.ConnectionTreeIconSize = (int)numConnectionTreeIconSize.Value;
+            Properties.OptionsAppearancePage.Default.ProgramFontSize = (float)numProgramFontSize.Value;
         }
 
         public override void LoadRegistrySettings()

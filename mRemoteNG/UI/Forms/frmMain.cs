@@ -204,6 +204,13 @@ namespace mRemoteNG.UI.Forms
 
         #region Startup & Shutdown
 
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+            // sysprep fork: program font size from the options, after FrmMain_Load has built menus and panels
+            UiFontScaler.Apply(this);
+        }
+
         private void FrmMain_Load(object sender, EventArgs e)
         {
             MessageCollector messageCollector = Runtime.MessageCollector;
@@ -813,9 +820,11 @@ namespace mRemoteNG.UI.Forms
         public void ShowHidePanelTabs(DockContent? closingDocument = null)
         {
             DocumentStyle newDocumentStyle;
-            bool hasConnectionWindows = pnlDock.Contents.OfType<ConnectionWindow>().Any();
 
-            if (Properties.OptionsTabsPanelsPage.Default.AlwaysShowPanelTabs || hasConnectionWindows)
+            // sysprep fork: as in 1.76 - the panel tabs only show when the option asks for them or more
+            // than one panel is open. 1.78 showed them as soon as any connection panel existed, which made
+            // "Always show panel tabs" ineffective (the "General" panel exists with every open connection).
+            if (Properties.OptionsTabsPanelsPage.Default.AlwaysShowPanelTabs)
             {
                 newDocumentStyle = DocumentStyle.DockingWindow; // Show the panel tabs
             }

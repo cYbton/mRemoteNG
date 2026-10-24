@@ -213,7 +213,11 @@ namespace mRemoteNG.UI.Forms.OptionsPages
         /// </summary>
         private static string ColorKeyDisplayName(string key)
         {
-            return ColorKeyJaMap.TryGetValue(key, out var jp) ? jp : key;
+            // sysprep fork: the Japanese labels only for a Japanese UI - they were shown for every language
+            if (System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ja" &&
+                ColorKeyJaMap.TryGetValue(key, out var jp))
+                return jp;
+            return key.Replace('_', ' ');
         }
 
         // Japanese display labels for the palette keys defined in

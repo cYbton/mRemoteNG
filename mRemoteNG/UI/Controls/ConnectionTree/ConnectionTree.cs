@@ -114,7 +114,12 @@ namespace mRemoteNG.UI.Controls.ConnectionTree
         private void ApplyTheme()
         {
             if (!_themeManager.ActiveAndExtended)
+            {
+                // sysprep fork: back to the Windows glyphs when theming is switched off
+                if (TreeColumnRenderer is ThemedTreeRenderer)
+                    TreeColumnRenderer = new TreeRenderer();
                 return;
+            }
 
             ExtendedColorPalette themePalette = _themeManager.ActiveTheme.ExtendedPalette;
 
@@ -124,6 +129,13 @@ namespace mRemoteNG.UI.Controls.ConnectionTree
             SelectedForeColor = themePalette.getColor("Treeview_SelectedItem_Active_Foreground");
             UnfocusedSelectedBackColor = themePalette.getColor("Treeview_SelectedItem_Inactive_Background");
             UnfocusedSelectedForeColor = themePalette.getColor("Treeview_SelectedItem_Inactive_Foreground");
+
+            // sysprep fork: expand/collapse glyphs in the theme colours instead of the white plus/minus boxes
+            TreeColumnRenderer = new ThemedTreeRenderer
+            {
+                GlyphColor = System.Drawing.Color.FromArgb(170, ForeColor),
+                GlyphHotColor = ForeColor
+            };
         }
 
         protected override void Dispose(bool disposing)
