@@ -459,9 +459,29 @@ namespace mRemoteNG.UI.Forms
             // prompt for the profile password before the connection set is loaded.
             ProgramRoot.CloseSplash();
             new CredsAndConsSetup().LoadCredsAndCons();
+            Application.Idle += PreloadRdpClientOnIdle;
 
             PromptForUpdatesPreference();
             await CheckForUpdates();
+        }
+
+        // sysprep fork: the first RDP connection after the start loaded the RDP ActiveX control (mstscax.dll)
+        // on the UI thread - the window hung for a moment and the double-click seemed lost. It is loaded once
+        // in advance, as soon as the program is idle after starting.
+        private void PreloadRdpClientOnIdle(object sender, EventArgs e)
+        {
+            Application.Idle -= PreloadRdpClientOnIdle;
+            try
+            {
+                Stopwatch stopwatch = Stopwatch.StartNew();
+                new Connection.Protocol.RDP.RdpProtocolFactory().Build(Connection.Protocol.RDP.RdpVersion.Highest);
+                Runtime.MessageCollector.AddMessage(MessageClass.InformationMsg,
+                    $"RDP client preloaded in {stopwatch.ElapsedMilliseconds} ms.", true);
+            }
+            catch (Exception ex)
+            {
+                Runtime.MessageCollector.AddMessage(MessageClass.WarningMsg, $"Preloading the RDP client failed: {ex.Message}", true);
+            }
         }
 
         private void PromptForUpdatesPreference()
