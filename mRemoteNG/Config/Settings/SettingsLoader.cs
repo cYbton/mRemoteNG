@@ -192,6 +192,9 @@ namespace mRemoteNG.Config.Settings
             }
 
             Properties.App.Default.DoUpgrade = false;
+            // sysprep fork: saved right away - otherwise a crash before a normal exit ran the upgrade again on the
+            // next start and overwrote options changed in between
+            Properties.App.Default.Save();
 
             // Clear pending update flag
             // This is used for automatic updates, not for settings migration, but it

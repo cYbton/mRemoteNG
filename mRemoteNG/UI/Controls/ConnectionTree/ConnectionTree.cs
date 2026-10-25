@@ -489,15 +489,22 @@ namespace mRemoteNG.UI.Controls.ConnectionTree
 
         private void PaintAreaBelowLastNode()
         {
-            int count = GetItemCount();
-            if (count == 0 || !IsHandleCreated) return;
+            try
+            {
+                int count = GetItemCount();
+                if (count == 0 || !IsHandleCreated || IsDisposed) return;
 
-            int top = Math.Max(0, GetItemRect(count - 1).Bottom);
-            if (top >= ClientSize.Height) return;
+                int top = Math.Max(0, GetItemRect(count - 1).Bottom);
+                if (top >= ClientSize.Height) return;
 
-            using System.Drawing.Graphics graphics = CreateGraphics();
-            using System.Drawing.SolidBrush brush = new(BackColor);
-            graphics.FillRectangle(brush, 0, top, ClientSize.Width, ClientSize.Height - top);
+                using System.Drawing.Graphics graphics = CreateGraphics();
+                using System.Drawing.SolidBrush brush = new(BackColor);
+                graphics.FillRectangle(brush, 0, top, ClientSize.Width, ClientSize.Height - top);
+            }
+            catch (Exception)
+            {
+                // only cosmetic - never let a paint fail
+            }
         }
 
         private void PopulateTreeView(ConnectionTreeModel newModel)

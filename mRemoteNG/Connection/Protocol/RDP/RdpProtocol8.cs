@@ -281,6 +281,15 @@ namespace mRemoteNG.Connection.Protocol.RDP
                                    InterfaceControl.ClientSize.Height - InterfaceControl.Padding.Vertical)
                         : InterfaceControl.Size;
 
+                // sysprep fork: no resize while the tab is hidden or collapsed (e.g. minimized into the auto-hide
+                // strip) - the session would shrink to the minimum and rearrange the desktop icons
+                if (fitToWindow && (!InterfaceControl.Visible || size.Width < 200 || size.Height < 200))
+                {
+                    Runtime.MessageCollector.AddMessage(MessageClass.DebugMsg,
+                        $"Resize skipped for '{connectionInfo.Hostname}': panel hidden or smaller than 200 px");
+                    return;
+                }
+
                 // sysprep fork: the session accepts 200 to 8192 pixels per side; outside of that the call
                 // fails (a narrow panel next to a wide tree) and would end in a reconnect. An even width
                 // avoids the client rounding it and scaling the picture by one pixel.

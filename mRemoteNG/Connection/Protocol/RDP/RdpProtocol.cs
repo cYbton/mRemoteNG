@@ -979,6 +979,7 @@ namespace mRemoteNG.Connection.Protocol.RDP
             bool reconnectAttemptFailed = ReconnectGroup is { IsDisposed: false };
             if (!reconnectAttemptFailed)
                 RemoveConnectingCover();
+            bool hadSession = loginComplete; // sysprep fork: before OnSessionDisconnected resets it
             OnSessionDisconnected();
             const int UI_ERR_NORMAL_DISCONNECT = 0xB08;
             if (discReason != UI_ERR_NORMAL_DISCONNECT)
@@ -990,19 +991,37 @@ namespace mRemoteNG.Connection.Protocol.RDP
             // sysprep fork: no reconnect when the session was taken over by another connection (the same user
             // signing in from somewhere else) - two clients with automatic reconnect took it from each other
             // every few seconds. The tab closes as it does without the reconnect option.
-            bool replacedByOtherConnection =
-                _rdpClient.ExtendedDisconnectReason == ExtendedDisconnectReasonCode.exDiscReasonReplacedByOtherConnection;
+            ExtendedDisconnectReasonCode extendedReason = _rdpClient.ExtendedDisconnectReason;
+            bool replacedByOtherConnection = extendedReason == ExtendedDisconnectReasonCode.exDiscReasonReplacedByOtherConnection;
 
-            if (Properties.OptionsAdvancedPage.Default.ReconnectOnDisconnect && !replacedByOtherConnection)
+            if (reconnectAttemptFailed && Properties.OptionsAdvancedPage.Default.ReconnectOnDisconnect)
             {
-                if (reconnectAttemptFailed)
-                {
-                    // sysprep fork: the same box polls again - a new one with every attempt flashed up and
-                    // always started grey again
-                    ReconnectGroup.ServerReady = false;
+                // sysprep fork: the same box polls again - a new one with every attempt flashed up and always
+                // started grey again. After MaxReconnectAttempts it stops (red) and waits for Close.
+                ReconnectGroup.ServerReady = false;
+                if (++_reconnectAttempts < MaxReconnectAttempts)
                     tmrReconnect.Enabled = true;
-                    return;
-                }
+                return;
+            }
+
+            // sysprep fork: a new reconnect box only when a session was running and ended without the user
+            // asking for it. Not when the first connect failed (wrong password, declined certificate - retrying
+            // would repeat the prompt or lock the account), not after "Disconnect" here (1) or in the session
+            // (2), not when another connection took the session over.
+            const int disconnectReasonLocal = 1;
+            const int disconnectReasonRemoteByUser = 2;
+            bool reconnect = Properties.OptionsAdvancedPage.Default.ReconnectOnDisconnect &&
+                             hadSession && !replacedByOtherConnection &&
+                             discReason != disconnectReasonLocal && discReason != disconnectReasonRemoteByUser;
+
+            if (reconnect)
+            {
+                // A session that ended (sign-out, or the server shutting down for a restart) is only reconnected
+                // once the server was seen down - after a plain sign-out it stays up, and the tab closes then.
+                _waitForServerDown = extendedReason is ExtendedDisconnectReasonCode.exDiscReasonAPIInitiatedLogoff
+                                                    or ExtendedDisconnectReasonCode.exDiscReasonLogoffByUser;
+                _reconnectStartedUtc = DateTime.UtcNow;
+                _reconnectAttempts = 0;
 
                 ReconnectGroup = new ReconnectGroup();
                 ReconnectGroup.CloseClicked += Event_ReconnectGroupCloseClicked;
@@ -1118,7 +1137,13 @@ namespace mRemoteNG.Connection.Protocol.RDP
         
         #region Reconnect Stuff
 
-        private int _reconnectCheckRunning; // sysprep fork
+        // sysprep fork: state of the automatic reconnect
+        private const int MaxReconnectAttempts = 30;
+        private static readonly TimeSpan SignOutGracePeriod = TimeSpan.FromSeconds(60);
+        private int _reconnectCheckRunning;
+        private int _reconnectAttempts;
+        private bool _waitForServerDown;
+        private DateTime _reconnectStartedUtc;
 
         private void tmrReconnect_Elapsed(object sender, ElapsedEventArgs e)
         {
@@ -1132,6 +1157,22 @@ namespace mRemoteNG.Connection.Protocol.RDP
                 ReconnectGroup reconnectGroup = ReconnectGroup;
                 if (reconnectGroup == null || reconnectGroup.IsDisposed) return;
 
+                // sysprep fork: after the session ended, wait until the server is seen down (a restart). Still
+                // up after a minute means a plain sign-out - the tab closes as without automatic reconnect.
+                if (_waitForServerDown)
+                {
+                    if (srvReady)
+                    {
+                        if (DateTime.UtcNow - _reconnectStartedUtc > SignOutGracePeriod)
+                        {
+                            tmrReconnect.Enabled = false;
+                            InterfaceControl?.BeginInvoke(new Action(Close));
+                        }
+                        return;
+                    }
+                    _waitForServerDown = false;
+                }
+
                 reconnectGroup.ServerReady = srvReady;
 
                 if (!reconnectGroup.ReconnectWhenReady || !srvReady) return;
@@ -1140,7 +1181,7 @@ namespace mRemoteNG.Connection.Protocol.RDP
                 // sysprep fork: the box stays (green) while connecting and goes once the session is back
                 // (RDPEvent_OnConnected); a failed attempt starts the polling again (RDPEvent_OnDisconnected).
                 // Connected on the UI thread the ActiveX control belongs to.
-                InterfaceControl?.BeginInvoke(new Action(() => _rdpClient.Connect()));
+                InterfaceControl?.BeginInvoke(new Action(ReconnectNow));
             }
             catch (Exception ex)
             {
@@ -1151,6 +1192,27 @@ namespace mRemoteNG.Connection.Protocol.RDP
             finally
             {
                 Interlocked.Exchange(ref _reconnectCheckRunning, 0);
+            }
+        }
+
+        // sysprep fork: the tab may have been closed meanwhile; a failure starts the polling again instead of
+        // reaching the unhandled-exception dialog with the box left green
+        private void ReconnectNow()
+        {
+            if (Control == null || Control.IsDisposed || ReconnectGroup is not { IsDisposed: false }) return;
+
+            try
+            {
+                _rdpClient.Connect();
+            }
+            catch (Exception ex)
+            {
+                Runtime.MessageCollector.AddExceptionMessage(
+                    string.Format(Language.AutomaticReconnectError, connectionInfo.Hostname),
+                    ex, MessageClass.WarningMsg, false);
+                ReconnectGroup.ServerReady = false;
+                if (++_reconnectAttempts < MaxReconnectAttempts)
+                    tmrReconnect.Enabled = true;
             }
         }
 
