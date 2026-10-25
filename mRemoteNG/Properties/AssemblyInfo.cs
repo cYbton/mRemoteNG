@@ -10,7 +10,7 @@ using System.Resources;
 
 // Compute version values
 
-//sysprep release: 2
+//sysprep release: 3
 
 // General Information
 [assembly: AssemblyTitle("mRemoteNG")]
@@ -23,7 +23,7 @@ using System.Resources;
 [assembly: AssemblyCulture("")]
 
 // Version information
-[assembly: AssemblyVersion("1.78.2.2")]
-[assembly: AssemblyFileVersion("1.78.2.2")]
+[assembly: AssemblyVersion("1.78.2.3")]
+[assembly: AssemblyFileVersion("1.78.2.3")]
 [assembly: NeutralResourcesLanguageAttribute("en-US")]
-[assembly: AssemblyInformationalVersion("1.78.2 (sysprep.io.2) x64")]
+[assembly: AssemblyInformationalVersion("1.78.2 (sysprep.io.3) x64")]

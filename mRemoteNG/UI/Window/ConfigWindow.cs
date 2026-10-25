@@ -536,16 +536,38 @@ namespace mRemoteNG.UI.Window
                 if (_pGrid.SelectedObject is not ConnectionInfo || _pGrid.SelectedObject is PuttySessionInfo) return;
                 CMenIcons.Items.Clear();
 
+                // sysprep fork: one submenu per icon set and category (the icon's path below Icons) instead of a
+                // flat list of about 1000 icons; the pictures of a submenu are only loaded when it opens
                 foreach (string iStr in ConnectionIcon.Icons)
                 {
-                    ToolStripMenuItem tI = new()
+                    ToolStripItemCollection items = CMenIcons.Items;
+                    string[] parts = iStr.Split('\\');
+                    for (int i = 0; i < parts.Length - 1; i++)
                     {
-                        Text = iStr,
-                        Image = ConnectionIcon.FromString(iStr).ToBitmap()
-                    };
-                    tI.Click += IconMenu_Click;
+                        ToolStripMenuItem folder = null;
+                        foreach (ToolStripItem existing in items)
+                        {
+                            if (existing is ToolStripMenuItem { Tag: null } menuItem && menuItem.Text == parts[i])
+                            {
+                                folder = menuItem;
+                                break;
+                            }
+                        }
 
-                    CMenIcons.Items.Add(tI);
+                        if (folder == null)
+                        {
+                            folder = new ToolStripMenuItem(parts[i]);
+                            folder.DropDownOpening += IconFolderMenu_DropDownOpening;
+                            items.Add(folder);
+                        }
+                        items = folder.DropDownItems;
+                    }
+
+                    ToolStripMenuItem tI = new() { Text = parts[^1], Tag = iStr };
+                    if (parts.Length == 1)
+                        tI.Image = ConnectionIcon.FromString(iStr)?.ToBitmap();
+                    tI.Click += IconMenu_Click;
+                    items.Add(tI);
                 }
 
                 Point mPos = new(new Size(PointToScreen(new Point(e.Location.X + _pGrid.Width - 100, e.Location.Y))));
@@ -554,6 +576,18 @@ namespace mRemoteNG.UI.Window
             catch (Exception ex)
             {
                 Runtime.MessageCollector.AddMessage(MessageClass.ErrorMsg, Language.ConfigPropertyGridButtonIconClickFailed + Environment.NewLine + ex.Message, true);
+            }
+        }
+
+        // sysprep fork: loads the pictures of the icons in a submenu of the icon menu when it opens
+        private static void IconFolderMenu_DropDownOpening(object sender, EventArgs e)
+        {
+            if (sender is not ToolStripMenuItem folder) return;
+
+            foreach (ToolStripItem item in folder.DropDownItems)
+            {
+                if (item is ToolStripMenuItem { Tag: string iconName, Image: null } iconItem)
+                    iconItem.Image = ConnectionIcon.FromString(iconName)?.ToBitmap();
             }
         }
 
@@ -566,7 +600,8 @@ namespace mRemoteNG.UI.Window
 
                 ToolStripMenuItem selectedMenuItem = (ToolStripMenuItem)sender;
 
-                string iconName = selectedMenuItem?.Text;
+                // sysprep fork: the icon's full path below Icons (the menu text is only its file name)
+                string iconName = selectedMenuItem?.Tag as string ?? selectedMenuItem?.Text;
                 if (string.IsNullOrEmpty(iconName)) return;
 
                 Icon connectionIcon = ConnectionIcon.FromString(iconName);

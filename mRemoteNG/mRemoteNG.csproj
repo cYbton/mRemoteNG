@@ -13,7 +13,7 @@
     <TransformOnBuild>true</TransformOnBuild>
     <TransformOutOfDateOnly>false</TransformOutOfDateOnly>
     <OverwriteReadOnlyOutputFiles>true</OverwriteReadOnlyOutputFiles>
-    <ApplicationIcon>Icons\mRemoteNG.ico</ApplicationIcon>
+    <ApplicationIcon>Icons\mRemoteNG\mRemoteNG.ico</ApplicationIcon>
     <Version>1.78.2-dev</Version>
     <Description>Multi-protocol remote connections manager</Description>
     <Copyright>$([System.DateTime]::Now.Year) mRemoteNG Dev Team, 2010-2013 Riley McArdle, 2007-2009 Felix Deimel</Copyright>
@@ -288,124 +288,124 @@
       <Generator>TextTemplatingFileGenerator</Generator>
     </None>
     <!-- sysprep fork: the icon sets of the sysprep.io training labs (see Icons\NOTICE.md) -->
-    <None Update="Icons\azure2\**\*.ico;Icons\citrix2\**\*.ico;Icons\networks2\**\*.ico;Icons\mRemoteNG\**\*.ico;Icons\mRemoteNG\README.md;Icons\NOTICE.md">
+    <None Update="Icons\azure2\**\*.ico;Icons\citrix2\**\*.ico;Icons\networks2\**\*.ico;Icons\bearlikelion\**\*.ico;Icons\bearlikelion\README.md;Icons\NOTICE.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Icons\Admin.ico">
+    <None Update="Icons\mRemoteNG\Admin.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Icons\Anti Virus.ico">
+    <None Update="Icons\mRemoteNG\Anti Virus.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Icons\Apple.ico">
+    <None Update="Icons\mRemoteNG\Apple.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Icons\Backup.ico">
+    <None Update="Icons\mRemoteNG\Backup.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Icons\Build Server.ico">
+    <None Update="Icons\mRemoteNG\Build Server.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Icons\Console.ico">
+    <None Update="Icons\mRemoteNG\Console.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Icons\Database.ico">
+    <None Update="Icons\mRemoteNG\Database.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Icons\Domain Controller.ico">
+    <None Update="Icons\mRemoteNG\Domain Controller.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Icons\ESX.ico">
+    <None Update="Icons\mRemoteNG\ESX.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Icons\Fax.ico">
+    <None Update="Icons\mRemoteNG\Fax.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Icons\File Server.ico">
+    <None Update="Icons\mRemoteNG\File Server.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Icons\Finance.ico">
+    <None Update="Icons\mRemoteNG\Finance.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Icons\Firewall.ico">
+    <None Update="Icons\mRemoteNG\Firewall.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Icons\Infrastructure.ico">
+    <None Update="Icons\mRemoteNG\Infrastructure.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Icons\Linux.ico">
+    <None Update="Icons\mRemoteNG\Linux.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Icons\Log.ico">
+    <None Update="Icons\mRemoteNG\Log.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Icons\Mail Server.ico">
+    <None Update="Icons\mRemoteNG\Mail Server.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Icons\mRemote.ico">
+    <None Update="Icons\mRemoteNG\mRemote.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Icons\mRemoteNG.ico">
+    <None Update="Icons\mRemoteNG\mRemoteNG.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Icons\PowerShell.ico">
+    <None Update="Icons\mRemoteNG\PowerShell.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Icons\WSL.ico">
+    <None Update="Icons\mRemoteNG\WSL.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Icons\Production.ico">
+    <None Update="Icons\mRemoteNG\Production.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Icons\PuTTY.ico">
+    <None Update="Icons\mRemoteNG\PuTTY.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Icons\RaspberryPi.ico">
+    <None Update="Icons\mRemoteNG\RaspberryPi.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Icons\Remote Desktop.ico">
+    <None Update="Icons\mRemoteNG\Remote Desktop.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Icons\Router.ico">
+    <None Update="Icons\mRemoteNG\Router.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Icons\SharePoint.ico">
+    <None Update="Icons\mRemoteNG\SharePoint.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Icons\SSH.ico">
+    <None Update="Icons\mRemoteNG\SSH.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Icons\Staging.ico">
+    <None Update="Icons\mRemoteNG\Staging.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Icons\Switch.ico">
+    <None Update="Icons\mRemoteNG\Switch.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Icons\Tel.ico">
+    <None Update="Icons\mRemoteNG\Tel.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Icons\Telnet.ico">
+    <None Update="Icons\mRemoteNG\Telnet.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Icons\Terminal Server.ico">
+    <None Update="Icons\mRemoteNG\Terminal Server.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Icons\Test Server.ico">
+    <None Update="Icons\mRemoteNG\Test Server.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Icons\Virtual Machine.ico">
+    <None Update="Icons\mRemoteNG\Virtual Machine.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Icons\Web Server.ico">
+    <None Update="Icons\mRemoteNG\Web Server.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Icons\WiFi.ico">
+    <None Update="Icons\mRemoteNG\WiFi.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Icons\Windows.ico">
+    <None Update="Icons\mRemoteNG\Windows.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Icons\Workstation.ico">
+    <None Update="Icons\mRemoteNG\Workstation.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="log4net.config">

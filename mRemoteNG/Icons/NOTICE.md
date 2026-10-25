@@ -9,8 +9,8 @@ and products of those training environments.
 | `azure2` | Microsoft Azure Architecture Icons, as included in draw.io | Microsoft. Use permitted for architecture diagrams, training materials and documentation - see the icon terms at https://learn.microsoft.com/azure/architecture/icons/ |
 | `citrix2` | Citrix shape library of draw.io, rendered with a thicker outline at small sizes | Citrix / Cloud Software Group. Citrix and the Citrix product names are trademarks of Cloud Software Group, Inc. |
 | `networks2` | Network shape library of draw.io (JGraph) | JGraph, see https://github.com/jgraph/drawio (icon sets may not be used in Atlassian products) |
-| `mRemoteNG` | Community icon collection for mRemoteNG (see its README.md) | Their respective authors |
-| `*.ico` in this folder | mRemoteNG | mRemoteNG project, GPL-2.0 |
+| `bearlikelion` | Community icon collection for mRemoteNG by bearlikelion, https://github.com/bearlikelion/mRemoteNG-Icons (see its README.md) | bearlikelion and the respective authors |
+| `mRemoteNG` | mRemoteNG's own icons | mRemoteNG project, GPL-2.0 |
 
 All trademarks, product names and logos belong to their respective owners. Their use here does not imply
 endorsement by them. The icons are converted to .ico without changing their shape (`sysprep/IconBuilder`).

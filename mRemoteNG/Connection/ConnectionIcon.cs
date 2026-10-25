@@ -33,6 +33,11 @@ namespace mRemoteNG.Connection
             {
                 string iconPath = $"{GeneralAppInfo.HomePath}\\Icons\\{iconName}.ico";
 
+                // sysprep fork: mRemoteNG's own icons are in Icons\mRemoteNG - connection files written for the
+                // original layout name them without a folder ("Windows", the default "mRemoteNG")
+                if (!System.IO.File.Exists(iconPath) && !iconName.Contains('\\') && !iconName.Contains('/'))
+                    iconPath = $"{GeneralAppInfo.HomePath}\\Icons\\mRemoteNG\\{iconName}.ico";
+
                 if (System.IO.File.Exists(iconPath))
                 {
                     System.Drawing.Icon nI = new(iconPath);

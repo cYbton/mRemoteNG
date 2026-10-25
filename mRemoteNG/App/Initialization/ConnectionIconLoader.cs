@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Runtime.Versioning;
 using mRemoteNG.Connection;
 
@@ -24,12 +25,15 @@ namespace mRemoteNG.App.Initialization
             if (Directory.Exists(_path) == false)
                 return;
 
-            foreach (string f in Directory.GetFiles(_path, "*.ico", SearchOption.AllDirectories))
-            {
-                FileInfo fInfo = new(f);
-                Array.Resize(ref ConnectionIcon.Icons, ConnectionIcon.Icons.Length + 1);
-                ConnectionIcon.Icons.SetValue(fInfo.Name.Replace(".ico", ""), ConnectionIcon.Icons.Length - 1);
-            }
+            // sysprep fork: the icons are sorted into sets (Icons\mRemoteNG, Icons\azure2\<category>, ...) - the
+            // list offers each with its path below Icons, which is the value ConnectionIcon.FromString loads.
+            // With the bare file name, picking an icon from a subfolder left the connection without one.
+            string root = Path.GetFullPath(_path).TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
+            string[] names = Directory.GetFiles(root, "*.ico", SearchOption.AllDirectories)
+                .Select(f => Path.ChangeExtension(f.Substring(root.Length), null))
+                .OrderBy(name => name, StringComparer.OrdinalIgnoreCase)
+                .ToArray();
+            ConnectionIcon.Icons = [.. ConnectionIcon.Icons, .. names];
         }
     }
 }

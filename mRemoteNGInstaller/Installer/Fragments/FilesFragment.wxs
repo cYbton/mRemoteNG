@@ -127,118 +127,118 @@
                 <File Id="filCD70EE978626DA4828A50601DEAE5556" KeyPath="yes" Source="$(var.HarvestPath)\Languages\hu\mRemoteNG.resources.dll" />
             </Component>
             <Component Id="cmp60BEB4749EF0B6350757C1422ED72958" Directory="dir5E6DA158F27D9CA2AB915EC6AB53B383">
-                <File Id="fil0F9CE0F66286B9AFBF21C2D7C69307CD" KeyPath="yes" Source="$(var.HarvestPath)\Icons\Admin.ico" />
+                <File Id="fil0F9CE0F66286B9AFBF21C2D7C69307CD" KeyPath="yes" Source="$(var.HarvestPath)\Icons\mRemoteNG\Admin.ico" />
             </Component>
             <Component Id="cmpED2DD5896F248BE55F55F7D303D3C421" Directory="dir5E6DA158F27D9CA2AB915EC6AB53B383">
-                <File Id="fil873376CA2A3FB0F84C2411CED15C106A" KeyPath="yes" Source="$(var.HarvestPath)\Icons\Anti Virus.ico" />
+                <File Id="fil873376CA2A3FB0F84C2411CED15C106A" KeyPath="yes" Source="$(var.HarvestPath)\Icons\mRemoteNG\Anti Virus.ico" />
             </Component>
             <Component Id="cmpCEBE14E8CB8DF6D4DB964C604F4C52E5" Directory="dir5E6DA158F27D9CA2AB915EC6AB53B383">
-                <File Id="fil7B0D51A58C760E23703EF3E8011830C3" KeyPath="yes" Source="$(var.HarvestPath)\Icons\Apple.ico" />
+                <File Id="fil7B0D51A58C760E23703EF3E8011830C3" KeyPath="yes" Source="$(var.HarvestPath)\Icons\mRemoteNG\Apple.ico" />
             </Component>
             <Component Id="cmpC4484761964AFB973D742B67A2B4DFFB" Directory="dir5E6DA158F27D9CA2AB915EC6AB53B383">
-                <File Id="fil1ED3A3A85443AB8D0433ACF1D913E016" KeyPath="yes" Source="$(var.HarvestPath)\Icons\Backup.ico" />
+                <File Id="fil1ED3A3A85443AB8D0433ACF1D913E016" KeyPath="yes" Source="$(var.HarvestPath)\Icons\mRemoteNG\Backup.ico" />
             </Component>
             <Component Id="cmp75F908087E133D7E5632C2AED7151821" Directory="dir5E6DA158F27D9CA2AB915EC6AB53B383">
-                <File Id="filE9E31F517253037124BD42C0B830308A" KeyPath="yes" Source="$(var.HarvestPath)\Icons\Build Server.ico" />
+                <File Id="filE9E31F517253037124BD42C0B830308A" KeyPath="yes" Source="$(var.HarvestPath)\Icons\mRemoteNG\Build Server.ico" />
             </Component>
             <Component Id="cmp260080F4032811F69C7BF593C3807932" Directory="dir5E6DA158F27D9CA2AB915EC6AB53B383">
-                <File Id="filF7312E739B72C02EC1098913FDE7698B" KeyPath="yes" Source="$(var.HarvestPath)\Icons\Console.ico" />
+                <File Id="filF7312E739B72C02EC1098913FDE7698B" KeyPath="yes" Source="$(var.HarvestPath)\Icons\mRemoteNG\Console.ico" />
             </Component>
             <Component Id="cmp1FEE635B776DFA8B857CF52387E93B93" Directory="dir5E6DA158F27D9CA2AB915EC6AB53B383">
-                <File Id="filA9262D06955016AA04A76B15E611228A" KeyPath="yes" Source="$(var.HarvestPath)\Icons\Database.ico" />
+                <File Id="filA9262D06955016AA04A76B15E611228A" KeyPath="yes" Source="$(var.HarvestPath)\Icons\mRemoteNG\Database.ico" />
             </Component>
             <Component Id="cmpDD752B1D3920971301E59D0F4330E5B8" Directory="dir5E6DA158F27D9CA2AB915EC6AB53B383">
-                <File Id="fil6A9F3BD0A4CA8EB392313F538160451D" KeyPath="yes" Source="$(var.HarvestPath)\Icons\Domain Controller.ico" />
+                <File Id="fil6A9F3BD0A4CA8EB392313F538160451D" KeyPath="yes" Source="$(var.HarvestPath)\Icons\mRemoteNG\Domain Controller.ico" />
             </Component>
             <Component Id="cmp7529A80522BE2F489CE29A77CDE75563" Directory="dir5E6DA158F27D9CA2AB915EC6AB53B383">
-                <File Id="filD387F7B3BA1F144C87CDF3F073F693BE" KeyPath="yes" Source="$(var.HarvestPath)\Icons\ESX.ico" />
+                <File Id="filD387F7B3BA1F144C87CDF3F073F693BE" KeyPath="yes" Source="$(var.HarvestPath)\Icons\mRemoteNG\ESX.ico" />
             </Component>
             <Component Id="cmp98A4AAF5CE7D08D38B45DAAC292DAAE9" Directory="dir5E6DA158F27D9CA2AB915EC6AB53B383">
-                <File Id="filE66B101D07CEC7355D5E27FD16F9D560" KeyPath="yes" Source="$(var.HarvestPath)\Icons\Fax.ico" />
+                <File Id="filE66B101D07CEC7355D5E27FD16F9D560" KeyPath="yes" Source="$(var.HarvestPath)\Icons\mRemoteNG\Fax.ico" />
             </Component>
             <Component Id="cmpE7A35D214B596D7DED53C644415D383B" Directory="dir5E6DA158F27D9CA2AB915EC6AB53B383">
-                <File Id="fil9800B5F2226ACF226E3A84F65CCB0EE6" KeyPath="yes" Source="$(var.HarvestPath)\Icons\File Server.ico" />
+                <File Id="fil9800B5F2226ACF226E3A84F65CCB0EE6" KeyPath="yes" Source="$(var.HarvestPath)\Icons\mRemoteNG\File Server.ico" />
             </Component>
             <Component Id="cmp5099815041FF29F109B8B372E04C224D" Directory="dir5E6DA158F27D9CA2AB915EC6AB53B383">
-                <File Id="fil9BA0B69CC0621ED0B96B84764537649C" KeyPath="yes" Source="$(var.HarvestPath)\Icons\Finance.ico" />
+                <File Id="fil9BA0B69CC0621ED0B96B84764537649C" KeyPath="yes" Source="$(var.HarvestPath)\Icons\mRemoteNG\Finance.ico" />
             </Component>
             <Component Id="cmpFB1AAE5F37978B65BC890C43009B7479" Directory="dir5E6DA158F27D9CA2AB915EC6AB53B383">
-                <File Id="filFAE0C68FF189D979F556914FA99D658B" KeyPath="yes" Source="$(var.HarvestPath)\Icons\Firewall.ico" />
+                <File Id="filFAE0C68FF189D979F556914FA99D658B" KeyPath="yes" Source="$(var.HarvestPath)\Icons\mRemoteNG\Firewall.ico" />
             </Component>
             <Component Id="cmp3B77B3A258E1697AD8428E95F6778A8B" Directory="dir5E6DA158F27D9CA2AB915EC6AB53B383">
-                <File Id="fil920AC8203BE68BD6A62080E4A7491B84" KeyPath="yes" Source="$(var.HarvestPath)\Icons\Infrastructure.ico" />
+                <File Id="fil920AC8203BE68BD6A62080E4A7491B84" KeyPath="yes" Source="$(var.HarvestPath)\Icons\mRemoteNG\Infrastructure.ico" />
             </Component>
             <Component Id="cmpF8C16EB2F8E5F8C6E32A501AE9F091F0" Directory="dir5E6DA158F27D9CA2AB915EC6AB53B383">
-                <File Id="fil76B8A4B03FF896FA3C086EFAF182B622" KeyPath="yes" Source="$(var.HarvestPath)\Icons\Linux.ico" />
+                <File Id="fil76B8A4B03FF896FA3C086EFAF182B622" KeyPath="yes" Source="$(var.HarvestPath)\Icons\mRemoteNG\Linux.ico" />
             </Component>
             <Component Id="cmp39A6084DEFDD6A242EB6F64ED37E343E" Directory="dir5E6DA158F27D9CA2AB915EC6AB53B383">
-                <File Id="fil699120D8828E12D589A75E629BFAF24A" KeyPath="yes" Source="$(var.HarvestPath)\Icons\Log.ico" />
+                <File Id="fil699120D8828E12D589A75E629BFAF24A" KeyPath="yes" Source="$(var.HarvestPath)\Icons\mRemoteNG\Log.ico" />
             </Component>
             <Component Id="cmp14D7A735D9C40FAED5250CEAEDD1417D" Directory="dir5E6DA158F27D9CA2AB915EC6AB53B383">
-                <File Id="fil979943C9EDEE8950816F5C4A73976571" KeyPath="yes" Source="$(var.HarvestPath)\Icons\Mail Server.ico" />
+                <File Id="fil979943C9EDEE8950816F5C4A73976571" KeyPath="yes" Source="$(var.HarvestPath)\Icons\mRemoteNG\Mail Server.ico" />
             </Component>
             <Component Id="cmp576892BE7140AB928C8A4BBF16868C78" Directory="dir5E6DA158F27D9CA2AB915EC6AB53B383">
-                <File Id="fil5D46D49178EB9D36AA45B5A32A6B185B" KeyPath="yes" Source="$(var.HarvestPath)\Icons\mRemote.ico" />
+                <File Id="fil5D46D49178EB9D36AA45B5A32A6B185B" KeyPath="yes" Source="$(var.HarvestPath)\Icons\mRemoteNG\mRemote.ico" />
             </Component>
             <Component Id="cmpB2A85C7B04FB2075DDD83FD65A3D8119" Directory="dir5E6DA158F27D9CA2AB915EC6AB53B383">
-                <File Id="fil7089D0DA6D3D72648762BA64369418F9" KeyPath="yes" Source="$(var.HarvestPath)\Icons\mRemoteNG.ico" />
+                <File Id="fil7089D0DA6D3D72648762BA64369418F9" KeyPath="yes" Source="$(var.HarvestPath)\Icons\mRemoteNG\mRemoteNG.ico" />
             </Component>
             <Component Id="cmpAB7717112F26D1CD156E5291D682BE22" Directory="dir5E6DA158F27D9CA2AB915EC6AB53B383">
-                <File Id="fil61DA7FB9F4D7361410850C2314F05B20" KeyPath="yes" Source="$(var.HarvestPath)\Icons\PowerShell.ico" />
+                <File Id="fil61DA7FB9F4D7361410850C2314F05B20" KeyPath="yes" Source="$(var.HarvestPath)\Icons\mRemoteNG\PowerShell.ico" />
             </Component>
             <Component Id="cmpB3227F5E969B98250E85EB0763E894BE" Directory="dir5E6DA158F27D9CA2AB915EC6AB53B383">
-                <File Id="fil75083F896938EE4246E83859E5E9F1CA" KeyPath="yes" Source="$(var.HarvestPath)\Icons\Production.ico" />
+                <File Id="fil75083F896938EE4246E83859E5E9F1CA" KeyPath="yes" Source="$(var.HarvestPath)\Icons\mRemoteNG\Production.ico" />
             </Component>
             <Component Id="cmp72D990ECEF13F8280352A03E043F79BA" Directory="dir5E6DA158F27D9CA2AB915EC6AB53B383">
-                <File Id="fil24BA6D3AC06B6909D0B00A10814E576F" KeyPath="yes" Source="$(var.HarvestPath)\Icons\PuTTY.ico" />
+                <File Id="fil24BA6D3AC06B6909D0B00A10814E576F" KeyPath="yes" Source="$(var.HarvestPath)\Icons\mRemoteNG\PuTTY.ico" />
             </Component>
             <Component Id="cmp9A8A06E3833AF93B6ACE3CBDAD53AB21" Directory="dir5E6DA158F27D9CA2AB915EC6AB53B383">
-                <File Id="fil49F1D8A7FF72E173AF3CF11F7E53A3EA" KeyPath="yes" Source="$(var.HarvestPath)\Icons\RaspberryPi.ico" />
+                <File Id="fil49F1D8A7FF72E173AF3CF11F7E53A3EA" KeyPath="yes" Source="$(var.HarvestPath)\Icons\mRemoteNG\RaspberryPi.ico" />
             </Component>
             <Component Id="cmp7C686FD24868DF636E058B7820ABD142" Directory="dir5E6DA158F27D9CA2AB915EC6AB53B383">
-                <File Id="fil1CC32079F1DD2DB0FBD9DBA4AF7F08B1" KeyPath="yes" Source="$(var.HarvestPath)\Icons\Remote Desktop.ico" />
+                <File Id="fil1CC32079F1DD2DB0FBD9DBA4AF7F08B1" KeyPath="yes" Source="$(var.HarvestPath)\Icons\mRemoteNG\Remote Desktop.ico" />
             </Component>
             <Component Id="cmp43B9B03EAE26421AD5785AED6CC7B695" Directory="dir5E6DA158F27D9CA2AB915EC6AB53B383">
-                <File Id="fil50C13A2996D9F2E68AA8472DF216BB84" KeyPath="yes" Source="$(var.HarvestPath)\Icons\Router.ico" />
+                <File Id="fil50C13A2996D9F2E68AA8472DF216BB84" KeyPath="yes" Source="$(var.HarvestPath)\Icons\mRemoteNG\Router.ico" />
             </Component>
             <Component Id="cmp4A7190066C0FDAAE97B276A5AD23859E" Directory="dir5E6DA158F27D9CA2AB915EC6AB53B383">
-                <File Id="fil8246077617D85C6F0EEFFD1246DE607A" KeyPath="yes" Source="$(var.HarvestPath)\Icons\SharePoint.ico" />
+                <File Id="fil8246077617D85C6F0EEFFD1246DE607A" KeyPath="yes" Source="$(var.HarvestPath)\Icons\mRemoteNG\SharePoint.ico" />
             </Component>
             <Component Id="cmp44C3B2CAEB323433EA33B7EC1A1DF883" Directory="dir5E6DA158F27D9CA2AB915EC6AB53B383">
-                <File Id="filE4724A058834682D35A1D03229A192A6" KeyPath="yes" Source="$(var.HarvestPath)\Icons\SSH.ico" />
+                <File Id="filE4724A058834682D35A1D03229A192A6" KeyPath="yes" Source="$(var.HarvestPath)\Icons\mRemoteNG\SSH.ico" />
             </Component>
             <Component Id="cmp70CC9D4FBC0D87CE13C4E68C0375FF58" Directory="dir5E6DA158F27D9CA2AB915EC6AB53B383">
-                <File Id="fil0ACD18012073615047B7F5810E0248B2" KeyPath="yes" Source="$(var.HarvestPath)\Icons\Staging.ico" />
+                <File Id="fil0ACD18012073615047B7F5810E0248B2" KeyPath="yes" Source="$(var.HarvestPath)\Icons\mRemoteNG\Staging.ico" />
             </Component>
             <Component Id="cmpA80D6ED557A1172E9E25577657315D6E" Directory="dir5E6DA158F27D9CA2AB915EC6AB53B383">
-                <File Id="filD20398CE846B212F67B77D4DDC63F075" KeyPath="yes" Source="$(var.HarvestPath)\Icons\Switch.ico" />
+                <File Id="filD20398CE846B212F67B77D4DDC63F075" KeyPath="yes" Source="$(var.HarvestPath)\Icons\mRemoteNG\Switch.ico" />
             </Component>
             <Component Id="cmp3A5D8E911572BC9B0AED10E4E955162D" Directory="dir5E6DA158F27D9CA2AB915EC6AB53B383">
-                <File Id="fil12CA3DA43ABD6FC62956584DBD774DFB" KeyPath="yes" Source="$(var.HarvestPath)\Icons\Tel.ico" />
+                <File Id="fil12CA3DA43ABD6FC62956584DBD774DFB" KeyPath="yes" Source="$(var.HarvestPath)\Icons\mRemoteNG\Tel.ico" />
             </Component>
             <Component Id="cmpF003BC60462A8B74DC28F6E0C8C5C3C0" Directory="dir5E6DA158F27D9CA2AB915EC6AB53B383">
-                <File Id="fil98C7293D55AC66939F08D2C6157572C2" KeyPath="yes" Source="$(var.HarvestPath)\Icons\Telnet.ico" />
+                <File Id="fil98C7293D55AC66939F08D2C6157572C2" KeyPath="yes" Source="$(var.HarvestPath)\Icons\mRemoteNG\Telnet.ico" />
             </Component>
             <Component Id="cmp2878B414FF374FB0AA51C5BC23398133" Directory="dir5E6DA158F27D9CA2AB915EC6AB53B383">
-                <File Id="fil2B090EAE9EF2F44CF2A3E7DAAF1105D4" KeyPath="yes" Source="$(var.HarvestPath)\Icons\Terminal Server.ico" />
+                <File Id="fil2B090EAE9EF2F44CF2A3E7DAAF1105D4" KeyPath="yes" Source="$(var.HarvestPath)\Icons\mRemoteNG\Terminal Server.ico" />
             </Component>
             <Component Id="cmp52E44780A0CAB8AC479BB15A5E8D608A" Directory="dir5E6DA158F27D9CA2AB915EC6AB53B383">
-                <File Id="fil1D9838F8B338948432C2A7788ED75FA7" KeyPath="yes" Source="$(var.HarvestPath)\Icons\Test Server.ico" />
+                <File Id="fil1D9838F8B338948432C2A7788ED75FA7" KeyPath="yes" Source="$(var.HarvestPath)\Icons\mRemoteNG\Test Server.ico" />
             </Component>
             <Component Id="cmp5B31AD89D5988BF2650DE6C3E4DB6E08" Directory="dir5E6DA158F27D9CA2AB915EC6AB53B383">
-                <File Id="filEDC891344B441EDF7B51D67BE7CFF4B8" KeyPath="yes" Source="$(var.HarvestPath)\Icons\Virtual Machine.ico" />
+                <File Id="filEDC891344B441EDF7B51D67BE7CFF4B8" KeyPath="yes" Source="$(var.HarvestPath)\Icons\mRemoteNG\Virtual Machine.ico" />
             </Component>
             <Component Id="cmp828D4378DD0AF0425CBF0D2704879F09" Directory="dir5E6DA158F27D9CA2AB915EC6AB53B383">
-                <File Id="fil6DD578D52D872E9BFFDFB56EA272118B" KeyPath="yes" Source="$(var.HarvestPath)\Icons\Web Server.ico" />
+                <File Id="fil6DD578D52D872E9BFFDFB56EA272118B" KeyPath="yes" Source="$(var.HarvestPath)\Icons\mRemoteNG\Web Server.ico" />
             </Component>
             <Component Id="cmp88965407BC570EEF9E0E78748AA64EF3" Directory="dir5E6DA158F27D9CA2AB915EC6AB53B383">
-                <File Id="fil20DFB622D98807BEAA0B349EDDEFD583" KeyPath="yes" Source="$(var.HarvestPath)\Icons\WiFi.ico" />
+                <File Id="fil20DFB622D98807BEAA0B349EDDEFD583" KeyPath="yes" Source="$(var.HarvestPath)\Icons\mRemoteNG\WiFi.ico" />
             </Component>
             <Component Id="cmp0F7C27C22955E885F3E4C68E0EC431E3" Directory="dir5E6DA158F27D9CA2AB915EC6AB53B383">
-                <File Id="filA4656BC127CB163639788BF510F253A4" KeyPath="yes" Source="$(var.HarvestPath)\Icons\Windows.ico" />
+                <File Id="filA4656BC127CB163639788BF510F253A4" KeyPath="yes" Source="$(var.HarvestPath)\Icons\mRemoteNG\Windows.ico" />
             </Component>
             <Component Id="cmp2DF86AFCC97AE4C0063FE45EBCFCB7FE" Directory="dir5E6DA158F27D9CA2AB915EC6AB53B383">
-                <File Id="fil100CAAAF0BF4C3FB196087F29DA37CDE" KeyPath="yes" Source="$(var.HarvestPath)\Icons\Workstation.ico" />
+                <File Id="fil100CAAAF0BF4C3FB196087F29DA37CDE" KeyPath="yes" Source="$(var.HarvestPath)\Icons\mRemoteNG\Workstation.ico" />
             </Component>
             <Component Id="cmpCF1D4DD52581584CB9775277B2969302" Directory="dirB5B71807E9474A6ED7A421DAF6D9317F">
                 <File Id="fil661D46FCD95364176089BD3D28019330" KeyPath="yes" Source="$(var.HarvestPath)\Languages\it\mRemoteNG.resources.dll" />
