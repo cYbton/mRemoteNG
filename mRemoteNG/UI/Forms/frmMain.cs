@@ -457,6 +457,7 @@ namespace mRemoteNG.UI.Forms
             // Close the splash screen now that the main window is already visible, then
             // prompt for the profile password before the connection set is loaded.
             ProgramRoot.CloseSplash();
+            Runtime.MessageCollector.AddMessage(MessageClass.InformationMsg, ProgramRoot.GetStartTimings(), true); // sysprep fork
             new CredsAndConsSetup().LoadCredsAndCons();
             Application.Idle += PreloadRdpClientOnIdle;
 

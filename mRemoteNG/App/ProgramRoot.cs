@@ -44,6 +44,13 @@ namespace mRemoteNG.App
             Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);
 
             AppDomain.CurrentDomain.AssemblyResolve += OnAssemblyResolve;
+
+            // sysprep fork: the splash comes first, on its own thread - everything below (SQLite, runtime check,
+            // settings) is loaded while it is already showing. On the first start of a version, Defender checks
+            // every newly loaded file, and nothing showed that mRemoteNG was starting.
+            MainEnteredUtc = DateTime.UtcNow;
+            ShowSplashOnStaThread();
+
             InitializeSqliteProvider();
 
             // Ensure the real entry point is definitely STA
@@ -262,8 +269,6 @@ namespace mRemoteNG.App
                 ? SystemColorMode.Dark
                 : SystemColorMode.Classic);
 
-            ShowSplashOnStaThread();
-
             Application.Run(FrmMain.Default);
         }
 
@@ -349,6 +354,17 @@ namespace mRemoteNG.App
             window.ShowDialog(FrmMain.Default);
         }
 
+        // sysprep fork: start timings, logged once the main window shows (FrmMain_Shown)
+        internal static DateTime MainEnteredUtc { get; private set; }
+        internal static DateTime SplashShownUtc { get; private set; }
+
+        internal static string GetStartTimings()
+        {
+            DateTime processStartUtc = Process.GetCurrentProcess().StartTime.ToUniversalTime();
+            double Since(DateTime utc) => utc == default ? double.NaN : (utc - processStartUtc).TotalMilliseconds;
+            return $"Start timings after process start: Main {Since(MainEnteredUtc):N0} ms, splash shown {Since(SplashShownUtc):N0} ms, main window shown {Since(DateTime.UtcNow):N0} ms.";
+        }
+
         private static void ShowSplashOnStaThread()
         {
             // sysprep fork: worked out here, so the settings are only read on the main thread
@@ -364,6 +380,7 @@ namespace mRemoteNG.App
 
                 _wpfSplash.ShowInTaskbar = false;
                 _wpfSplash.Show();
+                SplashShownUtc = DateTime.UtcNow; // sysprep fork
                 System.Windows.Forms.Integration.ElementHost.EnableModelessKeyboardInterop(_wpfSplash);
                 System.Windows.Threading.Dispatcher.Run(); // WPF message loop
             })
