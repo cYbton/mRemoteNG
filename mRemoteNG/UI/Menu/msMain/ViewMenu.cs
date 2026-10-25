@@ -13,6 +13,10 @@ namespace mRemoteNG.UI.Menu
     [SupportedOSPlatform("windows")]
     public class ViewMenu : ToolStripMenuItem
     {
+        // sysprep fork: Connections and Config panel back in the View menu, as in 1.76
+        private ToolStripMenuItem _mMenViewConnections;
+        private ToolStripMenuItem _mMenViewConfig;
+        private ToolStripSeparator _mMenViewSep0;
         private ToolStripMenuItem _mMenViewConnectionPanels;
         private ToolStripMenuItem _mMenReconnectAll;
         private ToolStripSeparator _mMenViewSep1;
@@ -44,6 +48,21 @@ namespace mRemoteNG.UI.Menu
 
         private void Initialize()
         {
+            _mMenViewConnections = new ToolStripMenuItem
+            {
+                Name = "mMenViewConnections",
+                Text = Language.Connections,
+                Image = Properties.Resources.ASPWebSite_16x
+            };
+            _mMenViewConnections.Click += (sender, args) => ShowToolPanel(AppWindows.TreeForm);
+            _mMenViewConfig = new ToolStripMenuItem
+            {
+                Name = "mMenViewConfig",
+                Text = Language.Config,
+                Image = Properties.Resources.Settings_16x
+            };
+            _mMenViewConfig.Click += (sender, args) => ShowToolPanel(AppWindows.ConfigForm);
+            _mMenViewSep0 = new ToolStripSeparator();
             _mMenViewAddConnectionPanel = new ToolStripMenuItem();
             _mMenViewConnectionPanels = new ToolStripMenuItem();
             _mMenViewSep1 = new ToolStripSeparator();
@@ -63,6 +82,9 @@ namespace mRemoteNG.UI.Menu
             // 
             DropDownItems.AddRange(new ToolStripItem[]
             {
+                _mMenViewConnections,
+                _mMenViewConfig,
+                _mMenViewSep0,
                 _mMenViewFileMenu,
                 _mMenViewErrorsAndInfos,
                 _mMenViewQuickConnectToolbar,
@@ -183,6 +205,8 @@ namespace mRemoteNG.UI.Menu
         public void ApplyLanguage()
         {
             Text = Language._View;
+            _mMenViewConnections.Text = Language.Connections;
+            _mMenViewConfig.Text = Language.Config;
             _mMenViewAddConnectionPanel.Text = Language.AddConnectionPanel;
             _mMenViewConnectionPanels.Text = Language.ConnectionPanels;
             _mMenViewErrorsAndInfos.Text = Language.Notifications;
@@ -221,6 +245,19 @@ namespace mRemoteNG.UI.Menu
         {
             ((BaseWindow)((ToolStripMenuItem)sender).Tag).Show(MainForm.pnlDock);
             ((BaseWindow)((ToolStripMenuItem)sender).Tag).Focus();
+        }
+
+        // sysprep fork: shows a panel that was closed (docked where it was, or on the left the first time)
+        // and brings it to the front
+        private void ShowToolPanel(WeifenLuo.WinFormsUI.Docking.DockContent panel)
+        {
+            if (panel == null || MainForm == null) return;
+
+            if (panel.DockPanel == null)
+                panel.Show(MainForm.pnlDock, WeifenLuo.WinFormsUI.Docking.DockState.DockLeft);
+            else
+                panel.Show();
+            panel.Activate();
         }
 
         private void mMenViewErrorsAndInfos_Click(object sender, EventArgs e)

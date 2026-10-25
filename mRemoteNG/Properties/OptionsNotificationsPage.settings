@@ -12,16 +12,16 @@
       <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="NotificationPanelWriterWriteErrorMsgs" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">True</Value>
+      <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="SwitchToMCOnInformation" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">True</Value>
+      <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="SwitchToMCOnWarning" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">True</Value>
+      <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="SwitchToMCOnError" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">True</Value>
+      <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="PopupMessageWriterWriteDebugMsgs" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
@@ -33,7 +33,7 @@
       <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="PopupMessageWriterWriteErrorMsgs" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">True</Value>
+      <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="LogToApplicationDirectory" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>

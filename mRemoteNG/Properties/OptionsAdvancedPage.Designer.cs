@@ -25,7 +25,7 @@ namespace mRemoteNG.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool ReconnectOnDisconnect {
             get {
                 return ((bool)(this["ReconnectOnDisconnect"]));
@@ -109,7 +109,7 @@ namespace mRemoteNG.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool NoReconnect {
             get {
                 return ((bool)(this["NoReconnect"]));
@@ -121,7 +121,7 @@ namespace mRemoteNG.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool ShowPuttySessionsInTree {
             get {
                 return ((bool)(this["ShowPuttySessionsInTree"]));

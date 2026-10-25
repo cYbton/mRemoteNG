@@ -233,6 +233,10 @@ namespace mRemoteNG.UI.Window
             WindowType = WindowType.Config;
             DockPnl = panel;
             InitializeComponent();
+            // sysprep fork: same font size as the connection tree above it (options, Appearance)
+            float treeFontSize = OptionsAppearancePage.Default.TreeAndTabFontSize;
+            if (treeFontSize > 0 && Math.Abs(treeFontSize - _pGrid.Font.Size) >= 0.01f)
+                _pGrid.Font = new Font(_pGrid.Font.FontFamily, treeFontSize, _pGrid.Font.Style);
             Icon = Resources.ImageConverter.GetImageAsIcon(Properties.Resources.Settings_16x);
             ApplyLanguage();
         }

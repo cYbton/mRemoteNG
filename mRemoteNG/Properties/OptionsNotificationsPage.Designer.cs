@@ -61,7 +61,7 @@ namespace mRemoteNG.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool NotificationPanelWriterWriteErrorMsgs {
             get {
                 return ((bool)(this["NotificationPanelWriterWriteErrorMsgs"]));
@@ -73,7 +73,7 @@ namespace mRemoteNG.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool SwitchToMCOnInformation {
             get {
                 return ((bool)(this["SwitchToMCOnInformation"]));
@@ -85,7 +85,7 @@ namespace mRemoteNG.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool SwitchToMCOnWarning {
             get {
                 return ((bool)(this["SwitchToMCOnWarning"]));
@@ -97,7 +97,7 @@ namespace mRemoteNG.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool SwitchToMCOnError {
             get {
                 return ((bool)(this["SwitchToMCOnError"]));
@@ -145,7 +145,7 @@ namespace mRemoteNG.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool PopupMessageWriterWriteErrorMsgs {
             get {
                 return ((bool)(this["PopupMessageWriterWriteErrorMsgs"]));

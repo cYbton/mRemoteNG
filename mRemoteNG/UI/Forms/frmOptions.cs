@@ -83,8 +83,14 @@ namespace mRemoteNG.UI.Forms
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
-            // sysprep fork: program font size from the options
+            // sysprep fork: program font size from the options. The list's rows were built with the old font
+            // and only took the new one when the mouse went over them - rebuilt once with the new font.
+            Font listFont = lstOptionPages.Font;
             UiFontScaler.Apply(this);
+            if (!ReferenceEquals(listFont, lstOptionPages.Font))
+                lstOptionPages.BuildList(true);
+            // the selected page stays marked while working on the page on the right
+            lstOptionPages.HideSelection = false;
         }
 
         private void FrmOptions_Load(object sender, EventArgs e)

@@ -27,13 +27,12 @@ using System.Resources;
     int major = 1;
     int minor = 78;
     int revision = 2;
-    string channel = "sysprep.io build"; // sysprep fork
-    DateTime lastReleaseDate = new DateTime(2019, 9, 2);
-    TimeSpan elapsed = DateTime.UtcNow - lastReleaseDate;
-    int build = (int)(elapsed.TotalMinutes / 1000);
+    // sysprep fork: release of the fork on top of upstream major.minor.revision - counted up with every
+    // release, back to 1 when the fork moves to a new upstream version (1.78.2-sysprep.io.1, .2, ...)
+    int sysprepRelease = 1;
 #>
 
-//Build nr: <#= build #>
+//sysprep release: <#= sysprepRelease #>
 
 // General Information
 [assembly: AssemblyTitle("mRemoteNG")]
@@ -46,7 +45,7 @@ using System.Resources;
 [assembly: AssemblyCulture("")]
 
 // Version information
-[assembly: AssemblyVersion("<#= major #>.<#= minor #>.<#= revision #>.<#= build #>")]
-[assembly: AssemblyFileVersion("<#= major #>.<#= minor #>.<#= revision #>.<#= build #>")]
+[assembly: AssemblyVersion("<#= major #>.<#= minor #>.<#= revision #>.<#= sysprepRelease #>")]
+[assembly: AssemblyFileVersion("<#= major #>.<#= minor #>.<#= revision #>.<#= sysprepRelease #>")]
 [assembly: NeutralResourcesLanguageAttribute("en-US")]
-[assembly: AssemblyInformationalVersion("<#= major #>.<#= minor #>.<#= revision #> (<#= channel #>) <#= platformValue #>")]
+[assembly: AssemblyInformationalVersion("<#= major #>.<#= minor #>.<#= revision #> (sysprep.io.<#= sysprepRelease #>) <#= platformValue #>")]

@@ -207,8 +207,17 @@ namespace mRemoteNG.UI.Forms
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
-            // sysprep fork: program font size from the options, after FrmMain_Load has built menus and panels
+            // sysprep fork: program font size from the options, after FrmMain_Load has built the panels
             UiFontScaler.Apply(this);
+            pnlDock.ActiveContentChanged += PnlDock_ActiveContentChanged;
+        }
+
+        // sysprep fork: back from the tree (or any other panel) into the connection tabs - nothing stays
+        // selected in the tree while the user works in a session
+        private void PnlDock_ActiveContentChanged(object sender, EventArgs e)
+        {
+            if (pnlDock.ActiveContent is ConnectionWindow)
+                AppWindows.ExistingTreeForm?.ClearSelection();
         }
 
         private void FrmMain_Load(object sender, EventArgs e)
@@ -226,6 +235,11 @@ namespace mRemoteNG.UI.Forms
  
             SetMenuDependencies();
 
+            // sysprep fork: the panel list has to exist before the layout is loaded - on a first start (no
+            // pnlLayout.xml) the default layout creates the "General" panel, which was lost when the list was
+            // only created afterwards, and a second "General" panel was created further down
+            Runtime.WindowList ??= [];
+
             DockPanelLayoutLoader uiLoader = new(this, messageCollector);
             uiLoader.LoadPanelsFromXml();
 
@@ -236,8 +250,6 @@ namespace mRemoteNG.UI.Forms
             ProgramRoot.UiCultureChanged += OnUiCultureChanged;
 
             _fpChainedWindowHandle = NativeMethods.SetClipboardViewer(Handle);
-
-            Runtime.WindowList = [];
 
             if (Properties.App.Default.ResetPanels)
                 SetDefaultLayout();
@@ -874,11 +886,19 @@ namespace mRemoteNG.UI.Forms
         {
             pnlDock.Visible = false;
 
+            // sysprep fork: the tree 250 px wide instead of a quarter of the window
+            pnlDock.DockLeftPortion = new DisplayProperties().ScaleWidth(250);
+
             AppWindows.TreeForm.Show(pnlDock, DockState.DockLeft);
             AppWindows.ConfigForm.Show(pnlDock, DockState.DockLeft);
-            AppWindows.ConfigForm.Activate();
             AppWindows.ErrorsForm.Show(pnlDock, DockState.DockBottomAutoHide);
-            viewMenu._mMenViewErrorsAndInfos.Checked = true;
+
+            // sysprep fork: only the connection tree is open by default. Config and Notifications keep their
+            // place (below the tree, auto-hide at the bottom) and come back through the View menu.
+            AppWindows.ConfigForm.Hide();
+            AppWindows.ErrorsForm.Hide();
+            viewMenu._mMenViewErrorsAndInfos.Checked = false;
+            AppWindows.TreeForm.Activate();
 
             ShowFileMenu();
 

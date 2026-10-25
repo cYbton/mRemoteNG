@@ -159,6 +159,38 @@ namespace mRemoteNG.Config.Settings
                 _messageCollector.AddExceptionMessage("Settings.Upgrade() failed", ex);
             }
 
+            // sysprep fork: the options pages keep their settings in classes of their own, each stored per
+            // program version - without this every new version started with the default options again
+            // (theme, font sizes, ...)
+            System.Configuration.ApplicationSettingsBase[] optionSettings =
+            [
+                Properties.AppUI.Default,
+                Properties.OptionsAdvancedPage.Default,
+                Properties.OptionsAppearancePage.Default,
+                Properties.OptionsBackupPage.Default,
+                Properties.OptionsConnectionsPage.Default,
+                Properties.OptionsCredentialsPage.Default,
+                Properties.OptionsDBsPage.Default,
+                Properties.OptionsNotificationsPage.Default,
+                Properties.OptionsRbac.Default,
+                Properties.OptionsSecurityPage.Default,
+                Properties.OptionsStartupExitPage.Default,
+                Properties.OptionsTabsPanelsPage.Default,
+                Properties.OptionsThemePage.Default,
+                Properties.OptionsUpdatesPage.Default
+            ];
+            foreach (System.Configuration.ApplicationSettingsBase settings in optionSettings)
+            {
+                try
+                {
+                    settings.Upgrade();
+                }
+                catch (Exception ex)
+                {
+                    _messageCollector.AddExceptionMessage($"{settings.GetType().Name}.Upgrade() failed", ex);
+                }
+            }
+
             Properties.App.Default.DoUpgrade = false;
 
             // Clear pending update flag

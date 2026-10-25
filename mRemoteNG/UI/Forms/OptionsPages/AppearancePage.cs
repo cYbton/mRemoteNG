@@ -16,7 +16,7 @@ namespace mRemoteNG.UI.Forms.OptionsPages
         private OptRegistryAppearancePage pageRegSettingsInstance;
 
         // sysprep fork: font size of the connection tree, icon size in the connection tree,
-        // font size of the rest of the program (menus, tabs, panels, dialogs).
+        // font size of the rest of the program (tabs, panels, dialogs; menus keep the Windows menu font).
         // The setting behind the tree font is still called TreeAndTabFontSize so existing values are kept.
         // Created here instead of in the designer to keep the change easy to merge with upstream.
         private MrngLabel lblTreeAndTabFontSize;

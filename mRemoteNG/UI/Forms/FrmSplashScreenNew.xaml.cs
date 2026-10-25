@@ -16,7 +16,7 @@ namespace mRemoteNG.UI.Forms
             InitializeComponent();
             LoadFont();
             lblLogoPartD.HorizontalContentAlignment = System.Windows.HorizontalAlignment.Center;
-            // sysprep fork: the version names the build ("1.78.2 (sysprep.io build) x64"), no code name
+            // sysprep fork: the version names the fork release ("1.78.2 (sysprep.io.1) x64"), no code name
             lblLogoPartD.Content = $@"v. {GeneralAppInfo.ApplicationVersion}";
         }
         public static FrmSplashScreenNew GetInstance()

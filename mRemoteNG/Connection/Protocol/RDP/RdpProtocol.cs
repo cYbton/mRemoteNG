@@ -975,7 +975,11 @@ namespace mRemoteNG.Connection.Protocol.RDP
 
         private void RDPEvent_OnDisconnected(int discReason)
         {
-            RemoveConnectingCover();
+            // sysprep fork: a reconnect attempt that failed - the reconnect box (and the cover it sits on) stays
+            bool reconnectAttemptFailed = ReconnectGroup is { IsDisposed: false };
+            if (!reconnectAttemptFailed)
+                RemoveConnectingCover();
+            OnSessionDisconnected();
             const int UI_ERR_NORMAL_DISCONNECT = 0xB08;
             if (discReason != UI_ERR_NORMAL_DISCONNECT)
             {
@@ -983,13 +987,33 @@ namespace mRemoteNG.Connection.Protocol.RDP
                 Event_Disconnected(this, reason, discReason);
             }
 
-            if (Properties.OptionsAdvancedPage.Default.ReconnectOnDisconnect)
+            // sysprep fork: no reconnect when the session was taken over by another connection (the same user
+            // signing in from somewhere else) - two clients with automatic reconnect took it from each other
+            // every few seconds. The tab closes as it does without the reconnect option.
+            bool replacedByOtherConnection =
+                _rdpClient.ExtendedDisconnectReason == ExtendedDisconnectReasonCode.exDiscReasonReplacedByOtherConnection;
+
+            if (Properties.OptionsAdvancedPage.Default.ReconnectOnDisconnect && !replacedByOtherConnection)
             {
+                if (reconnectAttemptFailed)
+                {
+                    // sysprep fork: the same box polls again - a new one with every attempt flashed up and
+                    // always started grey again
+                    ReconnectGroup.ServerReady = false;
+                    tmrReconnect.Enabled = true;
+                    return;
+                }
+
                 ReconnectGroup = new ReconnectGroup();
                 ReconnectGroup.CloseClicked += Event_ReconnectGroupCloseClicked;
-                ReconnectGroup.Left = (int)((double)Control.Width / 2 - (double)ReconnectGroup.Width / 2);
-                ReconnectGroup.Top = (int)((double)Control.Height / 2 - (double)ReconnectGroup.Height / 2);
-                ReconnectGroup.Parent = Control;
+                // sysprep fork: the disconnected RDP control is a white area - the box sits on the theme
+                // background instead (the connecting cover, removed again once the session is back)
+                AddConnectingCover();
+                System.Windows.Forms.Control parent = _connectingCover != null ? _connectingCover : Control;
+                ReconnectGroup.Left = (int)((double)parent.Width / 2 - (double)ReconnectGroup.Width / 2);
+                ReconnectGroup.Top = (int)((double)parent.Height / 2 - (double)ReconnectGroup.Height / 2);
+                ReconnectGroup.Anchor = AnchorStyles.None; // stays centred when the tab changes size
+                ReconnectGroup.Parent = parent;
                 ReconnectGroup.Show();
                 tmrReconnect.Enabled = true;
             }
@@ -1006,6 +1030,13 @@ namespace mRemoteNG.Connection.Protocol.RDP
 
         private void RDPEvent_OnConnected()
         {
+            // sysprep fork: the session is back - only now the reconnect box goes (with the cover it sits on)
+            tmrReconnect.Enabled = false;
+            if (ReconnectGroup != null)
+            {
+                ReconnectGroup.Dispose();
+                ReconnectGroup = null;
+            }
             RemoveConnectingCover();
             Event_Connected(this);
         }
@@ -1033,6 +1064,18 @@ namespace mRemoteNG.Connection.Protocol.RDP
         private void RDPEvent_OnLoginComplete()
         {
             loginComplete = true;
+            OnSessionLoginComplete();
+        }
+
+        // sysprep fork: hooks for the RDP 8+ resize handling (RdpProtocol8)
+        protected virtual void OnSessionLoginComplete()
+        {
+        }
+
+        protected virtual void OnSessionDisconnected()
+        {
+            // no resize of a disconnected session (e.g. while the reconnect box is showing)
+            loginComplete = false;
         }
 
         private void RDPEvent_OnLeaveFullscreenMode()
@@ -1075,25 +1118,54 @@ namespace mRemoteNG.Connection.Protocol.RDP
         
         #region Reconnect Stuff
 
+        private int _reconnectCheckRunning; // sysprep fork
+
         private void tmrReconnect_Elapsed(object sender, ElapsedEventArgs e)
         {
+            // sysprep fork: one check at a time - the timer fires every 5 seconds regardless of a check still running
+            if (Interlocked.Exchange(ref _reconnectCheckRunning, 1) == 1) return;
+
             try
             {
-                bool srvReady = PortScanner.IsPortOpen(connectionInfo.Hostname, Convert.ToString(connectionInfo.Port));
+                bool srvReady = IsRdpPortOpen(connectionInfo.Hostname, connectionInfo.Port);
 
-                ReconnectGroup.ServerReady = srvReady;
+                ReconnectGroup reconnectGroup = ReconnectGroup;
+                if (reconnectGroup == null || reconnectGroup.IsDisposed) return;
 
-                if (!ReconnectGroup.ReconnectWhenReady || !srvReady) return;
+                reconnectGroup.ServerReady = srvReady;
+
+                if (!reconnectGroup.ReconnectWhenReady || !srvReady) return;
                 tmrReconnect.Enabled = false;
-                ReconnectGroup.DisposeReconnectGroup();
-                //SetProps()
-                _rdpClient.Connect();
+
+                // sysprep fork: the box stays (green) while connecting and goes once the session is back
+                // (RDPEvent_OnConnected); a failed attempt starts the polling again (RDPEvent_OnDisconnected).
+                // Connected on the UI thread the ActiveX control belongs to.
+                InterfaceControl?.BeginInvoke(new Action(() => _rdpClient.Connect()));
             }
             catch (Exception ex)
             {
                 Runtime.MessageCollector.AddExceptionMessage(
                     string.Format(Language.AutomaticReconnectError, connectionInfo.Hostname),
                     ex, MessageClass.WarningMsg, false);
+            }
+            finally
+            {
+                Interlocked.Exchange(ref _reconnectCheckRunning, 0);
+            }
+        }
+
+        // sysprep fork: port check with a short timeout - a host that is still off took about 20 seconds per
+        // check (TCP connect timeout), so the status stayed grey for that long
+        private static bool IsRdpPortOpen(string hostname, int port)
+        {
+            try
+            {
+                using System.Net.Sockets.TcpClient client = new();
+                return client.ConnectAsync(hostname, port).Wait(TimeSpan.FromSeconds(2)) && client.Connected;
+            }
+            catch (Exception)
+            {
+                return false;
             }
         }
 

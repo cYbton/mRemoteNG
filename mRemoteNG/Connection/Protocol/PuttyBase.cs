@@ -351,6 +351,30 @@ namespace mRemoteNG.Connection.Protocol
             writer.Flush();
         }
 
+        // sysprep fork: PuTTY's built-in font (Courier New 10) is hard to read. As long as the "Default Settings"
+        // session has no font of its own, the bundled PuTTY gets Consolas 12 there - a font the user chose
+        // (Options > Advanced > Launch PuTTY) is left alone. PuTTY keeps these settings per Windows user.
+        // PuTTY only takes a font with all four values; with one missing it silently uses its built-in font.
+        private const string PuttyDefaultSettingsKey = @"Software\SimonTatham\PuTTY\Sessions\Default%20Settings";
+        private static readonly string[] PuttyFontValueNames = ["Font", "FontIsBold", "FontCharSet", "FontHeight"];
+
+        private static void EnsurePuttyDefaultFont()
+        {
+            try
+            {
+                using Microsoft.Win32.RegistryKey key = Microsoft.Win32.Registry.CurrentUser.CreateSubKey(PuttyDefaultSettingsKey);
+                if (key == null || PuttyFontValueNames.All(name => key.GetValue(name) != null)) return;
+                key.SetValue("Font", "Consolas", Microsoft.Win32.RegistryValueKind.String);
+                key.SetValue("FontIsBold", 0, Microsoft.Win32.RegistryValueKind.DWord);
+                key.SetValue("FontCharSet", 0, Microsoft.Win32.RegistryValueKind.DWord);
+                key.SetValue("FontHeight", 12, Microsoft.Win32.RegistryValueKind.DWord);
+            }
+            catch (Exception ex)
+            {
+                Runtime.MessageCollector.AddExceptionMessage("Could not set the default PuTTY font", ex, MessageClass.WarningMsg, false);
+            }
+        }
+
         public override bool Connect()
         {
             string optionalTemporaryPrivateKeyPath = ""; // path to ppk file instead of password. only temporary (extracted from credential vault).
@@ -358,6 +382,8 @@ namespace mRemoteNG.Connection.Protocol
             try
             {
                 _isPuttyNg = PuttyTypeDetector.GetPuttyType() == PuttyTypeDetector.PuttyType.PuttyNg;
+                if (_isPuttyNg)
+                    EnsurePuttyDefaultFont();
 
                 // Validate PuttyPath to prevent command injection
                 PathValidator.ValidateExecutablePathOrThrow(PuttyPath, nameof(PuttyPath));

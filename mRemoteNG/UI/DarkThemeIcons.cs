@@ -32,7 +32,14 @@ namespace mRemoteNG.UI
         /// <summary>The image adapted to the dark theme, or the image itself in a light theme.</summary>
         public static Image Adapt(Image image)
         {
-            if (image == null || !IsActive || Originals.TryGetValue(image, out _))
+            if (image == null)
+                return null;
+
+            // An image converted earlier: the original again once the theme is light (or theming off)
+            if (Originals.TryGetValue(image, out Image original))
+                return IsActive ? image : original;
+
+            if (!IsActive)
                 return image;
 
             if (Converted.TryGetValue(image, out Image converted))

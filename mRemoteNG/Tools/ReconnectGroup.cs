@@ -9,7 +9,26 @@ namespace mRemoteNG.Tools
         public ReconnectGroup()
         {
             InitializeComponent();
+            // NoReconnect is the option "Automatically try to reconnect when disconnected from server"
             chkReconnectWhenReady.Checked = Properties.OptionsAdvancedPage.Default.NoReconnect;
+            ApplyTheme();
+            UI.UiFontScaler.ApplyWithLayout(this); // sysprep fork: program font size, as in the other dialogs
+        }
+
+        // sysprep fork: theme colours instead of the fixed white background, on which the themed (light) labels
+        // could not be read in a dark theme
+        private void ApplyTheme()
+        {
+            Themes.ThemeManager themeManager = Themes.ThemeManager.getInstance();
+            if (!themeManager.ActiveAndExtended) return;
+
+            Color background = themeManager.ActiveTheme.ExtendedPalette.getColor("Dialog_Background");
+            Color foreground = themeManager.ActiveTheme.ExtendedPalette.getColor("Dialog_Foreground");
+            BackColor = background;
+            ForeColor = foreground;
+            grpAutomaticReconnect.BackColor = background;
+            grpAutomaticReconnect.ForeColor = foreground;
+            lblAnimation.ForeColor = foreground;
         }
 
         private bool _ServerReady;

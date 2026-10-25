@@ -3,7 +3,7 @@
   <Profiles />
   <Settings>
     <Setting Name="ShowSystemTrayIcon" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">True</Value>
+      <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="MinimizeToTray" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
@@ -24,13 +24,13 @@
       <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="TreeAndTabFontSize" Type="System.Single" Scope="User">
-      <Value Profile="(Default)">8.25</Value>
+      <Value Profile="(Default)">9</Value>
     </Setting>
     <Setting Name="ConnectionTreeIconSize" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">16</Value>
+      <Value Profile="(Default)">20</Value>
     </Setting>
     <Setting Name="ProgramFontSize" Type="System.Single" Scope="User">
-      <Value Profile="(Default)">8.25</Value>
+      <Value Profile="(Default)">10</Value>
     </Setting>
   </Settings>
 </SettingsFile>

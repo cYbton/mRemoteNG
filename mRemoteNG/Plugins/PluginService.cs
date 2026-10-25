@@ -230,16 +230,18 @@ public sealed class PluginService
 
     // sysprep fork: the program folder holds the whole bundled .NET runtime (300+ DLLs in the
     // self-contained build) - loading each of them as a plugin candidate on the UI thread froze the
-    // start for up to a minute. There only DLLs named like a plugin are candidates; the plugin
-    // folders themselves are still scanned completely.
+    // start for up to a minute. There only DLLs named like a plugin (mRp.*, *Plugin*) are candidates;
+    // the plugin folders themselves are still scanned completely.
     private static IEnumerable<string> GetPluginCandidateFiles(string pluginDirectory)
     {
         string appBaseDirectory = AppContext.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-        string pattern = string.Equals(pluginDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar), appBaseDirectory, StringComparison.OrdinalIgnoreCase)
-            ? "*Plugin*.dll"
-            : "*.dll";
-        return Directory.EnumerateFiles(pluginDirectory, pattern, SearchOption.TopDirectoryOnly)
-            .Where(file => !Path.GetFileName(file).Equals("mRemoteNG.PluginContracts.dll", StringComparison.OrdinalIgnoreCase));
+        string[] patterns = string.Equals(pluginDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar), appBaseDirectory, StringComparison.OrdinalIgnoreCase)
+            ? ["mRp.*.dll", "*Plugin*.dll"]
+            : ["*.dll"];
+        return patterns
+            .SelectMany(pattern => Directory.EnumerateFiles(pluginDirectory, pattern, SearchOption.TopDirectoryOnly))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .Where(file => !Path.GetFileName(file).Equals("mRp.Contracts.dll", StringComparison.OrdinalIgnoreCase));
     }
 
     private static IEnumerable<Type> GetLoadableTypes(Assembly assembly)

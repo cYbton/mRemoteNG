@@ -476,6 +476,30 @@ namespace mRemoteNG.UI.Controls.ConnectionTree
             column.Width = longestIndentationAndTextWidth + SmallImageSize.Width + horizontalScrollOffset + padding;
         }
 
+        // sysprep fork: Windows draws the right edge of the name column as a light grey line in the empty area
+        // below the last node - painted over with the tree's background after every paint
+        protected override void WndProc(ref Message m)
+        {
+            base.WndProc(ref m);
+
+            const int WM_PAINT = 0x000F;
+            if (m.Msg == WM_PAINT)
+                PaintAreaBelowLastNode();
+        }
+
+        private void PaintAreaBelowLastNode()
+        {
+            int count = GetItemCount();
+            if (count == 0 || !IsHandleCreated) return;
+
+            int top = Math.Max(0, GetItemRect(count - 1).Bottom);
+            if (top >= ClientSize.Height) return;
+
+            using System.Drawing.Graphics graphics = CreateGraphics();
+            using System.Drawing.SolidBrush brush = new(BackColor);
+            graphics.FillRectangle(brush, 0, top, ClientSize.Width, ClientSize.Height - top);
+        }
+
         private void PopulateTreeView(ConnectionTreeModel newModel)
         {
             SetObjects(GetTreeRoots(newModel));

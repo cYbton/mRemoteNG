@@ -184,7 +184,12 @@ namespace mRemoteNG.UI.Window
             if (Settings.Default.SingleClickOnConnectionOpensIt)
                 singleClickHandlers.Add(new OpenConnectionClickHandler(Runtime.ConnectionInitiator));
             else
+            {
                 doubleClickHandlers.Add(new OpenConnectionClickHandler(Runtime.ConnectionInitiator));
+                // sysprep fork: nothing stays selected after opening (not with single-click opening - a
+                // node could not be selected for the Config panel at all then)
+                doubleClickHandlers.Add(new ClearSelectionClickHandler(ConnectionTree));
+            }
 
             if (Settings.Default.SingleClickSwitchesToOpenConnection)
                 singleClickHandlers.Add(new SwitchToConnectionClickHandler(Runtime.ConnectionInitiator));
@@ -345,6 +350,13 @@ namespace mRemoteNG.UI.Window
                 ConnectionTree.NodeSearcher?.SearchByName(txtSearch.Text);
                 JumpToNode(ConnectionTree.NodeSearcher?.CurrentMatch);
             }
+        }
+
+        // sysprep fork: nothing stays selected in the tree while the user works in a connection tab
+        internal void ClearSelection()
+        {
+            if (ConnectionTree is { IsDisposed: false, SelectedObject: not null })
+                ConnectionTree.SelectedObject = null;
         }
 
         public void JumpToNode(ConnectionInfo? connectionInfo)

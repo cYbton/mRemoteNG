@@ -112,6 +112,12 @@ namespace mRemoteNG.Connection.Protocol.RDP
                 LastWindowState = _frmMain.WindowState;
                 DoResizeClient();
             }
+            else if (InterfaceControl?.Info?.Resolution == RDPResolutions.FitToWindow && InterfaceControl.Info.AutomaticResize)
+            {
+                // sysprep fork: the panel also changes size without the main window being resized (splitter
+                // dragged, a panel shown or hidden, window snapped) - ResizeEnd never comes then
+                ScheduleDebouncedResize();
+            }
             else
             {
                 Runtime.MessageCollector.AddMessage(MessageClass.DebugMsg,
@@ -271,9 +277,14 @@ namespace mRemoteNG.Connection.Protocol.RDP
                 Size size = Fullscreen
                     ? Screen.FromControl(Control).Bounds.Size
                     : fitToWindow
-                        ? new Size(Math.Max(1, InterfaceControl.ClientSize.Width - InterfaceControl.Padding.Horizontal),
-                                   Math.Max(1, InterfaceControl.ClientSize.Height - InterfaceControl.Padding.Vertical))
+                        ? new Size(InterfaceControl.ClientSize.Width - InterfaceControl.Padding.Horizontal,
+                                   InterfaceControl.ClientSize.Height - InterfaceControl.Padding.Vertical)
                         : InterfaceControl.Size;
+
+                // sysprep fork: the session accepts 200 to 8192 pixels per side; outside of that the call
+                // fails (a narrow panel next to a wide tree) and would end in a reconnect. An even width
+                // avoids the client rounding it and scaling the picture by one pixel.
+                size = new Size(Math.Clamp(size.Width, 200, 8192) & ~1, Math.Clamp(size.Height, 200, 8192));
 
                 // sysprep fork: the same size again (window state change and ResizeEnd often both arrive)
                 // would only make the server rebuild the desktop once more
@@ -385,6 +396,25 @@ namespace mRemoteNG.Connection.Protocol.RDP
             Control.Bounds = target;
             return true;
         }
+
+        // sysprep fork: a reconnect after a disconnect starts at the size of the first connect - the size
+        // sent last no longer applies, and the session is fitted to the panel again once logged in
+        protected override void OnSessionDisconnected()
+        {
+            base.OnSessionDisconnected();
+            _lastSessionSize = Size.Empty;
+        }
+
+        protected override void OnSessionLoginComplete()
+        {
+            base.OnSessionLoginComplete();
+            if (_lastSessionSize == Size.Empty && _hadSession &&
+                InterfaceControl?.Info?.Resolution == RDPResolutions.FitToWindow && InterfaceControl.Info.AutomaticResize)
+                ScheduleDebouncedResize();
+            _hadSession = true;
+        }
+
+        private bool _hadSession;
 
         protected virtual void UpdateSessionDisplaySettings(uint width, uint height)
         {

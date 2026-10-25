@@ -33,6 +33,9 @@ namespace mRemoteNG.UI.Controls
             //Selected item
             SelectedBackColor = _themeManager.ActiveTheme.ExtendedPalette.getColor("List_Item_Selected_Background");
             SelectedForeColor = _themeManager.ActiveTheme.ExtendedPalette.getColor("List_Item_Selected_Foreground");
+            // sysprep fork: the selection keeps its colours when the list loses the focus (with HideSelection off)
+            UnfocusedSelectedBackColor = SelectedBackColor;
+            UnfocusedSelectedForeColor = SelectedForeColor;
 
             //Header style
             HeaderUsesThemes = false;

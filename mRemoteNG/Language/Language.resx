@@ -1726,13 +1726,13 @@ If you run into such an error, please create a new connection file!</value>
     <value>Enable connection tree expand/collapse animations</value>
   </data>
   <data name="TreeAndTabFontSize" xml:space="preserve">
-    <value>Font size of connection tree (pt)</value>
+    <value>Font size of connection tree and config (pt)</value>
   </data>
   <data name="ConnectionTreeIconSize" xml:space="preserve">
     <value>Icon size in connection tree (px)</value>
   </data>
   <data name="ProgramFontSize" xml:space="preserve">
-    <value>Font size of menus, tabs, panels and dialogs (pt)</value>
+    <value>Font size of tabs, panels and dialogs (pt)</value>
   </data>
   <data name="TakesEffectAfterRestart" xml:space="preserve">
     <value>Takes effect after mRemoteNG has been restarted.</value>

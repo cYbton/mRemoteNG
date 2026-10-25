@@ -19,8 +19,9 @@ namespace mRemoteNG.UI.Forms.OptionsPages
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
-            // sysprep fork: program font size from the options
-            UiFontScaler.Apply(this);
+            // sysprep fork: program font size from the options; most pages place their controls at fixed
+            // positions, which grow with the font so the larger text does not overlap
+            UiFontScaler.ApplyWithLayout(this);
         }
 
         #region Public Properties

@@ -1338,27 +1338,10 @@ namespace mRemoteNG.UI.Tabs
                                  imageSize);
         }
 
-        private Rectangle GetMinimizeButtonRect(Rectangle rectTab, IDockContent content)
-        {
-            if (Appearance != DockPane.AppearanceStyle.Document ||
-                content is not ConnectionTab connectionTab ||
-                !connectionTab.CanMinimizeToBottomAutoHide())
-            {
-                return Rectangle.Empty;
-            }
-
-            const int buttonGap = 1;
-            Rectangle closeButtonRect = GetCloseButtonRect(rectTab, content);
-            if (closeButtonRect.IsEmpty)
-            {
-                Rectangle rightAlignedButtonRect = GetRightAlignedDocumentButtonRect(rectTab);
-                return rightAlignedButtonRect.Left >= rectTab.Left ? rightAlignedButtonRect : Rectangle.Empty;
-            }
-
-            Rectangle minimizeButtonRect = new(closeButtonRect.X - closeButtonRect.Width - buttonGap, closeButtonRect.Y,
-                                               closeButtonRect.Width, closeButtonRect.Height);
-            return minimizeButtonRect.Left >= rectTab.Left ? minimizeButtonRect : closeButtonRect;
-        }
+        // sysprep fork: no minimize arrow on the connection tabs. A click on it moved the connection into
+        // the auto-hide strip at the bottom, which looks as if the tab had disappeared; "Minimize tab" in
+        // the tab's context menu still does the same.
+        private static Rectangle GetMinimizeButtonRect(Rectangle rectTab, IDockContent content) => Rectangle.Empty;
 
         private bool ShouldShowCloseButton(IDockContent content)
         {

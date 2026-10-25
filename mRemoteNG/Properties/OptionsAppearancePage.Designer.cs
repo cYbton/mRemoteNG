@@ -25,7 +25,7 @@ namespace mRemoteNG.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool ShowSystemTrayIcon {
             get {
                 return ((bool)(this["ShowSystemTrayIcon"]));
@@ -109,7 +109,7 @@ namespace mRemoteNG.Properties {
 
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("8.25")]
+        [global::System.Configuration.DefaultSettingValueAttribute("9")]
         public float TreeAndTabFontSize {
             get {
                 return ((float)(this["TreeAndTabFontSize"]));
@@ -121,7 +121,7 @@ namespace mRemoteNG.Properties {
 
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("16")]
+        [global::System.Configuration.DefaultSettingValueAttribute("20")]
         public int ConnectionTreeIconSize {
             get {
                 return ((int)(this["ConnectionTreeIconSize"]));
@@ -133,7 +133,7 @@ namespace mRemoteNG.Properties {
 
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("8.25")]
+        [global::System.Configuration.DefaultSettingValueAttribute("10")]
         public float ProgramFontSize {
             get {
                 return ((float)(this["ProgramFontSize"]));
