@@ -116,13 +116,12 @@ namespace mRemoteNG.UI.Forms
             _showFullPathInTitle = Properties.OptionsAppearancePage.Default.ShowCompleteConsPathInTitle;
             InitializeComponent();
 
-            Screen targetScreen = (Screen.AllScreens.Length > 1) ? Screen.AllScreens[1] : Screen.AllScreens[0];
-
+            // sysprep fork: the first start (no saved position yet) centres the window on the main screen -
+            // upstream took the second screen in Windows' list, which is often not the main one
+            Screen targetScreen = Screen.PrimaryScreen ?? Screen.AllScreens[0];
             Rectangle viewport = targetScreen.WorkingArea;
-            
-            // normally it should be screens[1] however due DPI apply 1 size "same" as default with 100%
-            this.Left = viewport.Left + (targetScreen.Bounds.Size.Width / 2) - (this.Width / 2);
-            this.Top = viewport.Top + (targetScreen.Bounds.Size.Height / 2) - (this.Height / 2);
+            this.Left = viewport.Left + (viewport.Width / 2) - (this.Width / 2);
+            this.Top = viewport.Top + (viewport.Height / 2) - (this.Height / 2);
 
             Fullscreen = new FullscreenHandler(this);
 
