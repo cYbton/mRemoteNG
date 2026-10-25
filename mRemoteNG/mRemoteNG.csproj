@@ -287,6 +287,10 @@
       <LastGenOutput>AssemblyInfo.cs</LastGenOutput>
       <Generator>TextTemplatingFileGenerator</Generator>
     </None>
+    <!-- sysprep fork: the icon sets of the sysprep.io training labs (see Icons\NOTICE.md) -->
+    <None Update="Icons\azure2\**\*.ico;Icons\citrix2\**\*.ico;Icons\networks2\**\*.ico;Icons\mRemoteNG\**\*.ico;Icons\mRemoteNG\README.md;Icons\NOTICE.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Icons\Admin.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

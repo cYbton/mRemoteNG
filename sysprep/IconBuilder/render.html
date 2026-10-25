@@ -1,0 +1,68 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Stencil Export</title>
+<script>
+  // Same globals the sysprep.io site sets before loading its draw.io viewer (resources/js/app.js)
+  var base = '';
+  Object.assign(window, {
+    DRAWIO_BASE_URL: base, PROXY_URL: base + '/proxy', STYLE_PATH: base + '/styles', SHAPES_PATH: base + '/shapes',
+    STENCIL_PATH: base + '/stencils', DRAW_MATH_URL: base + '/math', GRAPH_IMAGE_PATH: base + '/img',
+    mxBasePath: base + '/mxgraph', mxImageBasePath: base + '/mxgraph/images', mxLoadResources: false
+  });
+</script>
+<script src="viewer-static.min.js"></script>
+<script src="stencils.min.js"></script>
+</head>
+<body>
+<script>
+  // One stencil as SVG, styled exactly like DrawioDiagram::iconStyle on the site
+  function renderIcon(shape, color) {
+    var container = document.createElement('div');
+    container.style.cssText = 'width:300px;height:300px';
+    document.body.appendChild(container);
+    var graph = new Graph(container);
+    graph.getModel().beginUpdate();
+    graph.insertVertex(graph.getDefaultParent(), null, '', 0, 0, 256, 256,
+      'shape=mxgraph.' + shape + ';fillColor=' + color + ';strokeColor=none;aspect=fixed;html=1;');
+    graph.getModel().endUpdate();
+    var svg = mxUtils.getXml(graph.getSvg(null, 1, 0));
+    graph.destroy();
+    container.remove();
+    return svg;
+  }
+
+  (async function () {
+    var summary = { saved: 0, failed: [] };
+    async function save(path, shape, color) {
+      try {
+        var svg = renderIcon(shape, color);
+        var r = await fetch('/save/' + path + '.svg', { method: 'PUT', body: svg });
+        if (r.status === 204) summary.saved++; else summary.failed.push(shape + ' HTTP ' + r.status);
+      } catch (e) {
+        summary.failed.push(shape + ' ' + e.message);
+      }
+    }
+    try {
+      var list = await (await fetch('stencil-list.json')).json();
+      // Citrix 2: the icons the site offers (DrawioIconSets), in their sidebar group's folder and colour
+      for (var it of list.citrix2) {
+        await save('citrix2/' + it.group + '/' + it.name, 'citrix2.' + it.name, it.color);
+      }
+      // Network 2: every shape of the stencil set except the "_shadow" variants
+      mxStencilRegistry.loadStencilSet(STENCIL_PATH + '/networks2.xml', null, true);
+      var names = Object.keys(mxStencilRegistry.stencils)
+        .filter(function (k) { return k.indexOf('mxgraph.networks2.') === 0 && !/_shadow$/.test(k); })
+        .map(function (k) { return k.substring('mxgraph.networks2.'.length); });
+      for (var n of names) {
+        await save('networks2/' + n, 'networks2.' + n, list.networks2.colors[n] || list.networks2.default);
+      }
+    } catch (e) {
+      summary.failed.push('page: ' + e.message);
+    }
+    await fetch('/done', { method: 'POST', body: JSON.stringify(summary) });
+  })();
+</script>
+</body>
+</html>
