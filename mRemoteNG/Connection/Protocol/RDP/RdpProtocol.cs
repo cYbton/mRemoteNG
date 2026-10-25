@@ -201,6 +201,7 @@ namespace mRemoteNG.Connection.Protocol.RDP
         public override bool Connect()
         {
             loginComplete = false;
+            _connectStartedLocal = DateTime.Now; // sysprep fork
             SetEventHandlers();
 
             try
@@ -1078,13 +1079,35 @@ namespace mRemoteNG.Connection.Protocol.RDP
             _connectingCover.Parent?.Controls.Remove(_connectingCover);
             _connectingCover.Dispose();
             _connectingCover = null;
+            RedrawRdpControl();
         }
+
+        // sysprep fork: the RDP control does not always repaint by itself once the cover is gone - with a
+        // still desktop on the server nothing new arrives, so the tab stayed empty until a click. Its window
+        // and all child windows are told to repaint right away.
+        private void RedrawRdpControl()
+        {
+            if (Control is not { IsHandleCreated: true, IsDisposed: false }) return;
+
+            const uint RDW_INVALIDATE = 0x0001, RDW_ERASE = 0x0004, RDW_ALLCHILDREN = 0x0080, RDW_UPDATENOW = 0x0100, RDW_FRAME = 0x0400;
+            RedrawWindow(Control.Handle, IntPtr.Zero, IntPtr.Zero, RDW_INVALIDATE | RDW_ERASE | RDW_ALLCHILDREN | RDW_UPDATENOW | RDW_FRAME);
+        }
+
+        [DllImport("user32.dll")]
+        private static extern bool RedrawWindow(IntPtr hWnd, IntPtr lprcUpdate, IntPtr hrgnUpdate, uint flags);
 
         private void RDPEvent_OnLoginComplete()
         {
             loginComplete = true;
+            // sysprep fork: logged with the time since the connect, to tell a slow logon from a tab that did not
+            // show the session; and the control repaints once more with the desktop now there
+            Runtime.MessageCollector.AddMessage(MessageClass.InformationMsg,
+                $"RDP logon to \"{connectionInfo?.Hostname}\" complete after {(DateTime.Now - _connectStartedLocal).TotalMilliseconds:N0} ms.", true);
+            RedrawRdpControl();
             OnSessionLoginComplete();
         }
+
+        private DateTime _connectStartedLocal = DateTime.Now; // sysprep fork
 
         // sysprep fork: hooks for the RDP 8+ resize handling (RdpProtocol8)
         protected virtual void OnSessionLoginComplete()
@@ -1203,6 +1226,7 @@ namespace mRemoteNG.Connection.Protocol.RDP
 
             try
             {
+                _connectStartedLocal = DateTime.Now;
                 _rdpClient.Connect();
             }
             catch (Exception ex)

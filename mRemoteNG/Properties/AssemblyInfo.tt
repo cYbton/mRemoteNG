@@ -29,7 +29,7 @@ using System.Resources;
     int revision = 2;
     // sysprep fork: release of the fork on top of upstream major.minor.revision - counted up with every
     // release, back to 1 when the fork moves to a new upstream version (1.78.2-sysprep.io.1, .2, ...)
-    int sysprepRelease = 5;
+    int sysprepRelease = 6;
 #>
 
 //sysprep release: <#= sysprepRelease #>
