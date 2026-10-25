@@ -351,12 +351,16 @@ namespace mRemoteNG.App
 
         private static void ShowSplashOnStaThread()
         {
+            // sysprep fork: worked out here, so the settings are only read on the main thread
+            Rectangle splashScreenArea = GetMainWindowScreenArea();
             _wpfSplashThread = new System.Threading.Thread(() =>
             {
                 _wpfSplash = FrmSplashScreenNew.GetInstance();
 
-                // Center the splash screen on the primary screen before showing it
-                _wpfSplash.WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen;
+                // sysprep fork: WPF's CenterScreen centres on the screen with the mouse pointer - the splash is
+                // placed on the screen the main window opens on instead, once its window exists
+                _wpfSplash.WindowStartupLocation = System.Windows.WindowStartupLocation.Manual;
+                _wpfSplash.SourceInitialized += (sender, args) => CenterSplash((System.Windows.Window)sender, splashScreenArea);
 
                 _wpfSplash.ShowInTaskbar = false;
                 _wpfSplash.Show();
@@ -367,6 +371,61 @@ namespace mRemoteNG.App
             _wpfSplashThread.SetApartmentState(System.Threading.ApartmentState.STA);
             _wpfSplashThread.Start();
         }
+
+        // sysprep fork: the screen the main window opens on - where it was last (the screen holding most of its
+        // saved bounds), else the main screen, as FrmMain does on a first start. Placed in pixels, so the DPI of
+        // the screens doesn't matter.
+        private static Rectangle GetMainWindowScreenArea()
+        {
+            try
+            {
+                Properties.App settings = Properties.App.Default;
+                bool maximized = settings.MainFormState == FormWindowState.Maximized;
+                Point savedLocation = maximized ? settings.MainFormRestoreLocation : settings.MainFormLocation;
+                Size savedSize = maximized ? settings.MainFormRestoreSize : settings.MainFormSize;
+                Screen screen = savedLocation.IsEmpty || savedSize.IsEmpty
+                    ? Screen.PrimaryScreen
+                    : Screen.FromRectangle(new Rectangle(savedLocation, savedSize));
+                return (screen ?? Screen.AllScreens[0]).WorkingArea;
+            }
+            catch (Exception)
+            {
+                return Rectangle.Empty;
+            }
+        }
+
+        private static void CenterSplash(System.Windows.Window splash, Rectangle area)
+        {
+            try
+            {
+                if (area.IsEmpty) return;
+
+                IntPtr handle = new System.Windows.Interop.WindowInteropHelper(splash).Handle;
+                if (!GetWindowRect(handle, out SplashRect bounds)) return;
+
+                int width = bounds.Right - bounds.Left;
+                int height = bounds.Bottom - bounds.Top;
+                const uint SWP_NOSIZE = 0x0001, SWP_NOZORDER = 0x0004, SWP_NOACTIVATE = 0x0010;
+                SetWindowPos(handle, IntPtr.Zero, area.Left + (area.Width - width) / 2, area.Top + (area.Height - height) / 2,
+                    0, 0, SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
+            }
+            catch (Exception)
+            {
+                // only the position of the splash screen - never let it stop the start
+            }
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct SplashRect
+        {
+            public int Left, Top, Right, Bottom;
+        }
+
+        [DllImport("user32.dll")]
+        private static extern bool GetWindowRect(IntPtr hWnd, out SplashRect rect);
+
+        [DllImport("user32.dll")]
+        private static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int x, int y, int cx, int cy, uint flags);
 
         internal static void CloseSplash()
         {
