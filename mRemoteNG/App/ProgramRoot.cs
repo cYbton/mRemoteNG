@@ -428,35 +428,36 @@ namespace mRemoteNG.App
                 if (string.Equals(file, self, StringComparison.OrdinalIgnoreCase))
                     continue;
 
+                // Mapped as an executable image first, the way Windows checks it. Assembly.LoadFrom alone hides a
+                // block: .NET then quietly reads the file as plain data, the program runs on, but Windows shows its
+                // Smart App Control notification. Only images that can't be mapped here (e.g. 32-bit IL-only
+                // assemblies) are read through .NET instead.
+                IntPtr module = LoadLibraryEx(file, IntPtr.Zero, DontResolveDllReferences);
+                if (module != IntPtr.Zero)
+                {
+                    FreeLibrary(module);
+                    continue;
+                }
+                if (Marshal.GetLastWin32Error() == ErrorSystemIntegrityPolicyViolation)
+                {
+                    Console.Out.WriteLine(file);
+                    blocked++;
+                    continue;
+                }
+
                 try
                 {
                     AssemblyName.GetAssemblyName(file);
                     Assembly.LoadFrom(file);
-                    continue;
-                }
-                catch (BadImageFormatException)
-                {
-                    // not a .NET assembly - mapped as a native image below
                 }
                 catch (Exception ex) when (ex.HResult == unchecked((int)0x800711C7) || ex.InnerException?.HResult == unchecked((int)0x800711C7))
                 {
                     Console.Out.WriteLine(file);
                     blocked++;
-                    continue;
                 }
                 catch (Exception)
                 {
-                    // e.g. a second copy of an assembly that is already loaded - it has been read and checked anyway
-                    continue;
-                }
-
-                IntPtr module = LoadLibraryEx(file, IntPtr.Zero, DontResolveDllReferences);
-                if (module != IntPtr.Zero)
-                    FreeLibrary(module);
-                else if (Marshal.GetLastWin32Error() == ErrorSystemIntegrityPolicyViolation)
-                {
-                    Console.Out.WriteLine(file);
-                    blocked++;
+                    // not a .NET assembly, or a second copy of one already loaded - it has been read anyway
                 }
             }
 
@@ -469,7 +470,6 @@ namespace mRemoteNG.App
 
         [DllImport("kernel32.dll")]
         private static extern bool FreeLibrary(IntPtr hModule);
-
 
         internal static void CloseSplash()
         {

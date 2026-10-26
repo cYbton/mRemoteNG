@@ -2,9 +2,11 @@ name: sysprep.io build
 
 # Builds the portable, self-contained x64 sysprep.io build of mRemoteNG on a GitHub runner - a local build
 # on a PC with Smart App Control on gets its freshly built, unsigned DLLs blocked.
-# - push to the sysprep branch: the zip is only attached to the run, for testing
-# - push of the tag v<version>-sysprep.io.<n> (matching AssemblyInfo): the zip also becomes the latest
-#   GitHub release, which Hyper-Lab's deploy picks up
+# - push to the sysprep branch: builds the zip and attaches it to the run, for testing (warm-up on a PC
+#   with Smart App Control on: every file must get through)
+# - push of the tag v<version>-sysprep.io.<n> (matching AssemblyInfo): no new build - the zip of the tested
+#   branch build of the same commit becomes the latest GitHub release, byte for byte what was tested.
+#   Hyper-Lab's deploy picks it up.
 # (workflow_dispatch needs the workflow on the fork's default branch, which stays upstream's)
 on:
   push:
@@ -17,9 +19,10 @@ permissions: {}
 
 jobs:
   build:
+    if: github.ref_type == 'branch'
     runs-on: windows-2025-vs2026
     permissions:
-      contents: write   # only needed by the release step
+      contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -110,13 +113,45 @@ jobs:
           path: ${{ steps.version.outputs.zip }}
           retention-days: 14
 
-      - name: Publish release
-        if: startsWith(github.ref, 'refs/tags/')
+  release:
+    if: github.ref_type == 'tag'
+    runs-on: windows-2025-vs2026
+    permissions:
+      contents: write   # create the release
+      actions: read     # find and download the tested build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Read version
+        id: version
+        shell: pwsh
+        run: |
+          $cs = Get-Content mRemoteNG\Properties\AssemblyInfo.cs -Raw
+          if ($cs -notmatch 'AssemblyVersion\("(?<ver>\d+\.\d+\.\d+)\.(?<rel>\d+)"\)') { throw 'No AssemblyVersion in AssemblyInfo.cs' }
+          $name = "$($Matches['ver'])-sysprep.io.$($Matches['rel'])"
+          if ('${{ github.ref_name }}' -ne "v$name") { throw "Tag ${{ github.ref_name }} does not match the version in AssemblyInfo (v$name)" }
+          "tag=v$name" >> $env:GITHUB_OUTPUT
+          "title=mRemoteNG $($Matches['ver']) (sysprep.io.$($Matches['rel']))" >> $env:GITHUB_OUTPUT
+          "zip=mRemoteNG-$name-x64.zip" >> $env:GITHUB_OUTPUT
+
+      - name: Get the tested build
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          if ('${{ github.ref_name }}' -ne '${{ steps.version.outputs.tag }}') { throw "Tag ${{ github.ref_name }} does not match the version in AssemblyInfo (${{ steps.version.outputs.tag }})" }
+          $run = gh run list -R '${{ github.repository }}' --workflow sysprep-build.yml --branch sysprep --commit '${{ github.sha }}' --status success --json databaseId --jq '.[0].databaseId'
+          if (-not $run) { throw "No successful build of commit ${{ github.sha }} on the sysprep branch - push it, test it, then tag it" }
+          gh run download $run -R '${{ github.repository }}' -n '${{ steps.version.outputs.zip }}' -D tested
+          if ($LASTEXITCODE -ne 0) { throw "Zip of run $run not found (artifacts are kept 14 days)" }
+          Move-Item "tested\${{ steps.version.outputs.zip }}" .
+          Write-Host "Releasing the zip of run $run"
+
+      - name: Publish release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
           gh release view '${{ steps.version.outputs.tag }}' *> $null
           if ($LASTEXITCODE -eq 0) { throw "Release ${{ steps.version.outputs.tag }} exists already - count up sysprepRelease in AssemblyInfo.tt/.cs and tag again" }
           gh release create '${{ steps.version.outputs.tag }}' '${{ steps.version.outputs.zip }}' --title '${{ steps.version.outputs.title }}' --notes-file sysprep\release-notes.md --latest
