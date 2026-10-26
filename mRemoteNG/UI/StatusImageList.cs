@@ -79,22 +79,41 @@ namespace mRemoteNG.UI
             }
 
             ImageList.Images.Add(BuildConnectionIconName(connection.Icon, false), image);
-            ImageList.Images.Add(BuildConnectionIconName(connection.Icon, true), Overlay(image, Properties.Resources.ConnectedOverlay));
+            ImageList.Images.Add(BuildConnectionIconName(connection.Icon, true), WithConnectedDot(image, ImageList.ImageSize));
             return name;
         }
 
-        private static Bitmap Overlay(Icon background, Image foreground)
+        p        // sysprep fork: a green dot at the bottom right instead of the play button overlay. The icon is rendered
+        // at the size of the image list, and the ring around the dot is cut out to transparent, so the dot stays
+        // apart from the icon on any background.
+        private static readonly Color ConnectedDotColor = Color.FromArgb(70, 200, 90);
+
+        private static Bitmap WithConnectedDot(Icon icon, Size size)
         {
-            Bitmap result = new(background.ToBitmap(), new Size(16, 16));
+            Bitmap result;
+            using (Icon sized = new(icon, size))
+                result = new Bitmap(sized.ToBitmap(), size);
+
+            float dot = Math.Max(5f, Math.Min(size.Width, size.Height) * 0.45f);
+            float ring = Math.Max(1.5f, dot * 0.2f);
+            RectangleF dotRect = new(size.Width - dot, size.Height - dot, dot, dot);
+            RectangleF ringRect = RectangleF.Inflate(dotRect, ring, ring);
+
             using (Graphics gr = Graphics.FromImage(result))
             {
-                gr.DrawImage(foreground, new Rectangle(0, 0, foreground.Width, foreground.Height));
+                gr.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                gr.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceCopy;
+                using (SolidBrush clear = new(Color.Transparent))
+                    gr.FillEllipse(clear, ringRect);
+                gr.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceOver;
+                using (SolidBrush green = new(ConnectedDotColor))
+                    gr.FillEllipse(green, dotRect);
             }
 
             return result;
         }
 
-        private static void FillImageList(ImageList imageList)
+rivate static void FillImageList(ImageList imageList)
         {
             try
             {
