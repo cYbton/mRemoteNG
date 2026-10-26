@@ -1,6 +1,4 @@
-﻿﻿using Microsoft.IdentityModel.Tokens;
-
-using mRemoteNG.App.Update;
+﻿﻿using mRemoteNG.App.Update;
 using mRemoteNG.Config.Settings;
 using mRemoteNG.Messages;
 using mRemoteNG.Themes;
