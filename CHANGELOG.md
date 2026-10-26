@@ -2,6 +2,19 @@
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## sysprep.io build
+The releases of this fork (`v1.78.2-sysprep.io.<n>`, based on upstream 1.78.2-dev) are described on the
+[releases page](https://github.com/cYbton/mRemoteNG/releases) and in [`sysprep/release-notes.md`](sysprep/release-notes.md);
+what the fork changes compared to upstream is summed up in the [README](README.md).
+
+- **sysprep.io.10** – window starts maximized, WinForms splash screen; web tabs with a browser-like bar, automatic login to web login forms, lab certificates accepted; RDP clipboard and key combinations on by default, newest RDP client; WPF, SQL Server/MySQL storage, VNC/ARD, update check, language selection and the Backup options page removed; only `mRemoteNG.dll` is new per release.
+- **sysprep.io.9** – green dot for connected sessions; external credential providers removed; signed NuGet originals instead of recompiled libraries; `--warmup`; no connection file backups by default; built on GitHub Actions.
+- **sysprep.io.8** – splash screen right at the start.
+- **sysprep.io.7** – splash screen on the main window's screen.
+- **sysprep.io.6** – RDP session repainted after connecting and after the logon.
+- **sysprep.io.1 – .5** – training defaults, dark theme, font options, reconnect handling, lab icons.
+
+The upstream changelog follows.
 ## [1.78.2]
 ### Fixed
 - #2154: fixed "Alert on Idle Disconnect" and "Disable Cursor Blinking" showing the labels of other RDP properties in the Config panel

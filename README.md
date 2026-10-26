@@ -1,204 +1,77 @@
-<p align="Left">
-	Developing mRemoteNG to its fullest potential is my personal priority.<br>
-While the project remains non-commercial, it does come with ongoing costs — including VPS hosting for testing, AI tools, domain fees, and more. <br> If you find value in mRemoteNG and want to support its future, even a small donation from our community can make a huge difference.<br>
-Your support helps me keep the project secure, modern, and accessible for everyone who relies on it — and brings us closer to a brighter, more collaborative future.<br><br>
-Consider donating — every contribution counts!
-	<br><br>
-	<a href="https://www.paypal.com/paypalme/mremoteng">
-    	<img height='36' alt="PayPal" style='border:0px;height:36px;' src="https://img.shields.io/badge/%24-PayPal-blue.svg?label=Donate&logo=PayPal&style=flat-square">
-	</a><br>
-	<a href='https://ko-fi.com/Q5Q41I7JS' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi6.png?v=6' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
-  </a>
-</p>
+# mRemoteNG – sysprep.io build
 
----
+A fork of [mRemoteNG](https://github.com/mRemoteNG/mRemoteNG), the open source, multi-protocol, tabbed remote
+connections manager, for the Hyper-V training labs of [sysprep.io](https://sysprep.io). It is based on upstream
+1.78.2-dev and ships as a portable, self-contained x64 build with the training defaults built in.
 
-<p align="center">
-  <img width="450" src="https://github.com/mRemoteNG/mRemoteNG/blob/mRemoteNGProjectFiles/Header_dark.png">
-</p>
-  
-<p align="center">
-  An open source, multi-protocol, tabbed remote connections manager allowing you to view all of your connections in a simple yet powerful interface
-</p>
+The lab automation (Hyper-Lab) installs the latest release of this fork and generates the lab's connection file
+for it. The build works on its own as well: unzip it and start `mRemoteNG.exe` – nothing to install, no .NET
+runtime needed.
 
-<p align="center">
-  <img alt="GitHub All Releases" src="https://img.shields.io/github/downloads/mremoteng/mremoteng/total?label=Overall%20Downloads&style=for-the-badge">
-</p>
+**Download:** [latest release](https://github.com/cYbton/mRemoteNG/releases/latest)
 
-<p align="center">
-  <a href="https://www.reddit.com/r/mRemoteNG/">
-    <img alt="Subreddit subscribers" src="https://img.shields.io/reddit/subreddit-subscribers/mremoteng?label=Reddit&logo=Reddit&style=flat-square">
-  </a>
-  <a href="https://twitter.com/mremoteng">
-    <img alt="Twitter Follow" src="https://img.shields.io/twitter/follow/mremoteng?color=%231DA1F2&label=Twitter&logo=Twitter&style=flat-square">
-  </a>
-  <a href="https://app.element.io/#/room/#mremoteng:matrix.org">
-    <img alt="Element" src="https://img.shields.io/matrix/mremoteng:matrix.org?label=Join%20to%20chat%20about%20mRemoteNG&logo=element&style=social&link=https://app.element.io/#/room/#mremoteng:matrix.org">
-  </a>  
-</p>
+## What is different from upstream
 
-<p align="center">
-  <a href="https://github.com/mRemoteNG/mRemoteNG/blob/develop/COPYING.TXT">
-    <img alt="License" src="https://img.shields.io/github/license/mremoteng/mremoteng?label=License&style=flat">
-  </a>
-  <a href="https://bestpractices.coreinfrastructure.org/projects/529">
-    <img alt="CII Best Practices" src="https://bestpractices.coreinfrastructure.org/projects/529/badge?style=flat">
-  </a>
-  <a href='https://mremoteng.readthedocs.io/en/latest/?badge=latest'>
-    <img src='https://readthedocs.org/projects/mremoteng/badge/?version=latest' alt='Documentation Status' />
-  </a>
-  <a href="https://gurubase.io/g/mremoteng">
-    <img alt="Gurubase" src="https://img.shields.io/badge/Gurubase-Ask%20mRemoteNG%20Guru-006BFF?style=flat-square">
-  </a>
-</p>
+**Built-in defaults** – dark theme (`sysprep.io_dark`), larger fonts and tree icons, English UI, the window starts
+maximized, only the connection tree on the left, quiet notifications, no tray icon, no close confirmation, no
+connection file backups. RDP connections redirect the clipboard and Windows key combinations and use the newest RDP
+client on the PC. SSH runs in the bundled PuTTY with Consolas 12.
 
----
+**RDP**
 
-| Channel | Build Status | Downloads |
-| ---------------|--------------|-----------|
-| Stable | ![Build status](https://ci.appveyor.com/api/projects/status/rqwxjxldail7btcf?svg=true) | [![Github Releases (by Release)](https://img.shields.io/github/downloads/mRemoteNG/mRemoteNG/v1.76.20/total.svg)](https://github.com/mRemoteNG/mRemoteNG/releases/tag/v1.76.20) |
-| Preview | ![Build status](https://ci.appveyor.com/api/projects/status/rqwxjxldail7btcf/branch/preview?svg=true) | [![Github Releases (by Release)](https://img.shields.io/github/downloads/mRemoteNG/mRemoteNG/v1.77.1/total.svg)](https://github.com/mRemoteNG/mRemoteNG/releases/tag/v1.77.1) |
-| Nightly | ![Build status](https://ci.appveyor.com/api/projects/status/rqwxjxldail7btcf/branch/develop?svg=true) | [![Github Releases](https://img.shields.io/github/downloads/mRemoteNG/mRemoteNG/20250916-v1.78.2-NB-(3177)/total.svg)](https://github.com/mRemoteNG/mRemoteNG/releases/tag/20250916-v1.78.2-NB-(3177)) |
+- Automatic reconnect only after an unexpected disconnect, with a themed reconnect window; after a server restart
+  it waits for the RDP port; no reconnect after a sign-out or when the session was taken over elsewhere.
+- No white flash while connecting, the session is resized smoothly when panels change.
+- The first connection after the start doesn't hang (the RDP client is loaded in advance).
 
-## Features
+**Web interfaces (HTTP/HTTPS connections)**
 
-The following protocols are supported:
+- A browser-like bar above the page: back, forward, reload, **Log in** and an address bar.
+- Login forms (OPNsense, Citrix Web Studio, StoreFront, …) are filled in with the connection's username and
+  password and sent automatically when the tab opens; **Log in** does the same by hand. HTTP login prompts
+  (Basic/NTLM, e.g. Windows Admin Center) are answered too.
+- The self-signed certificates of the lab's web interfaces are accepted without a warning page.
 
-* RDP (Remote Desktop Protocol)
-* VNC (Virtual Network Computing)
-* SSH (Secure Shell)
-* Telnet (TELecommunication NETwork)
-* HTTP/HTTPS (Hypertext Transfer Protocol)
-* rlogin (Remote Login)
-* Raw Socket Connections
-* Powershell remoting
-* AnyDesk
+**Connection tree** – a green dot marks connected sessions; Azure, Citrix and network icons of the lab diagrams in
+`Icons/` (see [`Icons/NOTICE.md`](mRemoteNG/Icons/NOTICE.md)).
 
-For a detailed feature list and general usage support, refer to the [Documentation](https://mremoteng.readthedocs.io/en/latest/).
+**Removed** – to keep the download small and the number of unsigned files low: external credential providers
+(Delinea, Passwordstate, 1Password, Vault/OpenBao), SQL Server/MySQL connection storage, VNC/ARD, WPF, the
+translations and language selection, and the built-in update check (it would offer upstream mRemoteNG; updates
+come with Hyper-Lab).
 
-## Build environment
+## Smart App Control
 
-This project must be built on Windows using Visual Studio 2026 tooling. Use the MSBuild.exe from the Visual Studio 2026 installation instead of the .NET Core `dotnet build` fallback; the Windows desktop project requires the Visual Studio build environment and COM/desktop targets.
+The build is not code-signed. On a Windows PC with Smart App Control turned on, Windows judges every new, unsigned
+file in the cloud and can block it. The build keeps that to a minimum:
 
-For local builds, prefer:
+- the NuGet libraries ship as their signed originals (not recompiled),
+- the RDP interop assemblies, ObjectListView and the plugin contracts are fixed binaries
+  (`mRemoteNG/libs/sysprep`) that keep their hash from release to release,
+- so per release only `mRemoteNG.dll` is new.
 
-```powershell
-& "$env:ProgramFiles(x86)\Microsoft Visual Studio\2026\Enterprise\MSBuild\Current\Bin\MSBuild.exe" mRemoteNG.sln /p:Configuration=Debug /p:Platform=x64
-```
+`mRemoteNG.exe --warmup` loads every program file once without running it and ends; the exit code is the number of
+files Windows blocked, their paths come on stdout. Hyper-Lab runs it right after unpacking, so Windows checks the
+new files during the deploy and not on the user's first start.
 
-If your installation path differs, locate the VS2026 MSBuild from `vswhere.exe` first and then call that `MSBuild.exe` explicitly.
+## Building and releasing
 
-## Plugin development workflow
+Builds run on GitHub Actions ([`.github/workflows/sysprep-build.yml`](.github/workflows/sysprep-build.yml)) – a
+local build on a PC with Smart App Control on gets its freshly built DLLs blocked.
 
-Plugin projects are built from a separate plugin-only solution and loaded from the app's plugin folder at runtime.
+1. Count up `sysprepRelease` in `mRemoteNG/Properties/AssemblyInfo.tt` **and** `AssemblyInfo.cs`, and describe the
+   release in [`sysprep/release-notes.md`](sysprep/release-notes.md).
+2. Push to the `sysprep` branch: the workflow builds the zip and attaches it to the run.
+3. Test that zip – including `mRemoteNG.exe --warmup` on a PC with Smart App Control on.
+4. Push the tag `v1.78.2-sysprep.io.<n>`: the workflow publishes the zip of the tested build of that commit, byte
+   for byte, as the latest release. It doesn't build again.
 
-To build the plugin set:
+Changed defaults belong in three places: `Properties/*.settings`, the matching `*.Designer.cs` and – for the main
+`Settings` class – `App.config`. Code changes of the fork are marked with `sysprep fork:` comments.
 
-```powershell
-dotnet build mRemoteNG.Plugins.sln -c Release -p:Platform=x64
-```
+## License and credits
 
-Then copy the generated plugin DLLs into the app plugin folder, while keeping the shared contracts assembly in the app's `Assemblies` folder:
-
-The example below uses the x64 output path. For ARM64 builds, replace `x64` with `arm64`.
-
-```powershell
-Copy-Item .\mRemoteNG.PluginContracts\bin\x64\Release\net10.0-windows10.0.26100.0\mRp.Contracts.dll .\mRemoteNG\bin\x64\Release\Assemblies\
-Copy-Item .\mRemoteNG.Plugins.PortScan\bin\x64\Release\net10.0-windows10.0.26100.0\mRp.PortScan.dll .\mRemoteNG\bin\x64\Release\Plugins\
-Copy-Item .\mRemoteNG.Plugins.SshTransfer\bin\x64\Release\net10.0-windows10.0.26100.0\mRp.SshTransfer.dll .\mRemoteNG\bin\x64\Release\Plugins\
-Copy-Item .\mRemoteNG.Plugins.AWS\bin\x64\Release\net10.0-windows10.0.26100.0\mRp.AWS.dll .\mRemoteNG\bin\x64\Release\Plugins\
-Copy-Item .\mRemoteNG.Plugins.MultiAddress\bin\x64\Release\net10.0-windows10.0.26100.0\mRp.MultiAddress.dll .\mRemoteNG\bin\x64\Release\Plugins\
-```
-
-See [README.plugins.md](README.plugins.md) for the full workflow and details.
-
-## Installation
-
-### Supported Operating Systems
-
-- [Windows 11](https://en.wikipedia.org/wiki/Windows_11)
-- [Windows 10](https://en.wikipedia.org/wiki/Windows_10)
-- [Windows 8.1](https://en.wikipedia.org/wiki/Windows_8.1)
-- [Windows Server 2022](https://en.wikipedia.org/wiki/Windows_Server_2022)
-- [Windows Server 2019](https://en.wikipedia.org/wiki/Windows_Server_2019)
-- [Windows Server 2016](https://en.wikipedia.org/wiki/Windows_Server_2016)
-- [Windows Server 2012 R2](https://en.wikipedia.org/wiki/Windows_Server_2012_R2)
-
-#### Source package
-
-This contains the source code from which mRemoteNG is built.
-You will need to compile it yourself using Visual Studio.
-
-### Minimum Requirements
-
-Make sure you have the latest version installed:
-
-* [Microsoft .NET Desktop Runtime 10.0](https://dotnet.microsoft.com/download/dotnet/10.0)
-* Microsoft Visual C++ Redistributable 2015–2026 is needed:
- - [x64](https://aka.ms/vs/18/release/vc_redist.x64.exe)
- - [ARM64](https://aka.ms/vs/18/release/vc_redist.arm64.exe)
- - [x86](https://aka.ms/vs/18/release/vc_redist.x86.exe)
-* Microsoft Terminal Service Client 6.0 or later (needed if you use RDP with mstscax.dll and/or msrdp.ocx to be registered)
-
-### Download
-
-> :star: Starting Windows 11 you can use winget to install mRemoteNG. Just run `winget install -e --id mRemoteNG.mRemoteNG`
-
-mRemoteNG is available as a redistributable MSI package or as a portable ZIP package and can be downloaded from the following locations:
-* [GitHub](https://github.com/mRemoteNG/mRemoteNG/releases)
-* [Project Website](https://mremoteng.org/download)
-
-### Command line install
-
-The MSI package of mRemoteNG can be installed using the command line:
-
-`msiexec /i C:\Path\To\mRemoteNG-Installer.msi [/qn] [INSTALLDIR=value] [IGNOREPREREQUISITES=value] [/lv* <log path>]`
-
-**Note on privileges**: The MSI installer supports dual-mode installation. By default, it will prompt for an installation scope in the UI. When running silently (`/qn`), it skips the UI and installs **per-machine** by default (which requires Administrator privileges). If you want to silently install it for the current user without requiring Administrator privileges, you must set the `MSIINSTALLPERUSER=1 ALLUSERS=2` properties from the command line.
-
-| Argument/Property | Value | Description |
-|-|-|-|
-| /qn | `Silent Installation` | Will run the installer silently in the background. |
-| /lv* | `Silent Installation` | Will write a logfile to the specified location. (For paths that contain spaces, enclose the path in double quotes) |
-| INSTALLDIR | `folder path` | Allows you to set the installation directory from the command line. (For paths that contain spaces, enclose the path in double quotes) |
-| IGNOREPREREQUISITES | `0` or `1` | When set to `1`, the installer will not be halted if any prerequisite check is not met. Administrator privileges are still required for a per-machine installation. |
-| ALLUSERS | `2` | Enables single-package authoring so `MSIINSTALLPERUSER` can select the installation scope. |
-| MSIINSTALLPERUSER | `1` | With `ALLUSERS=2`, installs for the current user; omit this property for a per-machine installation. |
-
-## Manual Uninstall
-
-_If you are using the Portable version, simply deleting the folder that contains mRemoteNG should be sufficient. These uninstall instructions are only necessary for the normal binary .MSI installed version of mRemoteNG_
-
-* Delete the folder where mRemoteNG was installed. By default, this is:
-	`%PROGRAMFILES%\mRemoteNG` (for versions before 1.77 on a x64 Windows its `%programfiles(x86)%\mRemoteNG`)
-
-* Delete the mRemoteNG install entry from the following location. You may search for "mRemoteNG" in the DisplayName field:
-  * x86 Windows or mRemoteNG starting with v1.77: `HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\`
-  * x64 Windows and mRemoteNG before 1.77: `HKLM\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\`
-* Remove the following registry key: `HKLM\SOFTWARE\mRemoteNG` (on x64 Windows with mRemoteNG before 1.77 it's `HKLM\SOFTWARE\WOW6432Node\mRemoteNG`)
-
-* (Optional) If you would also like to delete user data remove `%LOCALAPPDATA%\mRemoteNG`
-* (Optional) If you would also like to remove the connection configuration, delete `%APPDATA%\mRemoteNG`
-
-* (Optional) If no other software uses it, the "Microsoft Windows Desktop Runtime" may be uninstalled too.
-
-## Featured Projects
-
-* [PSmRemoteNG](https://github.com/realslacker/PSmRemoteNG) A module to create mRemoteNG connection files from PowerShell.
-* [mRemoteNGOpenVPN](https://github.com/T3los/mRemoteNGOpenVPN) A script that can be embedded as an external tool to control OpenVPN.
-* [mRemoteNG-Icons](https://github.com/bearlikelion/mRemoteNG-Icons) A collection of fancy icons to customize the connections
-
-## Contribute
-
-If you find mRemoteNG useful and would like to contribute, it would be greatly appreciated. When you contribute, you make it possible for the team to cover the costs of producing mRemoteNG.
-
-### Submit Code
-Check out the [Wiki page](https://github.com/mRemoteNG/mRemoteNG/wiki) on how to configure your development environment and submit a pull request.
-
-### Translate
-Check out the [Wiki page](https://github.com/mRemoteNG/mRemoteNG/wiki) on how to help make mRemoteNG a polyglot.
-
-</br>
-<p align="center">
-  <img alt="Developed with ReSharper" src="https://github.com/mRemoteNG/mRemoteNG/blob/mRemoteNGProjectFiles/icon_ReSharper.png">
-</p>
+GPL-2.0, like upstream mRemoteNG – see [`COPYING.txt`](COPYING.txt). All credit for mRemoteNG goes to its
+developers and contributors ([`CREDITS.md`](CREDITS.md)); if mRemoteNG is useful to you, consider
+[supporting the upstream project](https://mremoteng.org/contribute). Documentation for the features this fork
+didn't change: [mremoteng.readthedocs.io](https://mremoteng.readthedocs.io/en/latest/).
