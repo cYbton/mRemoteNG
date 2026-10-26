@@ -79,13 +79,17 @@ jobs:
             if (-not (Test-Path (Join-Path $dir $required))) { throw "Missing in the publish folder: $required" }
           }
           # the external connectors are not part of the sysprep.io build
-          foreach ($unwanted in 'ExternalConnectors.dll', 'Assemblies\VaultSharp.dll', 'Assemblies\AWSSDK.Core.dll') {
+          foreach ($unwanted in 'ExternalConnectors.dll', 'Assemblies\VaultSharp.dll', 'Assemblies\AWSSDK.Core.dll', 'de\mRemoteNG.resources.dll') {
             if (Test-Path (Join-Path $dir $unwanted)) { throw "Should not be in the publish folder: $unwanted" }
           }
           $binaries = Get-ChildItem $dir -Recurse -File -Include *.dll, *.exe
           $unsigned = $binaries | Where-Object { (Get-AuthenticodeSignature $_.FullName).Status -ne 'Valid' }
           Write-Host "$($binaries.Count) DLL/EXE files, $($unsigned.Count) without a valid signature:"
           $unsigned | ForEach-Object { Write-Host "  $($_.FullName.Substring($dir.Length + 1))" }
+          # NuGet libraries must keep their publisher's signature (no ReadyToRun rewrite) - see KeepPackageAssembliesOriginal
+          foreach ($signedPackage in 'Assemblies\Newtonsoft.Json.dll', 'Assemblies\Microsoft.Data.SqlClient.dll', 'Assemblies\BouncyCastle.Cryptography.dll') {
+            if ((Get-AuthenticodeSignature (Join-Path $dir $signedPackage)).Status -ne 'Valid') { throw "$signedPackage lost its signature" }
+          }
 
       - name: Create zip
         shell: pwsh

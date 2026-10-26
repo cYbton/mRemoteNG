@@ -84,6 +84,7 @@
     <ResolveComReferenceSilent>True</ResolveComReferenceSilent>
     <SelfContained>true</SelfContained>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
     <PublishReadyToRun>true</PublishReadyToRun>
     <CopyBuildOutputToPublishDirectory>true</CopyBuildOutputToPublishDirectory>
     <CopyOutputSymbolsToPublishDirectory>false</CopyOutputSymbolsToPublishDirectory>
@@ -616,6 +617,21 @@
     </ItemGroup>
     <Error Condition="'@(_LabToolsAssembly)' == ''" Text="BouncyCastle.Cryptography.dll not found in the references" />
     <Copy SourceFiles="@(_LabToolsAssembly)" DestinationFolder="$(PublishDir)Assemblies\" />
+  </Target>
+  <!-- sysprep fork: ReadyToRun only for mRemoteNG's own assemblies. Precompiling a NuGet library rewrites it and
+       drops its Authenticode signature (Microsoft, .NET Foundation, Bouncy Castle ...) - Smart App Control then
+       sees ~50 unknown, unsigned files per build instead of the well-known originals, and blocked some of them. -->
+  <Target Name="KeepPackageAssembliesOriginal" BeforeTargets="_PrepareForReadyToRunCompilation">
+    <ItemGroup>
+      <PublishReadyToRunExclude Include="@(ResolvedFileToPublish->'%(Filename)%(Extension)')" Condition="'%(ResolvedFileToPublish.NuGetPackageId)' != '' and '%(ResolvedFileToPublish.Extension)' == '.dll'" />
+    </ItemGroup>
+  </Target>
+  <!-- sysprep fork: English only - the UI language is fixed to English, and every translation is one more unsigned
+       mRemoteNG.resources.dll for Smart App Control to judge -->
+  <Target Name="RemoveTranslations" AfterTargets="ComputeResolvedFilesToPublishList" BeforeTargets="CopyFilesToPublishDirectory">
+    <ItemGroup>
+      <ResolvedFileToPublish Remove="@(ResolvedFileToPublish)" Condition="'%(ResolvedFileToPublish.Filename)%(ResolvedFileToPublish.Extension)' == 'mRemoteNG.resources.dll'" />
+    </ItemGroup>
   </Target>
   <PropertyGroup>
     <!-- Disable CET compatibility check in .NET 9 AppHost -->
