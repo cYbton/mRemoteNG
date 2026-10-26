@@ -12,34 +12,69 @@ runtime needed.
 
 ## What is different from upstream
 
-**Built-in defaults** – dark theme (`sysprep.io_dark`), larger fonts and tree icons, English UI, the window starts
-maximized, only the connection tree on the left, quiet notifications, no tray icon, no close confirmation, no
-connection file backups. RDP connections redirect the clipboard and Windows key combinations and use the newest RDP
-client on the PC. SSH runs in the bundled PuTTY with Consolas 12.
+### RDP
 
-**RDP**
+- **The session follows the window.** With *Fit to window* and *automatic resize* (as in mRemoteNG 1.76) the
+  picture scales while you drag the window, splitter or a panel, and when you let go the session takes the new
+  size in place – no reconnect. Sizes are kept within what RDP accepts, nothing is sent while the tab is hidden.
+- **Reconnect only when it makes sense.** After an unexpected disconnect a themed reconnect window stays until the
+  session is back (at most 30 attempts, with a check of the RDP port). After a server restart it waits for the
+  server; after a sign-out or a shutdown it waits until the server was down, else the tab closes after a minute.
+  No reconnect after a failed first connect, after *Disconnect* or when the session was taken over elsewhere.
+- **Fast and calm connecting.** No white flash before the session shows (the connection area keeps the theme
+  background), the session is repainted once it is connected, and the first connection after the start doesn't
+  hang (the RDP client is loaded in advance).
+- **Defaults:** clipboard and Windows key combinations (Alt+Tab, Win+…) redirected, the newest RDP client on the
+  PC (*Highest*) – also for connection files of older formats.
 
-- Automatic reconnect only after an unexpected disconnect, with a themed reconnect window; after a server restart
-  it waits for the RDP port; no reconnect after a sign-out or when the session was taken over elsewhere.
-- No white flash while connecting, the session is resized smoothly when panels change.
-- The first connection after the start doesn't hang (the RDP client is loaded in advance).
-
-**Web interfaces (HTTP/HTTPS connections)**
+### Web interfaces (HTTP/HTTPS connections)
 
 - A browser-like bar above the page: back, forward, reload, **Log in** and an address bar.
 - Login forms (OPNsense, Citrix Web Studio, StoreFront, …) are filled in with the connection's username and
-  password and sent automatically when the tab opens; **Log in** does the same by hand. HTTP login prompts
-  (Basic/NTLM, e.g. Windows Admin Center) are answered too.
-- The self-signed certificates of the lab's web interfaces are accepted without a warning page.
+  password and sent automatically when the tab opens; **Log in** does the same by hand. The input goes in as real
+  keystrokes, so it works with any web framework; a login page is never sent twice (no account lockout).
+- HTTP login prompts (Basic/NTLM, e.g. Windows Admin Center) are answered with the connection's credentials, and
+  the self-signed certificates of the lab's web interfaces are accepted without a warning page.
 
-**Connection tree** – a green dot marks connected sessions; Azure, Citrix and network icons of the lab diagrams in
-`Icons/` (see [`Icons/NOTICE.md`](mRemoteNG/Icons/NOTICE.md)).
+### SSH
 
-**Removed** – to keep the download small and the number of unsigned files low: external credential providers
-(Delinea, Passwordstate, 1Password, Vault/OpenBao), SQL Server/MySQL connection storage, VNC/ARD, WPF, the
-translations and language selection, and the built-in update check (it would offer upstream mRemoteNG; updates
-come with Hyper-Lab).
+- The bundled PuTTY gets Consolas 12 as its default font unless one is set.
 
+### Look and feel
+
+- **sysprep.io dark theme** with the details fixed: triangle expand glyphs in the tree, the Visual Studio icons
+  (tree, options list, toolbars) without their white fills, a thin frame around the connection tabs, no white
+  areas while connecting, a themed reconnect window, the Japanese color names only for a Japanese UI.
+- **Font sizes** in *Options > Appearance*: connection tree, program (tabs, panels, dialogs, option pages – fixed
+  layouts grow with the font) and the icon size of the tree; the Config panel uses the tree's font size.
+- **Connection tree:** a green dot marks connected sessions; no selection jumps around while you work in a tab; no
+  grey line below the last node.
+- **Icons:** the Azure, Citrix and network icon sets of the sysprep.io lab diagrams, mRemoteNG's own icons and the
+  bearlikelion community set in `Icons/` (see [`Icons/NOTICE.md`](mRemoteNG/Icons/NOTICE.md)). The icon menu of
+  a connection has a submenu per set and category and loads the pictures when opened; the scripts that render the
+  lab icons from the sysprep.io draw.io stencils are in [`sysprep/IconBuilder`](sysprep/IconBuilder).
+- **Layout:** the window starts maximized on the main screen; on the first start only the connection tree
+  (250 px) is open – Config and Notifications are hidden and back via the *View* menu, which got entries for
+  them; the panel tab strip shows only when *Always show panel tabs* is set; no minimize arrow on the tabs.
+- **Start:** the splash screen shows right away, on the screen the window opens on; the log records how long the
+  start took.
+
+### Defaults and settings
+
+- **Built-in training defaults:** English UI, no tray icon, no quick connect toolbar, no close confirmation, quiet
+  notifications (no pop-ups for errors), automatic reconnect, PuTTY sessions hidden in the tree, no connection
+  file backups, no password prompt for user profiles on start.
+- **Settings carry over:** all option pages are taken over when a new version starts.
+- **Version:** `1.78.2 (sysprep.io.N)` – in the About dialog, the splash screen and the file version.
+
+### Removed
+
+To keep the download small and the number of unsigned files low (see below): the external credential providers
+(Delinea, Passwordstate, 1Password, Vault/OpenBao), storing the connections in SQL Server/MySQL, VNC/ARD, WPF, the
+translations and the language selection, the Backup, SQL Server and Updates option pages, and the built-in update
+check (it would offer upstream mRemoteNG – updates come with Hyper-Lab). At the start only plugin DLLs (`mRp.*`,
+`*Plugin*`) are looked at in the program folder – checking every DLL froze the start for up to a minute in the
+self-contained build.
 ## Smart App Control
 
 The build is not code-signed. On a Windows PC with Smart App Control turned on, Windows judges every new, unsigned

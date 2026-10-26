@@ -12,7 +12,11 @@ what the fork changes compared to upstream is summed up in the [README](README.m
 - **sysprep.io.8** – splash screen right at the start.
 - **sysprep.io.7** – splash screen on the main window's screen.
 - **sysprep.io.6** – RDP session repainted after connecting and after the logon.
-- **sysprep.io.1 – .5** – training defaults, dark theme, font options, reconnect handling, lab icons.
+- **sysprep.io.5** – first start on the main screen instead of the second one in Windows' list.
+- **sysprep.io.4** – the RDP client is loaded in advance, the first connection after the start no longer hangs.
+- **sysprep.io.3** – mRemoteNG's own icons in `Icons/mRemoteNG`, the bearlikelion community set, icon menu with a submenu per set and category.
+- **sysprep.io.2** – the icon sets of the sysprep.io lab diagrams and the icon builder ship with the build.
+- **sysprep.io.1** – the first release: RDP session follows the window (FitToWindow/automatic resize), reconnect only after unexpected disconnects, font size options, dark theme polish, training defaults, settings carried over to new versions, PuTTY Consolas 12, first-start layout, version scheme `1.78.2 (sysprep.io.N)`.
 
 The upstream changelog follows.
 ## [1.78.2]
