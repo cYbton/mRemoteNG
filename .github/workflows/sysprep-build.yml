@@ -1,16 +1,17 @@
 name: sysprep.io build
 
 # Builds the portable, self-contained x64 sysprep.io build of mRemoteNG on a GitHub runner - a local build
-# on a PC with Smart App Control on gets its freshly built, unsigned DLLs blocked. Run it from the Actions
-# tab: without "release" the zip is only attached to the run (for testing), with "release" it also becomes
-# the GitHub release v<version>-sysprep.io.<n>, which Hyper-Lab's deploy picks up as the latest release.
+# on a PC with Smart App Control on gets its freshly built, unsigned DLLs blocked.
+# - push to the sysprep branch: the zip is only attached to the run, for testing
+# - push of the tag v<version>-sysprep.io.<n> (matching AssemblyInfo): the zip also becomes the latest
+#   GitHub release, which Hyper-Lab's deploy picks up
+# (workflow_dispatch needs the workflow on the fork's default branch, which stays upstream's)
 on:
-  workflow_dispatch:
-    inputs:
-      release:
-        description: 'Publish the build as the latest GitHub release'
-        type: boolean
-        default: false
+  push:
+    branches:
+      - sysprep
+    tags:
+      - 'v*-sysprep.io.*'
 
 permissions: {}
 
@@ -100,12 +101,13 @@ jobs:
           retention-days: 14
 
       - name: Publish release
-        if: inputs.release
+        if: startsWith(github.ref, 'refs/tags/')
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          if ('${{ github.ref_name }}' -ne '${{ steps.version.outputs.tag }}') { throw "Tag ${{ github.ref_name }} does not match the version in AssemblyInfo (${{ steps.version.outputs.tag }})" }
           gh release view '${{ steps.version.outputs.tag }}' *> $null
-          if ($LASTEXITCODE -eq 0) { throw "Release ${{ steps.version.outputs.tag }} exists already - count up sysprepRelease in AssemblyInfo.tt/.cs first" }
-          gh release create '${{ steps.version.outputs.tag }}' '${{ steps.version.outputs.zip }}' --target '${{ github.sha }}' --title '${{ steps.version.outputs.title }}' --notes-file sysprep\release-notes.md --latest
+          if ($LASTEXITCODE -eq 0) { throw "Release ${{ steps.version.outputs.tag }} exists already - count up sysprepRelease in AssemblyInfo.tt/.cs and tag again" }
+          gh release create '${{ steps.version.outputs.tag }}' '${{ steps.version.outputs.zip }}' --title '${{ steps.version.outputs.title }}' --notes-file sysprep\release-notes.md --latest
           if ($LASTEXITCODE -ne 0) { throw "gh release create failed" }
