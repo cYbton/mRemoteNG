@@ -218,9 +218,9 @@ namespace mRemoteNG.Connection.Protocol.Http
             e.Response.Password = info.Password ?? string.Empty;
         }
 
-        // sysprep fork: a slim bar above the page - Reload, an address bar (shows the current URL, Enter goes to the
-        // typed one) and "Log in", which fills in the connection's username and password and presses Enter, for
-        // when the automatic login didn't catch the form (e.g. it appeared late)
+        // sysprep fork: a browser-like bar above the page - back, forward and reload as icons, "Log in" (fills in the
+        // connection's username and password and presses Enter, for when the automatic login didn't catch the form)
+        // and an address bar that shows the current URL and goes to a typed one on Enter
         private void AddLoginBar(Microsoft.Web.WebView2.WinForms.WebView2 webView2)
         {
             ToolStrip bar = new()
@@ -230,10 +230,30 @@ namespace mRemoteNG.Connection.Protocol.Http
                 CanOverflow = false,
                 Padding = new Padding(4, 2, 4, 2)
             };
-            ToolStripButton reload = new("Reload", mRemoteNG.Properties.Resources.Refresh_16x) { DisplayStyle = ToolStripItemDisplayStyle.ImageAndText };
-            reload.Click += (sender, args) => webView2.CoreWebView2?.Reload();
 
-            ToolStripTextBox address = new() { AutoSize = false, BorderStyle = BorderStyle.FixedSingle, Margin = new Padding(6, 1, 6, 1) };
+            ToolStripButton back = GlyphButton("\uE72B", "Back");
+            back.Click += (sender, args) => { if (webView2.CanGoBack) webView2.GoBack(); };
+            ToolStripButton forward = GlyphButton("\uE72A", "Forward");
+            forward.Click += (sender, args) => { if (webView2.CanGoForward) webView2.GoForward(); };
+            ToolStripButton reload = GlyphButton("\uE72C", "Reload");
+            reload.Click += (sender, args) => webView2.CoreWebView2?.Reload();
+            back.Enabled = forward.Enabled = false;
+
+            ToolStripButton login = new("Log in", mRemoteNG.Properties.Resources.Key_16x)
+            {
+                ToolTipText = "Fill in the connection's username and password and press Enter",
+                DisplayStyle = ToolStripItemDisplayStyle.ImageAndText,
+                Margin = new Padding(6, 1, 0, 2)
+            };
+            login.Click += async (sender, args) =>
+            {
+                if (webView2.CoreWebView2 == null) return;
+                webView2.Focus();
+                if (!await _webLogin.LoginAsync(webView2.CoreWebView2, InterfaceControl.Info.Username ?? "", InterfaceControl.Info.Password ?? "", automatic: false))
+                    Runtime.MessageCollector.AddMessage(mRemoteNG.Messages.MessageClass.InformationMsg, "No login form found on this page, or the connection has no username.", true);
+            };
+
+            ToolStripTextBox address = new() { AutoSize = false, BorderStyle = BorderStyle.FixedSingle, Margin = new Padding(6, 1, 2, 1) };
             address.KeyDown += (sender, args) =>
             {
                 if (args.KeyCode != Keys.Enter || webView2.CoreWebView2 == null) return;
@@ -251,29 +271,24 @@ namespace mRemoteNG.Connection.Protocol.Http
                     Runtime.MessageCollector.AddMessage(mRemoteNG.Messages.MessageClass.WarningMsg, $"Not a valid address: {url}", true);
                 }
             };
-            webView2.SourceChanged += (sender, args) =>
-            {
-                if (!address.Focused) address.Text = webView2.Source?.ToString() ?? "";
-            };
 
-            ToolStripButton login = new("Log in", mRemoteNG.Properties.Resources.Key_16x)
+            void UpdateNavigationState()
             {
-                ToolTipText = "Fill in the connection's username and password and press Enter",
-                DisplayStyle = ToolStripItemDisplayStyle.ImageAndText
-            };
-            login.Click += async (sender, args) =>
-            {
-                if (webView2.CoreWebView2 == null) return;
-                webView2.Focus();
-                if (!await _webLogin.LoginAsync(webView2.CoreWebView2, InterfaceControl.Info.Username ?? "", InterfaceControl.Info.Password ?? "", automatic: false))
-                    Runtime.MessageCollector.AddMessage(mRemoteNG.Messages.MessageClass.InformationMsg, "No login form found on this page, or the connection has no username.", true);
-            };
-            bar.Items.AddRange([reload, address, login]);
+                back.Enabled = webView2.CanGoBack;
+                forward.Enabled = webView2.CanGoForward;
+                if (!address.Focused) address.Text = webView2.Source?.ToString() ?? "";
+            }
+            webView2.SourceChanged += (sender, args) => UpdateNavigationState();
+            webView2.NavigationCompleted += (sender, args) => UpdateNavigationState();
+
+            bar.Items.AddRange([back, forward, reload, login, address]);
 
             // the address bar takes the width the buttons leave
             bar.Layout += (sender, args) =>
             {
-                int width = bar.DisplayRectangle.Width - reload.Width - reload.Margin.Horizontal - login.Width - login.Margin.Horizontal - address.Margin.Horizontal;
+                int width = bar.DisplayRectangle.Width - address.Margin.Horizontal;
+                foreach (ToolStripItem item in bar.Items)
+                    if (item != address) width -= item.Width + item.Margin.Horizontal;
                 if (width > 50 && address.Width != width) address.Width = width;
             };
 
@@ -291,12 +306,27 @@ namespace mRemoteNG.Connection.Protocol.Http
             InterfaceControl.Controls.Add(bar);
             bar.SendToBack(); // docked before the page, so the page fills the space below the bar
         }
-        // sysprep fork: tries the login form every second while the tab is new - forms of Angular apps like Citrix
+
+        // A button showing a symbol of Windows' icon font (Segoe Fluent Icons on Windows 11, Segoe MDL2 Assets on
+        // Windows 10) - the same back/forward/reload symbols as in Edge, in the theme's text color
+        private static ToolStripButton GlyphButton(string glyph, string toolTip)
+        {
+            string family = Array.Exists(System.Drawing.FontFamily.Families, f => f.Name == "Segoe Fluent Icons") ? "Segoe Fluent Icons" : "Segoe MDL2 Assets";
+            return new ToolStripButton(glyph)
+            {
+                DisplayStyle = ToolStripItemDisplayStyle.Text,
+                Font = new System.Drawing.Font(family, 10F),
+                ToolTipText = toolTip,
+                AutoToolTip = false,
+                Padding = new Padding(4, 0, 4, 0)
+            };
+        }
+        // sysprep fork: tries the login form every second for 30 seconds - forms of Angular apps like Citrix
         // Web Studio appear only after the page has loaded. WebLogin stops after a login or a failed one.
         private void StartAutomaticLogin(Microsoft.Web.WebView2.WinForms.WebView2 webView2)
         {
             if (string.IsNullOrEmpty(InterfaceControl.Info.Username)) return;
-            _automaticLoginUntil = DateTime.UtcNow.AddSeconds(60);
+            _automaticLoginUntil = DateTime.UtcNow.AddSeconds(30);
             _automaticLoginTimer = new System.Windows.Forms.Timer { Interval = 1000 };
             _automaticLoginTimer.Tick += async (sender, args) =>
             {

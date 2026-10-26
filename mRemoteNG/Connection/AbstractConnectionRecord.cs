@@ -46,7 +46,9 @@ namespace mRemoteNG.Connection
         
         private string _sshTunnelConnectionName = "";
         private ProtocolType _protocol;
-        private RdpVersion _rdpProtocolVersion = RdpVersion.Rdc10;
+        // sysprep fork: values for connection files older than ConfVersion 2.7 (Hyper-Lab's generator writes 2.6),
+        // which don't carry RdpVersion/RedirectClipboard - the newest RDP client and the clipboard, as with 1.76
+        private RdpVersion _rdpProtocolVersion = RdpVersion.Highest;
         private string _extApp;
         private int _port;
         private string _sshOptions = "";
@@ -92,7 +94,7 @@ namespace mRemoteNG.Connection
         private RDPDiskDrives _redirectDiskDrives;
         private string _redirectDiskDrivesCustom;
         private bool _redirectPrinters;
-        private bool _redirectClipboard;
+        private bool _redirectClipboard = true;
         private bool _redirectPorts;
         private bool _redirectSmartCards;
         private RDPSounds _redirectSound;
