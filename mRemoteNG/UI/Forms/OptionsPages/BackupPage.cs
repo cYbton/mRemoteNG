@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows.Forms;
-using Microsoft.WindowsAPICodePack.Dialogs;
 using mRemoteNG.App;
 using mRemoteNG.Config.Connections;
 using mRemoteNG.Config.ACL;
@@ -257,8 +256,8 @@ namespace mRemoteNG.UI.Forms.OptionsPages
 
         private void ButtonBrowsePath_Click(object sender, EventArgs e)
         {
-            CommonOpenFileDialog selectFolderDialog = DialogFactory.SelectFolder(Language.lblConnectionsBackupPath);
-            txtConnectionsBackupPath.Text = selectFolderDialog.ShowDialog() == CommonFileDialogResult.Ok ? selectFolderDialog.FileName : txtConnectionsBackupPath.Text;
+            using FolderBrowserDialog selectFolderDialog = DialogFactory.SelectFolder(Language.lblConnectionsBackupPath);
+            txtConnectionsBackupPath.Text = selectFolderDialog.ShowDialog() == DialogResult.OK ? selectFolderDialog.SelectedPath : txtConnectionsBackupPath.Text;
         }
 
         private void rbBackupEnableDisable_CheckedChanged(object sender, EventArgs e)

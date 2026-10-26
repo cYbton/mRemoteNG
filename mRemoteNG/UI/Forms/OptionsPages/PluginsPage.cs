@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Versioning;
 using System.Windows.Forms;
-using Microsoft.WindowsAPICodePack.Dialogs;
 using mRemoteNG.App;
 using mRemoteNG.Plugins;
 using mRemoteNG.Properties;
@@ -299,20 +298,19 @@ namespace mRemoteNG.UI.Forms.OptionsPages
 
         private void BrowseForPluginFolder()
         {
-            using CommonOpenFileDialog selectFolderDialog = DialogFactory.SelectFolder(GetLanguageString("PluginsPageFolder", "Plugins folder:"));
+            using FolderBrowserDialog selectFolderDialog = DialogFactory.SelectFolder(GetLanguageString("PluginsPageFolder", "Plugins folder:"));
             string currentFolder = _txtFolder.Text.Trim();
             if (!string.IsNullOrWhiteSpace(currentFolder) && Directory.Exists(currentFolder))
             {
                 selectFolderDialog.InitialDirectory = currentFolder;
-                selectFolderDialog.DefaultDirectory = currentFolder;
             }
 
-            if (selectFolderDialog.ShowDialog() != CommonFileDialogResult.Ok)
+            if (selectFolderDialog.ShowDialog() != DialogResult.OK)
             {
                 return;
             }
 
-            string selectedFolder = NormalizePluginFolderPath(selectFolderDialog.FileName);
+            string selectedFolder = NormalizePluginFolderPath(selectFolderDialog.SelectedPath);
             string combinedFolders = AppendPluginFolder(selectedFolder);
             _txtFolder.Text = combinedFolders;
             RefreshPluginEntries();

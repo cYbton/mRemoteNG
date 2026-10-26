@@ -2,7 +2,6 @@
 using System.IO;
 using System.Collections.Generic;
 using System.Windows.Forms;
-using Microsoft.WindowsAPICodePack.Dialogs;
 using mRemoteNG.App;
 using mRemoteNG.App.Info;
 using mRemoteNG.Messages;
@@ -97,13 +96,15 @@ namespace mRemoteNG.UI
             };
         }
 
-        public static CommonOpenFileDialog SelectFolder(string DialogWindowTitle)
+        // sysprep fork: WinForms' folder picker (the same Windows dialog) instead of the WindowsAPICodePack one -
+        // that package pulled the whole WPF framework into the build
+        public static FolderBrowserDialog SelectFolder(string DialogWindowTitle)
         {
-            return new CommonOpenFileDialog
+            return new FolderBrowserDialog
             {
-                IsFolderPicker = true,
-                Title = DialogWindowTitle,
-                EnsurePathExists = true,
+                Description = DialogWindowTitle,
+                UseDescriptionForTitle = true,
+                ShowNewFolderButton = true,
                 InitialDirectory = Properties.OptionsBackupPage.Default.BackupLocation != "" ? Properties.OptionsBackupPage.Default.BackupLocation : Directory.GetCurrentDirectory()
             };
         }

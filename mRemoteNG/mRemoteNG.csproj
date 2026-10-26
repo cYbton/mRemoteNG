@@ -130,7 +130,6 @@
     <PackageReference Include="DockPanelSuite" />
     <PackageReference Include="DockPanelSuite.ThemeVS2015" />
     <PackageReference Include="log4net" />
-    <PackageReference Include="Microsoft-WindowsAPICodePack-Shell" />
     <PackageReference Include="Microsoft.Data.Sqlite" />
     <PackageReference Include="Microsoft.Web.WebView2" />
     <PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" />
