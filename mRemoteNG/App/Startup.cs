@@ -71,10 +71,21 @@ namespace mRemoteNG.App
         public void CreateConnectionsProvider(MessageCollector messageCollector)
         {
             messageCollector.AddMessage(MessageClass.DebugMsg, "Determining if we need a database syncronizer");
+            DisableDatabaseStorage(messageCollector);
             if (!Properties.OptionsDBsPage.Default.UseSQLServer) return;
             messageCollector.AddMessage(MessageClass.DebugMsg, "Creating database syncronizer");
             Runtime.ConnectionsService.RemoteConnectionsSyncronizer = new RemoteConnectionsSyncronizer(new SqlConnectionsUpdateChecker());
             Runtime.ConnectionsService.RemoteConnectionsSyncronizer.Enable();
+        }
+
+        // sysprep fork: storing the connections in SQL Server/MySQL is not part of this build (no database drivers) -
+        // a setting taken over from another mRemoteNG falls back to the connection file
+        public static void DisableDatabaseStorage(MessageCollector messageCollector)
+        {
+            if (!Properties.OptionsDBsPage.Default.UseSQLServer) return;
+            Properties.OptionsDBsPage.Default.UseSQLServer = false;
+            Properties.OptionsDBsPage.Default.Save();
+            messageCollector.AddMessage(MessageClass.WarningMsg, "Storing the connections in a database is not part of the sysprep.io build of mRemoteNG - the connection file is used.");
         }
 
         public async Task CheckForUpdate()

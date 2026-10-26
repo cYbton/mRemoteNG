@@ -1,5 +1,4 @@
-﻿using System.Windows;
-using System.Windows.Forms;
+﻿using System.Windows.Forms;
 using mRemoteNG.Themes;
 using mRemoteNG.UI.Controls;
 

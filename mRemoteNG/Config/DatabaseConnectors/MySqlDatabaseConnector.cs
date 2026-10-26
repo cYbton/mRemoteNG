@@ -1,86 +1,36 @@
-﻿using System.Data;
+﻿using System;
 using System.Data.Common;
 using System.Threading.Tasks;
-using MySql.Data.MySqlClient;
-
-// ReSharper disable ArrangeAccessorOwnerBody
 
 namespace mRemoteNG.Config.DatabaseConnectors
 {
+    // sysprep fork: storing the connections in MySQL is not part of this build - the database driver is gone (it
+    // made up a large part of the download). The class stays because the SQL code checks for this connector type.
     public class MySqlDatabaseConnector : IDatabaseConnector
     {
-        private DbConnection _dbConnection { get; set; } = default(MySqlConnection);
-        private string _dbConnectionString = "";
-        private readonly string _dbHost;
-        private readonly string _dbPort;
-        private readonly string _dbName;
-        private readonly string _dbUsername;
-        private readonly string _dbPassword;
-
-        public DbConnection DbConnection()
+        public MySqlDatabaseConnector(string server, string catalog, string username, string password)
         {
-            return _dbConnection;
+            throw new NotSupportedException("Storing the connections in MySQL is not part of the sysprep.io build of mRemoteNG.");
         }
 
-        public DbCommand DbCommand(string dbCommand)
-        {
-            return new MySqlCommand(dbCommand, (MySqlConnection) _dbConnection);
-        }
+        public DbConnection DbConnection() => throw new NotSupportedException();
 
-        public bool IsConnected => (_dbConnection.State == ConnectionState.Open);
+        public DbCommand DbCommand(string dbCommand) => throw new NotSupportedException();
 
-        public MySqlDatabaseConnector(string host, string database, string username, string password)
-        {
-            // TODO: add custom port handling?
-            string[] hostParts = host.Split(new char[]{':'}, 2);
-            _dbHost = hostParts[0];
-            _dbPort = (hostParts.Length == 2)?hostParts[1]:"3306";
-            _dbName = database;
-            _dbUsername = username;
-            _dbPassword = password;
-            Initialize();
-        }
+        public bool IsConnected => false;
 
-        private void Initialize()
-        {
-            BuildSqlConnectionString();
-            _dbConnection = new MySqlConnection(_dbConnectionString);
-        }
+        public void Connect() => throw new NotSupportedException();
 
-        private void BuildSqlConnectionString()
-        {
-            _dbConnectionString = $"server={_dbHost};user={_dbUsername};database={_dbName};port={_dbPort};password={_dbPassword};";
-        }
-        
-        public void Connect()
-        {
-            _dbConnection.Open();
-        }
-
-        public async Task ConnectAsync()
-        {
-            await _dbConnection.OpenAsync();
-        }
+        public Task ConnectAsync() => throw new NotSupportedException();
 
         public void Disconnect()
         {
-            _dbConnection.Close();
         }
 
-        public void AssociateItemToThisConnector(DbCommand dbCommand)
-        {
-            dbCommand.Connection = (MySqlConnection) _dbConnection;
-        }
+        public void AssociateItemToThisConnector(DbCommand dbCommand) => throw new NotSupportedException();
 
         public void Dispose()
         {
-            Dispose(true);
-        }
-        private void Dispose(bool itIsSafeToFreeManagedObjects)
-        {
-            if (!itIsSafeToFreeManagedObjects) return;
-            _dbConnection.Close();
-            _dbConnection.Dispose();
         }
     }
 }

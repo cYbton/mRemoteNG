@@ -9,7 +9,6 @@ using System.Security;
 using mRemoteNG.App;
 using mRemoteNG.Messages;
 using mRemoteNG.UI.Forms;
-using MySql.Data.Types;
 using mRemoteNG.Resources.Language;
 using System.Runtime.Versioning;
 
@@ -98,7 +97,7 @@ namespace mRemoteNG.Tools
 			switch (Properties.OptionsDBsPage.Default.SQLServerType)
 			{
 				case "mysql":
-					return typeof(MySqlDateTime);
+					return typeof(DateTime);
 				case "mssql":
 				default:
 					return typeof(SqlDateTime);
@@ -110,7 +109,7 @@ namespace mRemoteNG.Tools
 			switch (Properties.OptionsDBsPage.Default.SQLServerType)
 			{
 				case "mysql":
-					return new MySqlDateTime(DateTime.Now.ToUniversalTime());
+					return DateTime.Now.ToUniversalTime();
 				case "mssql":
 				default:
 					return DateTime.Now.ToUniversalTime();

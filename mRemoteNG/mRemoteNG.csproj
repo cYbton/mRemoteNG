@@ -25,7 +25,7 @@
     <LangVersion>latest</LangVersion>
     <PackageIcon>Header_dark.png</PackageIcon>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <UseWPF>True</UseWPF>
+    <UseWPF>False</UseWPF><!-- sysprep fork: WinForms splash screen, no WPF (~50 MB) -->
     <SignAssembly>False</SignAssembly>
     <Title>Multi-Remote Next Generation Connection Manager</Title>
     <RepositoryUrl>https://github.com/mRemoteNG/mRemoteNG.git</RepositoryUrl>
@@ -129,21 +129,14 @@
     <PackageReference Include="ConsoleControl" />
     <PackageReference Include="DockPanelSuite" />
     <PackageReference Include="DockPanelSuite.ThemeVS2015" />
-    <PackageReference Include="Google.Protobuf" />
     <PackageReference Include="log4net" />
     <PackageReference Include="Microsoft-WindowsAPICodePack-Shell" />
-    <PackageReference Include="Microsoft.Data.SqlClient" />
     <PackageReference Include="Microsoft.Data.Sqlite" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" />
     <PackageReference Include="Microsoft.Web.WebView2" />
-    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" />
-    <PackageReference Include="MySql.Data" />
     <PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" />
-    <PackageReference Include="System.Data.Odbc" />
     <PackageReference Include="Newtonsoft.Json" />
     <PackageReference Include="SSH.NET" />
     <PackageReference Include="System.Management" />
-    <PackageReference Include="VncSharpCore" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Language\Language.Designer.cs">
@@ -541,9 +534,7 @@
     <ProjectReference Include="..\ObjectListView\ObjectListView.NetCore.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="UI\Font\HandelGotDBol.ttf">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </Resource>
+    <EmbeddedResource Include="UI\Font\HandelGotDBol.ttf" /><!-- sysprep fork: logo font of the WinForms splash screen -->
   </ItemGroup>
   <ItemGroup>
     <XliffResource Include="MultilingualResources\mRemoteNG.ru-RU.xlf" />
@@ -627,10 +618,11 @@
     </ItemGroup>
   </Target>
   <!-- sysprep fork: English only - the UI language is fixed to English, and every translation is one more unsigned
-       mRemoteNG.resources.dll for Smart App Control to judge -->
+       mRemoteNG.resources.dll for Smart App Control to judge. WebView2's WPF control isn't used without WPF. -->
   <Target Name="RemoveTranslations" AfterTargets="ComputeResolvedFilesToPublishList" BeforeTargets="CopyFilesToPublishDirectory">
     <ItemGroup>
       <ResolvedFileToPublish Remove="@(ResolvedFileToPublish)" Condition="'%(ResolvedFileToPublish.Filename)%(ResolvedFileToPublish.Extension)' == 'mRemoteNG.resources.dll'" />
+      <ResolvedFileToPublish Remove="@(ResolvedFileToPublish)" Condition="'%(ResolvedFileToPublish.Filename)' == 'Microsoft.Web.WebView2.Wpf'" />
     </ItemGroup>
   </Target>
   <PropertyGroup>

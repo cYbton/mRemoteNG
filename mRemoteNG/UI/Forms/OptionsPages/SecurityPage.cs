@@ -176,7 +176,7 @@ namespace mRemoteNG.UI.Forms.OptionsPages
             {
                 // Encrypt and set the clipboard content
                 string encryptedText = cryptographyProvider.Encrypt(txtPasswdGenerator.Text, Runtime.EncryptionKey);
-                System.Windows.Clipboard.SetText(encryptedText);
+                System.Windows.Forms.Clipboard.SetText(encryptedText);
             }
             catch (System.Runtime.InteropServices.COMException)
             {
@@ -241,7 +241,7 @@ namespace mRemoteNG.UI.Forms.OptionsPages
         {
             try
             {
-                System.Windows.Clipboard.Clear();
+                System.Windows.Forms.Clipboard.Clear();
                 txtPasswdGenerator.Clear();
             }
             catch (System.Runtime.InteropServices.COMException)

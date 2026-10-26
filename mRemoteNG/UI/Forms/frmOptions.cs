@@ -54,7 +54,6 @@ namespace mRemoteNG.UI.Forms
                 nameof(TabsPanelsPage),
                 nameof(NotificationsPage),
                 nameof(CredentialsPage),
-                nameof(SqlServerPage),
                 nameof(UpdatesPage),
                 nameof(ThemePage),
                 nameof(SecurityPage),

@@ -28,8 +28,8 @@ namespace mRemoteNG.App
         private static Mutex? _mutex;
         private static string customResourcePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Languages");
 
-        private static System.Threading.Thread? _wpfSplashThread;
-        private static FrmSplashScreenNew? _wpfSplash;
+        private static System.Threading.Thread? _splashThread;
+        private static FrmSplashScreen? _splash;
 
         public static event EventHandler? UiCultureChanged;
 
@@ -377,28 +377,20 @@ namespace mRemoteNG.App
 
         private static void ShowSplashOnStaThread()
         {
-            // sysprep fork: worked out here, so the settings are only read on the main thread
+            // sysprep fork: worked out here, so the settings are only read on the main thread. The splash is a
+            // WinForms form with its own message loop on its own thread (it was WPF before).
             Rectangle splashScreenArea = GetMainWindowScreenArea();
-            _wpfSplashThread = new System.Threading.Thread(() =>
+            _splashThread = new System.Threading.Thread(() =>
             {
-                _wpfSplash = FrmSplashScreenNew.GetInstance();
-
-                // sysprep fork: WPF's CenterScreen centres on the screen with the mouse pointer - the splash is
-                // placed on the screen the main window opens on instead, once its window exists
-                _wpfSplash.WindowStartupLocation = System.Windows.WindowStartupLocation.Manual;
-                _wpfSplash.SourceInitialized += (sender, args) => CenterSplash((System.Windows.Window)sender, splashScreenArea);
-
-                _wpfSplash.ShowInTaskbar = false;
-                _wpfSplash.Show();
-                SplashShownUtc = DateTime.UtcNow; // sysprep fork
-                System.Windows.Forms.Integration.ElementHost.EnableModelessKeyboardInterop(_wpfSplash);
-                System.Windows.Threading.Dispatcher.Run(); // WPF message loop
+                FrmSplashScreen splash = new(splashScreenArea);
+                splash.Shown += (sender, args) => SplashShownUtc = DateTime.UtcNow;
+                _splash = splash;
+                Application.Run(splash);
             })
             { IsBackground = true };
-            _wpfSplashThread.SetApartmentState(System.Threading.ApartmentState.STA);
-            _wpfSplashThread.Start();
+            _splashThread.SetApartmentState(System.Threading.ApartmentState.STA);
+            _splashThread.Start();
         }
-
         // sysprep fork: the screen the main window opens on - where it was last (the screen holding most of its
         // saved bounds), else the main screen, as FrmMain does on a first start. Placed in pixels, so the DPI of
         // the screens doesn't matter.
@@ -419,33 +411,6 @@ namespace mRemoteNG.App
             {
                 return Rectangle.Empty;
             }
-        }
-
-        private static void CenterSplash(System.Windows.Window splash, Rectangle area)
-        {
-            try
-            {
-                if (area.IsEmpty) return;
-
-                IntPtr handle = new System.Windows.Interop.WindowInteropHelper(splash).Handle;
-                if (!GetWindowRect(handle, out SplashRect bounds)) return;
-
-                int width = bounds.Right - bounds.Left;
-                int height = bounds.Bottom - bounds.Top;
-                const uint SWP_NOSIZE = 0x0001, SWP_NOZORDER = 0x0004, SWP_NOACTIVATE = 0x0010;
-                SetWindowPos(handle, IntPtr.Zero, area.Left + (area.Width - width) / 2, area.Top + (area.Height - height) / 2,
-                    0, 0, SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
-            }
-            catch (Exception)
-            {
-                // only the position of the splash screen - never let it stop the start
-            }
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        private struct SplashRect
-        {
-            public int Left, Top, Right, Bottom;
         }
 
         // Loads (maps) every DLL and EXE below the program folder once without running any of it, so Windows checks
@@ -507,33 +472,26 @@ namespace mRemoteNG.App
         [DllImport("kernel32.dll")]
         private static extern bool FreeLibrary(IntPtr hModule);
 
-        [DllImport("user32.dll")]
-        private static extern bool GetWindowRect(IntPtr hWnd, out SplashRect rect);
-
-        [DllImport("user32.dll")]
-        private static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int x, int y, int cx, int cy, uint flags);
 
         internal static void CloseSplash()
         {
             // Capture and clear the cached state up front so this is safe to call from
             // multiple startup paths (e.g. the LoadConnections error handler) without
             // acting on stale references or re-running against an already-closed splash.
-            FrmSplashScreenNew? splash = _wpfSplash;
-            System.Threading.Thread? splashThread = _wpfSplashThread;
-            _wpfSplash = null;
-            _wpfSplashThread = null;
+            FrmSplashScreen? splash = _splash;
+            System.Threading.Thread? splashThread = _splashThread;
+            _splash = null;
+            _splashThread = null;
 
             if (splash != null)
             {
                 try
                 {
-                    splash.Dispatcher.Invoke(() =>
-                    {
-                        splash.Close();
-                        // The splash runs its own STA message loop; ask it to exit so the
-                        // thread can actually be joined below instead of running forever.
-                        splash.Dispatcher.BeginInvokeShutdown(System.Windows.Threading.DispatcherPriority.Normal);
-                    });
+                    // Closing the form ends Application.Run on the splash thread
+                    if (splash.IsHandleCreated)
+                        splash.Invoke(splash.Close);
+                    else
+                        splash.HandleCreated += (sender, args) => splash.BeginInvoke(splash.Close);
                 }
                 catch (Exception ex)
                 {
@@ -543,10 +501,9 @@ namespace mRemoteNG.App
             }
 
             // The splash thread is a background thread, so a bounded join keeps startup
-            // from hanging if the dispatcher did not shut down; it dies on process exit anyway.
+            // from hanging if its message loop did not end; it dies on process exit anyway.
             splashThread?.Join(TimeSpan.FromSeconds(2));
         }
-
         // Helper to show a dialog with "Download" and "Cancel" buttons.
         // Returns DialogResult.OK if Download clicked, otherwise DialogResult.Cancel.
         // When hasValidUrl is false, the Download button is disabled.

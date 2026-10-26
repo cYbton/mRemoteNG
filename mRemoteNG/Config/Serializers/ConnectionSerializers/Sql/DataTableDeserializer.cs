@@ -5,7 +5,6 @@ using System.Data;
 using System.Linq;
 using System.Runtime.Versioning;
 using System.Security;
-using System.Windows.Media.TextFormatting;
 using mRemoteNG.App;
 using mRemoteNG.Connection;
 using mRemoteNG.Connection.Protocol;

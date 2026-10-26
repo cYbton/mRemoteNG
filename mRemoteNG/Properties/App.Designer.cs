@@ -49,7 +49,7 @@ namespace mRemoteNG.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Normal")]
+        [global::System.Configuration.DefaultSettingValueAttribute("Maximized")]
         public global::System.Windows.Forms.FormWindowState MainFormState {
             get {
                 return ((global::System.Windows.Forms.FormWindowState)(this["MainFormState"]));

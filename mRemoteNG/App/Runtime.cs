@@ -145,6 +145,7 @@ namespace mRemoteNG.App
             {
                 // disable sql update checking while we are loading updates
                 ConnectionsService.RemoteConnectionsSyncronizer?.Disable();
+                Startup.DisableDatabaseStorage(MessageCollector);
 
                 if (withDialog)
                 {
