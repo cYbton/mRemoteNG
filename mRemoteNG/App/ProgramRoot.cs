@@ -36,6 +36,12 @@ namespace mRemoteNG.App
         [STAThread]
         public static void Main(string[] args)
         {
+            // sysprep fork: Hyper-Lab starts a newly unpacked mRemoteNG.exe once with --warmup, which ends right
+            // here. Windows checks a new exe on its first start, before any of its code runs - with no window to
+            // show for it, the first start by a user would otherwise hang for seconds without a splash screen.
+            if (args.Length == 1 && string.Equals(args[0], "--warmup", StringComparison.OrdinalIgnoreCase))
+                return;
+
             // Must be called before any other WinForms / Application.* usage so that
             // per-monitor font scaling and hit-testing are initialised correctly from
             // the very first UI operation (dialogs shown in MainAsync, exception
