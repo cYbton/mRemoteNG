@@ -27,6 +27,11 @@ namespace mRemoteNG.Connection.Protocol.Http
         private CoreWebView2Environment? _webView2Environment;
         private Task _webView2InitializationTask;
 
+        // sysprep fork: login to the web interface's login form (see WebLogin)
+        private readonly WebLogin _webLogin = new();
+        private System.Windows.Forms.Timer? _automaticLoginTimer;
+        private DateTime _automaticLoginUntil;
+
         #endregion
 
         #region Public Methods
@@ -85,6 +90,7 @@ namespace mRemoteNG.Connection.Protocol.Http
                     
                     // Initialize WebView2 with unique user data folder asynchronously
                     _webView2InitializationTask = InitializeWebView2Async(edge);
+                    AddLoginBar(edge);
                 }
                 else
                 {
@@ -121,6 +127,7 @@ namespace mRemoteNG.Connection.Protocol.Http
                 webView2.CoreWebView2.NewWindowRequested += CoreWebView2_NewWindowRequested;
                 webView2.CoreWebView2.ServerCertificateErrorDetected += CoreWebView2_ServerCertificateErrorDetected;
                 webView2.CoreWebView2.BasicAuthenticationRequested += CoreWebView2_BasicAuthenticationRequested;
+                StartAutomaticLogin(webView2);
             }
             catch (Exception ex)
             {
@@ -199,14 +206,65 @@ namespace mRemoteNG.Connection.Protocol.Http
             e.Action = CoreWebView2ServerCertificateErrorAction.AlwaysAllow;
         }
 
-        // sysprep fork: the connection's username and password answer an HTTP (Basic) authentication prompt; a login
-        // form on the web page itself is not filled in
+        // sysprep fork: the connection's username and password answer an HTTP authentication prompt (Basic/NTLM,
+        // e.g. Windows Admin Center); a login form on the page itself is filled in by WebLogin
         private void CoreWebView2_BasicAuthenticationRequested(object? sender, CoreWebView2BasicAuthenticationRequestedEventArgs e)
         {
             ConnectionInfo? info = InterfaceControl?.Info;
-            if (string.IsNullOrEmpty(info?.Username)) return;
-            e.Response.UserName = string.IsNullOrEmpty(info.Domain) ? info.Username : $@"{info.Domain}\{info.Username}";
+            if (info == null || string.IsNullOrEmpty(info.Username)) return;
+            e.Response.UserName = string.IsNullOrEmpty(info.Domain) || info.Username.Contains('\\') || info.Username.Contains('@')
+                ? info.Username
+                : $@"{info.Domain}\{info.Username}";
             e.Response.Password = info.Password ?? string.Empty;
+        }
+
+        // sysprep fork: a slim bar above the page - "Log in" fills in the connection's username and password and
+        // presses Enter, for when the automatic login didn't catch the form (e.g. it appeared late)
+        private void AddLoginBar(Microsoft.Web.WebView2.WinForms.WebView2 webView2)
+        {
+            ToolStrip bar = new() { Dock = DockStyle.Top, GripStyle = ToolStripGripStyle.Hidden, RenderMode = ToolStripRenderMode.System };
+            ToolStripButton login = new("Log in", mRemoteNG.Properties.Resources.Key_16x)
+            {
+                ToolTipText = "Fill in the connection's username and password and press Enter",
+                DisplayStyle = ToolStripItemDisplayStyle.ImageAndText
+            };
+            login.Click += async (sender, args) =>
+            {
+                if (webView2.CoreWebView2 == null) return;
+                webView2.Focus();
+                if (!await _webLogin.LoginAsync(webView2.CoreWebView2, InterfaceControl.Info.Username ?? "", InterfaceControl.Info.Password ?? "", automatic: false))
+                    Runtime.MessageCollector.AddMessage(mRemoteNG.Messages.MessageClass.InformationMsg, "No login form found on this page, or the connection has no username.", true);
+            };
+            ToolStripButton reload = new("Reload", mRemoteNG.Properties.Resources.Refresh_16x) { DisplayStyle = ToolStripItemDisplayStyle.ImageAndText };
+            reload.Click += (sender, args) => webView2.CoreWebView2?.Reload();
+            bar.Items.AddRange([login, reload]);
+
+            mRemoteNG.Themes.ThemeManager themeManager = mRemoteNG.Themes.ThemeManager.getInstance();
+            if (themeManager.ThemingActive)
+                new WeifenLuo.WinFormsUI.Docking.VisualStudioToolStripExtender().SetStyle(bar, themeManager.ActiveTheme.Version, themeManager.ActiveTheme.Theme);
+
+            InterfaceControl.Controls.Add(bar);
+            bar.SendToBack(); // docked before the page, so the page fills the space below the bar
+        }
+
+        // sysprep fork: tries the login form every second while the tab is new - forms of Angular apps like Citrix
+        // Web Studio appear only after the page has loaded. WebLogin stops after a login or a failed one.
+        private void StartAutomaticLogin(Microsoft.Web.WebView2.WinForms.WebView2 webView2)
+        {
+            if (string.IsNullOrEmpty(InterfaceControl.Info.Username)) return;
+            _automaticLoginUntil = DateTime.UtcNow.AddSeconds(60);
+            _automaticLoginTimer = new System.Windows.Forms.Timer { Interval = 1000 };
+            _automaticLoginTimer.Tick += async (sender, args) =>
+            {
+                if (DateTime.UtcNow > _automaticLoginUntil || _webLogin.AutomaticLoginDone || webView2.IsDisposed)
+                {
+                    _automaticLoginTimer?.Stop();
+                    return;
+                }
+                if (webView2.CoreWebView2 == null) return;
+                await _webLogin.LoginAsync(webView2.CoreWebView2, InterfaceControl.Info.Username ?? "", InterfaceControl.Info.Password ?? "", automatic: true);
+            };
+            _automaticLoginTimer.Start();
         }
 
         #endregion
@@ -306,6 +364,10 @@ namespace mRemoteNG.Connection.Protocol.Http
 
         public override void Close()
         {
+            _automaticLoginTimer?.Stop();
+            _automaticLoginTimer?.Dispose();
+            _automaticLoginTimer = null;
+
             try
             {
                 // Wait for initialization to complete before disposing (non-blocking approach)
