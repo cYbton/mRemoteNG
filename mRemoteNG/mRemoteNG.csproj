@@ -86,6 +86,10 @@
     <SelfContained>true</SelfContained>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <PublishReadyToRun>true</PublishReadyToRun>
+    <!-- sysprep fork: all managed assemblies in mRemoteNG.exe - one unsigned file for Smart App Control to judge
+         instead of ~90, and a faster first start. Native DLLs stay next to the exe (not extracted to %TEMP%). -->
+    <PublishSingleFile>true</PublishSingleFile>
+    <IncludeNativeLibrariesForSelfExtract>false</IncludeNativeLibrariesForSelfExtract>
     <CopyBuildOutputToPublishDirectory>true</CopyBuildOutputToPublishDirectory>
     <CopyOutputSymbolsToPublishDirectory>false</CopyOutputSymbolsToPublishDirectory>
     <RunCommand></RunCommand>
@@ -104,6 +108,10 @@
     <SelfContained>true</SelfContained>
     <RuntimeIdentifier>win-arm64</RuntimeIdentifier>
     <PublishReadyToRun>true</PublishReadyToRun>
+    <!-- sysprep fork: all managed assemblies in mRemoteNG.exe - one unsigned file for Smart App Control to judge
+         instead of ~90, and a faster first start. Native DLLs stay next to the exe (not extracted to %TEMP%). -->
+    <PublishSingleFile>true</PublishSingleFile>
+    <IncludeNativeLibrariesForSelfExtract>false</IncludeNativeLibrariesForSelfExtract>
     <CopyBuildOutputToPublishDirectory>true</CopyBuildOutputToPublishDirectory>
     <CopyOutputSymbolsToPublishDirectory>false</CopyOutputSymbolsToPublishDirectory>
     <RunCommand></RunCommand>
@@ -536,7 +544,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ExternalConnectors\ExternalConnectors.csproj" />
+    <!-- sysprep fork: no ExternalConnectors (external credential providers) - see RdpProtocol.FetchCredentialsFromProvider -->
     <ProjectReference Include="..\mRemoteNG.PluginContracts\mRemoteNG.PluginContracts.csproj" />
     <ProjectReference Include="..\ObjectListView\ObjectListView.NetCore.csproj" />
   </ItemGroup>
@@ -579,7 +587,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Deploy to github|ARM64'">
     <WarningLevel>8</WarningLevel>
   </PropertyGroup>
-  <Target Name="CopyPackageAssembliesToSubFolder" AfterTargets="ResolveReferences">
+  <Target Name="CopyPackageAssembliesToSubFolder" AfterTargets="ResolveReferences" Condition="'$(PublishSingleFile)' != 'true'">
     <ItemGroup>
       <ReferenceCopyLocalPaths Condition=" '%(ReferenceCopyLocalPaths.NuGetPackageId)' != '' and '%(ReferenceCopyLocalPaths.Filename)' != 'e_sqlite3' and '%(ReferenceCopyLocalPaths.Filename)' != 'libe_sqlite3' and !$([System.String]::Copy('%(ReferenceCopyLocalPaths.FullPath)').Contains('\runtimes\')) " Update="%(ReferenceCopyLocalPaths)" DestinationSubDirectory="Assemblies\" />
       <ReferenceCopyLocalPaths Condition=" '%(ReferenceCopyLocalPaths.Filename)' == 'mRp.Contracts' " Update="%(ReferenceCopyLocalPaths)" DestinationSubDirectory="Assemblies\" />
@@ -593,7 +601,7 @@
     Assemblies\ and plugin assemblies (mRp.* other than mRp.Contracts) end up in Plugins\
     in the self-contained publish, matching the framework-dependent build.
   -->
-  <Target Name="RelocatePublishedPackageAssembliesToSubFolder" AfterTargets="ComputeResolvedFilesToPublishList" BeforeTargets="CopyFilesToPublishDirectory">
+  <Target Name="RelocatePublishedPackageAssembliesToSubFolder" AfterTargets="ComputeResolvedFilesToPublishList" BeforeTargets="CopyFilesToPublishDirectory" Condition="'$(PublishSingleFile)' != 'true'">
     <ItemGroup>
       <!-- Reroute top-level third-party managed NuGet DLLs into Assemblies\. Native runtime
            assets stay at the publish root, as required by self-contained publishing. Items whose RelativePath
@@ -607,6 +615,16 @@
       <ResolvedFileToPublish Condition=" '%(ResolvedFileToPublish.Filename)' == 'mRp.Contracts' and '%(ResolvedFileToPublish.Extension)' == '.dll' " Update="%(ResolvedFileToPublish.Identity)" RelativePath="Assemblies\%(ResolvedFileToPublish.Filename)%(ResolvedFileToPublish.Extension)" />
       <ResolvedFileToPublish Condition=" $([System.String]::Copy('%(ResolvedFileToPublish.Filename)').StartsWith('mRp.')) and '%(ResolvedFileToPublish.Filename)' != 'mRp.Contracts' and '%(ResolvedFileToPublish.Extension)' == '.dll' " Update="%(ResolvedFileToPublish.Identity)" RelativePath="Plugins\%(ResolvedFileToPublish.Filename)%(ResolvedFileToPublish.Extension)" />
     </ItemGroup>
+  </Target>
+  <!-- sysprep fork: in a single-file build the assemblies sit inside mRemoteNG.exe, which keeps them out of the
+       Assemblies\ subfolder (the relocation above would hide them from the bundle). Hyper-Lab's config generator
+       reads BouncyCastle from Assemblies\ to encrypt the passwords in confCons.xml, so a copy goes there. -->
+  <Target Name="CopyBouncyCastleForLabTools" AfterTargets="Publish" DependsOnTargets="ResolveReferences" Condition="'$(PublishSingleFile)' == 'true'">
+    <ItemGroup>
+      <_LabToolsAssembly Include="@(ReferenceCopyLocalPaths)" Condition="'%(Filename)%(Extension)' == 'BouncyCastle.Cryptography.dll'" />
+    </ItemGroup>
+    <Error Condition="'@(_LabToolsAssembly)' == ''" Text="BouncyCastle.Cryptography.dll not found in the references" />
+    <Copy SourceFiles="@(_LabToolsAssembly)" DestinationFolder="$(PublishDir)Assemblies\" />
   </Target>
   <PropertyGroup>
     <!-- Disable CET compatibility check in .NET 9 AppHost -->

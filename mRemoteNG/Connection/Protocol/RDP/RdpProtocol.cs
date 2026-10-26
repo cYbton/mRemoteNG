@@ -13,6 +13,7 @@ using MSTSCLib;
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using System.Threading;
@@ -477,53 +478,9 @@ namespace mRemoteNG.Connection.Protocol.RDP
                             string pkey = "";
 
                         // access secret server api if necessary
-                        if (InterfaceControl.Info.RDGatewayExternalCredentialProvider == ExternalCredentialProvider.DelineaSecretServer)
-                        {
-                            try
-                            {
-                                string RDGUserViaAPI = InterfaceControl.Info.RDGatewayUserViaAPI;
-                                ExternalConnectors.DSS.SecretServerInterface.FetchSecretFromServer($"{RDGUserViaAPI}", out gwu, out gwp, out gwd, out pkey);
-                            }
-                            catch (Exception ex)
-                            {
-                                Event_ErrorOccured(this, "Secret Server Interface Error: " + ex.Message, 0);
-                            }
-                        }
-                        else if (InterfaceControl.Info.ExternalCredentialProvider == ExternalCredentialProvider.ClickstudiosPasswordState)
-                        {
-                            try
-                            {
-                                string RDGUserViaAPI = InterfaceControl.Info.RDGatewayUserViaAPI;
-                                ExternalConnectors.CPS.PasswordstateInterface.FetchSecretFromServer($"{RDGUserViaAPI}", out gwu, out gwp, out gwd, out pkey);
-                            }
-                            catch (Exception ex)
-                            {
-                                Event_ErrorOccured(this, "Passwordstate Interface Error: " + ex.Message, 0);
-                            }
-                        }
-                        else if (InterfaceControl.Info.ExternalCredentialProvider == ExternalCredentialProvider.OnePassword)
-                        {
-                            try
-                            {
-                                string RDGUserViaAPI = InterfaceControl.Info.RDGatewayUserViaAPI;
-                                ExternalConnectors.OP.OnePasswordCli.ReadPassword($"{RDGUserViaAPI}", out gwu, out gwp, out gwd, out pkey);
-                            }
-                            catch (ExternalConnectors.OP.OnePasswordCliException ex)
-                            {
-                                Runtime.MessageCollector.AddMessage(MessageClass.InformationMsg, Language.ECPOnePasswordCommandLine + ": " + ex.Arguments);
-                                Runtime.MessageCollector.AddMessage(MessageClass.ErrorMsg, Language.ECPOnePasswordReadFailed + Environment.NewLine + ex.Message);
-                            }
-                        }
-                        else if (InterfaceControl.Info.ExternalCredentialProvider == ExternalCredentialProvider.VaultOpenbao)
-                        {
-                            try {
-                                if (connectionInfo.VaultOpenbaoSecretEngine == VaultOpenbaoSecretEngine.Kv)
-                                    gwu = connectionInfo.RDGatewayUsername;
-                                ExternalConnectors.VO.VaultOpenbao.ReadPasswordRDP((int)connectionInfo.VaultOpenbaoSecretEngine, connectionInfo.VaultOpenbaoMount, connectionInfo.VaultOpenbaoRole, ref gwu, out gwp);
-                            } catch (ExternalConnectors.VO.VaultOpenbaoException ex) {
-                                Event_ErrorOccured(this, "Secret Server Interface Error: " + ex.Message, 0);
-                            }
-                        }
+                        if (InterfaceControl.Info.RDGatewayExternalCredentialProvider != ExternalCredentialProvider.None ||
+                            InterfaceControl.Info.ExternalCredentialProvider != ExternalCredentialProvider.None)
+                            FetchGatewayCredentialsFromProvider(ref gwu, ref gwp, ref gwd, ref pkey);
 
 
                             if (connectionInfo.RDGatewayUseConnectionCredentials != RDGatewayUseConnectionCredentials.AccessToken)
@@ -585,6 +542,31 @@ namespace mRemoteNG.Connection.Protocol.RDP
             }
         }
 
+        // sysprep fork: the external credential providers (Delinea Secret Server, Passwordstate, 1Password,
+        // Vault/OpenBao) are not part of this build - ExternalConnectors.dll, unsigned, was blocked by Smart App
+        // Control and held up every RDP connect, and the training labs don't use them. A connection set to one
+        // gets a message instead and connects with its own credentials.
+        private void FetchCredentialsFromProvider(string userViaApi, ref string userName, ref string password, ref string domain, ref string pkey)
+        {
+            ReportExternalProviderUnavailable();
+        }
+
+        private bool FetchDefaultCredentialsFromSecretServer(ref string userName, ref string password, ref string domain, ref string pkey)
+        {
+            ReportExternalProviderUnavailable();
+            return false;
+        }
+
+        private void FetchGatewayCredentialsFromProvider(ref string gwu, ref string gwp, ref string gwd, ref string pkey)
+        {
+            ReportExternalProviderUnavailable();
+        }
+
+        private void ReportExternalProviderUnavailable()
+        {
+            Event_ErrorOccured(this, "External credential providers are not part of the sysprep.io build of mRemoteNG - the connection's own credentials are used.", 0);
+        }
+
         private void SetCredentials()
         {
             try
@@ -602,49 +584,8 @@ namespace mRemoteNG.Connection.Protocol.RDP
                 string password = (connectionInfo?.Password ?? "");
 
                 // access secret server api if necessary
-                if (InterfaceControl.Info.ExternalCredentialProvider == ExternalCredentialProvider.DelineaSecretServer)
-                {
-                    try
-                    {
-                        ExternalConnectors.DSS.SecretServerInterface.FetchSecretFromServer($"{userViaApi}", out userName, out password, out domain, out pkey);
-                    }
-                    catch (Exception ex)
-                    {
-                        Event_ErrorOccured(this, "Secret Server Interface Error: " + ex.Message, 0);
-                    }
-                }
-                else if (InterfaceControl.Info.ExternalCredentialProvider == ExternalCredentialProvider.ClickstudiosPasswordState)
-                {
-                    try
-                    {
-                        ExternalConnectors.CPS.PasswordstateInterface.FetchSecretFromServer($"{userViaApi}", out userName, out password, out domain, out pkey);
-                    }
-                    catch (Exception ex)
-                    {
-                        Event_ErrorOccured(this, "Passwordstate Interface Error: " + ex.Message, 0);
-                    }
-                }
-                else if (InterfaceControl.Info.ExternalCredentialProvider == ExternalCredentialProvider.OnePassword)
-                {
-                    try
-                    {
-                        ExternalConnectors.OP.OnePasswordCli.ReadPassword($"{userViaApi}", out userName, out password, out domain, out pkey);
-                    }
-                    catch (ExternalConnectors.OP.OnePasswordCliException ex)
-                    {
-                        Runtime.MessageCollector.AddMessage(MessageClass.InformationMsg, Language.ECPOnePasswordCommandLine + ": " + ex.Arguments);
-                        Runtime.MessageCollector.AddMessage(MessageClass.ErrorMsg, Language.ECPOnePasswordReadFailed + Environment.NewLine + ex.Message);
-                    }
-                }
-                else if (InterfaceControl.Info.ExternalCredentialProvider == ExternalCredentialProvider.VaultOpenbao) {
-                    try {
-                        if(connectionInfo.VaultOpenbaoSecretEngine == VaultOpenbaoSecretEngine.Kv)
-                            userName = connectionInfo?.Username ?? "";
-                        ExternalConnectors.VO.VaultOpenbao.ReadPasswordRDP((int)connectionInfo.VaultOpenbaoSecretEngine, connectionInfo?.VaultOpenbaoMount ?? "", connectionInfo?.VaultOpenbaoRole ?? "", ref userName, out password);
-                    } catch (ExternalConnectors.VO.VaultOpenbaoException ex) {
-                        Event_ErrorOccured(this, "Secret Server Interface Error: " + ex.Message, 0);
-                    }
-                }
+                if (InterfaceControl.Info.ExternalCredentialProvider != ExternalCredentialProvider.None)
+                    FetchCredentialsFromProvider(userViaApi, ref userName, ref password, ref domain, ref pkey);
 
                 if (string.IsNullOrEmpty(userName))
                 {
@@ -657,15 +598,8 @@ namespace mRemoteNG.Connection.Protocol.RDP
                             _rdpClient.UserName = Properties.OptionsCredentialsPage.Default.DefaultUsername;
                             break;
                         case "custom":
-                            try
-                            {
-                                ExternalConnectors.DSS.SecretServerInterface.FetchSecretFromServer(Properties.OptionsCredentialsPage.Default.UserViaAPIDefault, out userName, out password, out domain, out pkey);
+                            if (FetchDefaultCredentialsFromSecretServer(ref userName, ref password, ref domain, ref pkey))
                                 _rdpClient.UserName = userName;
-                            }
-                            catch (Exception ex)
-                            {
-                                Event_ErrorOccured(this, "Secret Server Interface Error: " + ex.Message, 0);
-                            }
 
                             break;
                     }

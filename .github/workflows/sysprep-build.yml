@@ -1,0 +1,111 @@
+name: sysprep.io build
+
+# Builds the portable, self-contained x64 sysprep.io build of mRemoteNG on a GitHub runner - a local build
+# on a PC with Smart App Control on gets its freshly built, unsigned DLLs blocked. Run it from the Actions
+# tab: without "release" the zip is only attached to the run (for testing), with "release" it also becomes
+# the GitHub release v<version>-sysprep.io.<n>, which Hyper-Lab's deploy picks up as the latest release.
+on:
+  workflow_dispatch:
+    inputs:
+      release:
+        description: 'Publish the build as the latest GitHub release'
+        type: boolean
+        default: false
+
+permissions: {}
+
+jobs:
+  build:
+    runs-on: windows-2025-vs2026
+    permissions:
+      contents: write   # only needed by the release step
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Install .NET 10 SDK
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Set up MSBuild
+        uses: microsoft/setup-msbuild@v3
+        with:
+          msbuild-architecture: x64
+
+      - name: Resolve MSBuild environment
+        shell: pwsh
+        run: |
+          $msbuild = (Get-Command msbuild -ErrorAction Stop).Source
+          $dotnetRoot = Split-Path (Get-Command dotnet -ErrorAction Stop).Source -Parent
+          $sdkBasePath = (& dotnet --info | Select-String -Pattern '^\s*Base Path:\s*(.+)$' | Select-Object -First 1).Matches[0].Groups[1].Value.Trim()
+          "MSBUILD_EXE=$msbuild" | Out-File -FilePath $env:GITHUB_ENV -Append
+          "MSBuildSDKsPath=$(Join-Path $sdkBasePath 'Sdks')" | Out-File -FilePath $env:GITHUB_ENV -Append
+          "DOTNET_MSBUILD_SDK_RESOLVER_CLI_DIR=$dotnetRoot" | Out-File -FilePath $env:GITHUB_ENV -Append
+          "DOTNET_ROOT=$dotnetRoot" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+      - name: Read version
+        id: version
+        shell: pwsh
+        run: |
+          # The committed AssemblyInfo.cs is used as is (TransformOnBuild=false below), so it has to match the template
+          $cs = Get-Content mRemoteNG\Properties\AssemblyInfo.cs -Raw
+          $tt = Get-Content mRemoteNG\Properties\AssemblyInfo.tt -Raw
+          if ($cs -notmatch 'AssemblyVersion\("(?<ver>\d+\.\d+\.\d+)\.(?<rel>\d+)"\)') { throw 'No AssemblyVersion in AssemblyInfo.cs' }
+          $version = $Matches['ver']; $release = $Matches['rel']
+          if ($tt -notmatch "int sysprepRelease = $release;") { throw "AssemblyInfo.cs (release $release) does not match AssemblyInfo.tt - regenerate it" }
+          $name = "$version-sysprep.io.$release"
+          "tag=v$name" >> $env:GITHUB_OUTPUT
+          "title=mRemoteNG $version (sysprep.io.$release)" >> $env:GITHUB_OUTPUT
+          "zip=mRemoteNG-$name-x64.zip" >> $env:GITHUB_OUTPUT
+          Write-Host "Building mRemoteNG $name"
+
+      - name: Restore
+        shell: pwsh
+        run: dotnet restore mRemoteNG\mRemoteNG.csproj -p:Configuration="Release Self-Contained" -p:Platform=x64 -p:SelfContained=true -p:RuntimeIdentifier=win-x64 -p:PublishReadyToRun=true
+
+      - name: Build and publish
+        shell: pwsh
+        run: |
+          & "$env:MSBUILD_EXE" mRemoteNG\mRemoteNG.csproj /p:Configuration="Release Self-Contained" /p:Platform=x64 /p:SelfContained=true /p:RuntimeIdentifier=win-x64 /p:TransformOnBuild=false /p:MSBuildEnableWorkloadResolver=false /p:PublishDir="$env:GITHUB_WORKSPACE\publish\" /verbosity:minimal
+          if ($LASTEXITCODE -ne 0) { throw "MSBuild failed with exit code $LASTEXITCODE" }
+
+      - name: Check the publish layout
+        shell: pwsh
+        run: |
+          $dir = "$env:GITHUB_WORKSPACE\publish"
+          foreach ($required in 'mRemoteNG.exe', 'PuTTYNG.exe', 'Assemblies\BouncyCastle.Cryptography.dll', 'Icons\mRemoteNG', 'Icons\NOTICE.md', 'Themes\sysprep.io_dark.vstheme') {
+            if (-not (Test-Path (Join-Path $dir $required))) { throw "Missing in the publish folder: $required" }
+          }
+          # single-file: the program assembly and the external connectors must not be there as separate files
+          foreach ($unwanted in 'mRemoteNG.dll', 'ExternalConnectors.dll', 'Assemblies\VaultSharp.dll', 'Assemblies\AWSSDK.Core.dll') {
+            if (Test-Path (Join-Path $dir $unwanted)) { throw "Should not be in the publish folder: $unwanted" }
+          }
+          $binaries = Get-ChildItem $dir -Recurse -File -Include *.dll, *.exe
+          $unsigned = $binaries | Where-Object { (Get-AuthenticodeSignature $_.FullName).Status -ne 'Valid' }
+          Write-Host "$($binaries.Count) DLL/EXE files, $($unsigned.Count) without a valid signature:"
+          $unsigned | ForEach-Object { Write-Host "  $($_.FullName.Substring($dir.Length + 1))" }
+
+      - name: Create zip
+        shell: pwsh
+        run: |
+          Compress-Archive -Path "$env:GITHUB_WORKSPACE\publish\*" -DestinationPath "${{ steps.version.outputs.zip }}"
+          Write-Host ("{0}: {1:N1} MB" -f '${{ steps.version.outputs.zip }}', ((Get-Item '${{ steps.version.outputs.zip }}').Length / 1MB))
+
+      - name: Upload zip to the run
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ steps.version.outputs.zip }}
+          path: ${{ steps.version.outputs.zip }}
+          retention-days: 14
+
+      - name: Publish release
+        if: inputs.release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view '${{ steps.version.outputs.tag }}' *> $null
+          if ($LASTEXITCODE -eq 0) { throw "Release ${{ steps.version.outputs.tag }} exists already - count up sysprepRelease in AssemblyInfo.tt/.cs first" }
+          gh release create '${{ steps.version.outputs.tag }}' '${{ steps.version.outputs.zip }}' --target '${{ github.sha }}' --title '${{ steps.version.outputs.title }}' --notes-file sysprep\release-notes.md --latest
+          if ($LASTEXITCODE -ne 0) { throw "gh release create failed" }

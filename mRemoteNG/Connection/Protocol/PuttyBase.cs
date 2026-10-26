@@ -375,6 +375,25 @@ namespace mRemoteNG.Connection.Protocol
             }
         }
 
+        // sysprep fork: the external credential providers (Delinea Secret Server, Passwordstate, 1Password,
+        // Vault/OpenBao) are not part of this build - ExternalConnectors.dll, unsigned, was blocked by Smart App
+        // Control, and the training labs don't use them. A connection set to one gets a message instead and
+        // connects with its own credentials.
+        private void FetchSshCredentialsFromProvider(string UserViaAPI, ref string username, ref string password, ref string privatekey, ref string optionalTemporaryPrivateKeyPath)
+        {
+            ReportExternalProviderUnavailable();
+        }
+
+        private void FetchDefaultSshCredentialsFromSecretServer(ref string username, ref string password, ref string privatekey)
+        {
+            ReportExternalProviderUnavailable();
+        }
+
+        private void ReportExternalProviderUnavailable()
+        {
+            Event_ErrorOccured(this, "External credential providers are not part of the sysprep.io build of mRemoteNG - the connection's own credentials are used.", 0);
+        }
+
         public override bool Connect()
         {
             string optionalTemporaryPrivateKeyPath = ""; // path to ppk file instead of password. only temporary (extracted from credential vault).
@@ -415,61 +434,8 @@ namespace mRemoteNG.Connection.Protocol
                         string privatekey = "";
 
                         // access secret server api if necessary
-                        if (InterfaceControl.Info?.ExternalCredentialProvider == ExternalCredentialProvider.DelineaSecretServer)
-                        {
-                            try
-                            {
-                                ExternalConnectors.DSS.SecretServerInterface.FetchSecretFromServer($"{UserViaAPI}", out username, out password, out _, out privatekey);
-
-                                if (!string.IsNullOrEmpty(privatekey))
-                                {
-                                    optionalTemporaryPrivateKeyPath = WriteTemporaryPrivateKeyFile(privatekey);
-                                    _temporaryPrivateKeyPath = optionalTemporaryPrivateKeyPath;
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                Event_ErrorOccured(this, "Secret Server Interface Error: " + ex.Message, 0);
-                            }
-                        }
-                        else if (InterfaceControl.Info?.ExternalCredentialProvider == ExternalCredentialProvider.ClickstudiosPasswordState)
-                        {
-                            try
-                            {
-                                ExternalConnectors.CPS.PasswordstateInterface.FetchSecretFromServer($"{UserViaAPI}", out username, out password, out _, out privatekey);
-
-                                if (!string.IsNullOrEmpty(privatekey))
-                                {
-                                    optionalTemporaryPrivateKeyPath = WriteTemporaryPrivateKeyFile(privatekey);
-                                    _temporaryPrivateKeyPath = optionalTemporaryPrivateKeyPath;
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                Event_ErrorOccured(this, "Passwordstate Interface Error: " + ex.Message, 0);
-                            }
-                        }
-                        else if (InterfaceControl.Info?.ExternalCredentialProvider == ExternalCredentialProvider.OnePassword) {
-                            try
-                            {
-                                ExternalConnectors.OP.OnePasswordCli.ReadPassword($"{UserViaAPI}", out username, out password, out _, out privatekey);
-                            }
-                            catch (ExternalConnectors.OP.OnePasswordCliException ex)
-                            {
-                                Runtime.MessageCollector.AddMessage(MessageClass.InformationMsg, Language.ECPOnePasswordCommandLine + ": " + ex.Arguments);
-                                Runtime.MessageCollector.AddMessage(MessageClass.ErrorMsg, Language.ECPOnePasswordReadFailed + Environment.NewLine + ex.Message);
-                            }
-                        }
-                        else if (InterfaceControl.Info?.ExternalCredentialProvider == ExternalCredentialProvider.VaultOpenbao) {
-                            try {
-                                if (InterfaceControl.Info?.VaultOpenbaoSecretEngine == VaultOpenbaoSecretEngine.SSHOTP)
-                                    ExternalConnectors.VO.VaultOpenbao.ReadOtpSSH($"{InterfaceControl.Info?.VaultOpenbaoMount}", $"{InterfaceControl.Info?.VaultOpenbaoRole}", $"{InterfaceControl.Info?.Username}", $"{InterfaceControl.Info?.Hostname}", out password);
-                                else
-                                    ExternalConnectors.VO.VaultOpenbao.ReadPasswordSSH((int)InterfaceControl.Info?.VaultOpenbaoSecretEngine, InterfaceControl.Info?.VaultOpenbaoMount ?? "", InterfaceControl.Info?.VaultOpenbaoRole ?? "", InterfaceControl.Info?.Username ?? "root", out password);
-                            } catch (ExternalConnectors.VO.VaultOpenbaoException ex) {
-                                Event_ErrorOccured(this, "Secret Server Interface Error: " + ex.Message, 0);
-                            }
-                        }
+                        if ((InterfaceControl.Info?.ExternalCredentialProvider ?? ExternalCredentialProvider.None) != ExternalCredentialProvider.None)
+                            FetchSshCredentialsFromProvider(UserViaAPI, ref username, ref password, ref privatekey, ref optionalTemporaryPrivateKeyPath);
 
                         if (string.IsNullOrEmpty(username))
                         {
@@ -484,17 +450,7 @@ namespace mRemoteNG.Connection.Protocol
                                 case "custom":
 
                                     if (Properties.OptionsCredentialsPage.Default.ExternalCredentialProviderDefault == ExternalCredentialProvider.DelineaSecretServer)
-                                    {
-                                        try
-                                        {
-                                            ExternalConnectors.DSS.SecretServerInterface.FetchSecretFromServer(
-                                                $"{Properties.OptionsCredentialsPage.Default.UserViaAPIDefault}", out username, out password, out _, out privatekey);
-                                        }
-                                        catch (Exception ex)
-                                        {
-                                            Event_ErrorOccured(this, "Secret Server Interface Error: " + ex.Message, 0);
-                                        }
-                                    }
+                                        FetchDefaultSshCredentialsFromSecretServer(ref username, ref password, ref privatekey);
 
                                     break;
                             }

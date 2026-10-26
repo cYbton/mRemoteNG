@@ -23,7 +23,8 @@ namespace mRemoteNG.App.Info
         public static readonly string ApplicationVersion = Application.ProductVersion;
         public static readonly string? ProductName = Application.ProductName;
         public static readonly string? Copyright = (Attribute.GetCustomAttribute(Assembly.GetExecutingAssembly(), typeof(AssemblyCopyrightAttribute), false) as AssemblyCopyrightAttribute)?.Copyright;
-        public static readonly string? HomePath = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
+        // sysprep fork: the folder of mRemoteNG.exe - Assembly.Location is empty in a single-file build
+        public static readonly string? HomePath = Path.GetDirectoryName(AppContext.BaseDirectory);
 
         //public static string ReportingFilePath = "";
         private static readonly string puttyPath = HomePath + "\\PuTTYNG.exe";

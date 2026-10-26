@@ -10,7 +10,8 @@ namespace mRemoteNG.App.Info
     [SupportedOSPlatform("windows")]
     public static class SettingsFileInfo
     {
-        private static readonly string? ExePath = Path.GetDirectoryName(Assembly.GetAssembly(typeof(ConnectionInfo))?.Location);
+        // sysprep fork: the folder of mRemoteNG.exe - Assembly.Location is empty in a single-file build
+        private static readonly string? ExePath = Path.GetDirectoryName(AppContext.BaseDirectory);
 
         // ExePath resolves the running assembly's own directory and is always available at runtime.
         public static string SettingsPath => Runtime.IsPortableEdition ? ExePath! : Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\" + Application.ProductName;
