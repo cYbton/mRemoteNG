@@ -36,11 +36,15 @@ namespace mRemoteNG.App
         [STAThread]
         public static void Main(string[] args)
         {
-            // sysprep fork: Hyper-Lab starts a newly unpacked mRemoteNG.exe once with --warmup, which ends right
-            // here. Windows checks a new exe on its first start, before any of its code runs - with no window to
-            // show for it, the first start by a user would otherwise hang for seconds without a splash screen.
+            // sysprep fork: Hyper-Lab starts a newly unpacked mRemoteNG.exe once with --warmup, which loads every
+            // file of the program once and ends. Windows (Defender, Smart App Control) checks each new file the
+            // first time it is loaded, partly in the cloud - done on the user's first start, that took up to a
+            // minute and a half with nothing to show for it.
             if (args.Length == 1 && string.Equals(args[0], "--warmup", StringComparison.OrdinalIgnoreCase))
+            {
+                Environment.ExitCode = WarmUp();
                 return;
+            }
 
             // Must be called before any other WinForms / Application.* usage so that
             // per-monitor font scaling and hit-testing are initialised correctly from
@@ -443,6 +447,65 @@ namespace mRemoteNG.App
         {
             public int Left, Top, Right, Bottom;
         }
+
+        // Loads (maps) every DLL and EXE below the program folder once without running any of it, so Windows checks
+        // them now. Writes the files Windows blocked to stdout and returns their number as the exit code.
+        private static int WarmUp()
+        {
+            const int ErrorSystemIntegrityPolicyViolation = 4551; // 0x11C7, "An Application Control policy has blocked this file"
+            const uint DontResolveDllReferences = 0x1;
+            string self = Environment.ProcessPath ?? string.Empty;
+            int blocked = 0;
+
+            foreach (string file in Directory.EnumerateFiles(AppContext.BaseDirectory, "*.*", SearchOption.AllDirectories))
+            {
+                string extension = Path.GetExtension(file);
+                if (!extension.Equals(".dll", StringComparison.OrdinalIgnoreCase) && !extension.Equals(".exe", StringComparison.OrdinalIgnoreCase))
+                    continue;
+                if (string.Equals(file, self, StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                try
+                {
+                    AssemblyName.GetAssemblyName(file);
+                    Assembly.LoadFrom(file);
+                    continue;
+                }
+                catch (BadImageFormatException)
+                {
+                    // not a .NET assembly - mapped as a native image below
+                }
+                catch (Exception ex) when (ex.HResult == unchecked((int)0x800711C7) || ex.InnerException?.HResult == unchecked((int)0x800711C7))
+                {
+                    Console.Out.WriteLine(file);
+                    blocked++;
+                    continue;
+                }
+                catch (Exception)
+                {
+                    // e.g. a second copy of an assembly that is already loaded - it has been read and checked anyway
+                    continue;
+                }
+
+                IntPtr module = LoadLibraryEx(file, IntPtr.Zero, DontResolveDllReferences);
+                if (module != IntPtr.Zero)
+                    FreeLibrary(module);
+                else if (Marshal.GetLastWin32Error() == ErrorSystemIntegrityPolicyViolation)
+                {
+                    Console.Out.WriteLine(file);
+                    blocked++;
+                }
+            }
+
+            Console.Out.Flush();
+            return blocked;
+        }
+
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        private static extern IntPtr LoadLibraryEx(string lpFileName, IntPtr hFile, uint dwFlags);
+
+        [DllImport("kernel32.dll")]
+        private static extern bool FreeLibrary(IntPtr hModule);
 
         [DllImport("user32.dll")]
         private static extern bool GetWindowRect(IntPtr hWnd, out SplashRect rect);
