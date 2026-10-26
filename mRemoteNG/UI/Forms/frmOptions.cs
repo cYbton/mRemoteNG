@@ -57,8 +57,7 @@ namespace mRemoteNG.UI.Forms
                 nameof(ThemePage),
                 nameof(SecurityPage),
                 nameof(PluginsPage),
-                nameof(AdvancedPage),
-                nameof(BackupPage)
+                nameof(AdvancedPage)
             };
 
 #if DEBUG

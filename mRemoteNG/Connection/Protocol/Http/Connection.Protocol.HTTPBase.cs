@@ -119,6 +119,8 @@ namespace mRemoteNG.Connection.Protocol.Http
                 
                 // Prevent popups from opening in new windows
                 webView2.CoreWebView2.NewWindowRequested += CoreWebView2_NewWindowRequested;
+                webView2.CoreWebView2.ServerCertificateErrorDetected += CoreWebView2_ServerCertificateErrorDetected;
+                webView2.CoreWebView2.BasicAuthenticationRequested += CoreWebView2_BasicAuthenticationRequested;
             }
             catch (Exception ex)
             {
@@ -188,6 +190,23 @@ namespace mRemoteNG.Connection.Protocol.Http
         {
             // Suppress the popup (prevent it from opening in a new window)
             e.Handled = true;
+        }
+
+        // sysprep fork: the lab's web interfaces (firewall, Citrix, ...) use self-signed certificates - accepted in
+        // this tab instead of showing the certificate warning page
+        private void CoreWebView2_ServerCertificateErrorDetected(object? sender, CoreWebView2ServerCertificateErrorDetectedEventArgs e)
+        {
+            e.Action = CoreWebView2ServerCertificateErrorAction.AlwaysAllow;
+        }
+
+        // sysprep fork: the connection's username and password answer an HTTP (Basic) authentication prompt; a login
+        // form on the web page itself is not filled in
+        private void CoreWebView2_BasicAuthenticationRequested(object? sender, CoreWebView2BasicAuthenticationRequestedEventArgs e)
+        {
+            ConnectionInfo? info = InterfaceControl?.Info;
+            if (string.IsNullOrEmpty(info?.Username)) return;
+            e.Response.UserName = string.IsNullOrEmpty(info.Domain) ? info.Username : $@"{info.Domain}\{info.Username}";
+            e.Response.Password = info.Password ?? string.Empty;
         }
 
         #endregion

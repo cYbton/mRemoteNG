@@ -88,30 +88,68 @@ namespace mRemoteNG.UI
         // apart from the icon on any background.
         private static readonly Color ConnectedDotColor = Color.FromArgb(70, 200, 90);
 
+        // Ring and dot are drawn at this multiple of the icon size and scaled down - circles of a few pixels drawn
+        // directly come out jagged, and a cut-out drawn with CompositingMode.SourceCopy loses its anti-aliasing
+        private const int DotSupersampling = 4;
+
         private static Bitmap WithConnectedDot(Icon icon, Size size)
         {
-            Bitmap result;
+            Bitmap result = new(size.Width, size.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
             using (Icon sized = new(icon, size))
             using (Bitmap rendered = sized.ToBitmap())
-                result = new Bitmap(rendered, size);
+            using (Graphics gr = Graphics.FromImage(result))
+            {
+                gr.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                gr.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
+                gr.DrawImage(rendered, new Rectangle(Point.Empty, size));
+            }
 
             float dot = Math.Max(5f, Math.Min(size.Width, size.Height) * 0.45f);
             float ring = Math.Max(1.5f, dot * 0.2f);
             RectangleF dotRect = new(size.Width - dot, size.Height - dot, dot, dot);
             RectangleF ringRect = RectangleF.Inflate(dotRect, ring, ring);
 
-            using (Graphics gr = Graphics.FromImage(result))
+            // The ring: the icon's own alpha is lowered by how much of each pixel the ring covers
+            using (Bitmap ringMask = RenderEllipse(size, ringRect, Color.White))
             {
-                gr.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-                gr.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceCopy;
-                using (SolidBrush clear = new(Color.Transparent))
-                    gr.FillEllipse(clear, ringRect);
-                gr.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceOver;
-                using (SolidBrush green = new(ConnectedDotColor))
-                    gr.FillEllipse(green, dotRect);
+                for (int y = 0; y < size.Height; y++)
+                {
+                    for (int x = 0; x < size.Width; x++)
+                    {
+                        int coverage = ringMask.GetPixel(x, y).A;
+                        if (coverage == 0) continue;
+                        Color pixel = result.GetPixel(x, y);
+                        result.SetPixel(x, y, Color.FromArgb(pixel.A * (255 - coverage) / 255, pixel.R, pixel.G, pixel.B));
+                    }
+                }
             }
 
+            using (Bitmap greenDot = RenderEllipse(size, dotRect, ConnectedDotColor))
+            using (Graphics gr = Graphics.FromImage(result))
+                gr.DrawImageUnscaled(greenDot, 0, 0);
+
             return result;
+        }
+
+        // An anti-aliased ellipse at the final size, drawn DotSupersampling times larger and scaled down
+        private static Bitmap RenderEllipse(Size size, RectangleF ellipse, Color color)
+        {
+            using Bitmap large = new(size.Width * DotSupersampling, size.Height * DotSupersampling, System.Drawing.Imaging.PixelFormat.Format32bppPArgb);
+            using (Graphics gr = Graphics.FromImage(large))
+            using (SolidBrush brush = new(color))
+            {
+                gr.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                gr.FillEllipse(brush, ellipse.X * DotSupersampling, ellipse.Y * DotSupersampling, ellipse.Width * DotSupersampling, ellipse.Height * DotSupersampling);
+            }
+
+            Bitmap small = new(size.Width, size.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            using (Graphics gr = Graphics.FromImage(small))
+            {
+                gr.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                gr.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
+                gr.DrawImage(large, new Rectangle(Point.Empty, size));
+            }
+            return small;
         }
 
         private static void FillImageList(ImageList imageList)

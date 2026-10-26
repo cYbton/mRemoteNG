@@ -88,6 +88,11 @@ namespace mRemoteNG.UI.Forms.OptionsPages
 
         public override void LoadSettings()
         {
+            // sysprep fork: the UI language is fixed to English (OverrideUICulture), the build ships no translations
+            lblLanguage.Visible = false;
+            cboLanguage.Visible = false;
+            lblLanguageRestartRequired.Visible = false;
+
             cboLanguage.Items.Clear();
             cboLanguage.Items.Add(Language.LanguageDefault);
 
@@ -120,15 +125,7 @@ namespace mRemoteNG.UI.Forms.OptionsPages
 
         public override void SaveSettings()
         {
-            if (cboLanguage.SelectedIndex > 0 &&
-                SupportedCultures.IsNativeNameSupported(Convert.ToString(cboLanguage.SelectedItem)))
-            {
-                Settings.Default.OverrideUICulture = SupportedCultures.get_CultureName(Convert.ToString(cboLanguage.SelectedItem));
-            }
-            else
-            {
-                Settings.Default.OverrideUICulture = string.Empty;
-            }
+            // sysprep fork: no language selection - OverrideUICulture keeps its English default
 
             Properties.OptionsAppearancePage.Default.ShowDescriptionTooltipsInTree = chkShowDescriptionTooltipsInTree.Checked;
             Properties.OptionsAppearancePage.Default.ShowCompleteConsPathInTitle = chkShowFullConnectionsFilePathInTitle.Checked;
