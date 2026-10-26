@@ -535,10 +535,7 @@
       <PackagePath></PackagePath>
     </None>
   </ItemGroup>
-  <ItemGroup>
-    <!-- sysprep fork: no ExternalConnectors (external credential providers) - see RdpProtocol.FetchCredentialsFromProvider -->
 
-  </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="UI\Font\HandelGotDBol.ttf" /><!-- sysprep fork: logo font of the WinForms splash screen -->
   </ItemGroup>
@@ -605,16 +602,7 @@
       <ResolvedFileToPublish Condition=" $([System.String]::Copy('%(ResolvedFileToPublish.Filename)').StartsWith('mRp.')) and '%(ResolvedFileToPublish.Filename)' != 'mRp.Contracts' and '%(ResolvedFileToPublish.Extension)' == '.dll' " Update="%(ResolvedFileToPublish.Identity)" RelativePath="Plugins\%(ResolvedFileToPublish.Filename)%(ResolvedFileToPublish.Extension)" />
     </ItemGroup>
   </Target>
-  <!-- sysprep fork: in a single-file build the assemblies sit inside mRemoteNG.exe, which keeps them out of the
-       Assemblies\ subfolder (the relocation above would hide them from the bundle). Hyper-Lab's config generator
-       reads BouncyCastle from Assemblies\ to encrypt the passwords in confCons.xml, so a copy goes there. -->
-  <Target Name="CopyBouncyCastleForLabTools" AfterTargets="Publish" DependsOnTargets="ResolveReferences" Condition="'$(PublishSingleFile)' == 'true'">
-    <ItemGroup>
-      <_LabToolsAssembly Include="@(ReferenceCopyLocalPaths)" Condition="'%(Filename)%(Extension)' == 'BouncyCastle.Cryptography.dll'" />
-    </ItemGroup>
-    <Error Condition="'@(_LabToolsAssembly)' == ''" Text="BouncyCastle.Cryptography.dll not found in the references" />
-    <Copy SourceFiles="@(_LabToolsAssembly)" DestinationFolder="$(PublishDir)Assemblies\" />
-  </Target>
+
   <!-- sysprep fork: ReadyToRun only for mRemoteNG's own assemblies. Precompiling a NuGet library rewrites it and
        drops its Authenticode signature (Microsoft, .NET Foundation, Bouncy Castle ...) - Smart App Control then
        sees ~50 unknown, unsigned files per build instead of the well-known originals, and blocked some of them. -->

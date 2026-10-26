@@ -47,7 +47,9 @@ file in the cloud and can block it. The build keeps that to a minimum:
 
 - the NuGet libraries ship as their signed originals (not recompiled),
 - the RDP interop assemblies, ObjectListView and the plugin contracts are fixed binaries
-  (`mRemoteNG/libs/sysprep`) that keep their hash from release to release,
+  (`mRemoteNG/libs/sysprep`) that keep their hash from release to release – built from
+  [`ObjectListView`](ObjectListView) and [`mRemoteNG.PluginContracts`](mRemoteNG.PluginContracts) in this repository
+  and from the RDP client's type library (MSTSCLib),
 - so per release only `mRemoteNG.dll` is new.
 
 `mRemoteNG.exe --warmup` loads every program file once without running it and ends; the exit code is the number of
