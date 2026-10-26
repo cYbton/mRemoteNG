@@ -85,10 +85,6 @@
     <SelfContained>true</SelfContained>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <PublishReadyToRun>true</PublishReadyToRun>
-    <!-- sysprep fork: all managed assemblies in mRemoteNG.exe - one unsigned file for Smart App Control to judge
-         instead of ~90, and a faster first start. Native DLLs stay next to the exe (not extracted to %TEMP%). -->
-    <PublishSingleFile>true</PublishSingleFile>
-    <IncludeNativeLibrariesForSelfExtract>false</IncludeNativeLibrariesForSelfExtract>
     <CopyBuildOutputToPublishDirectory>true</CopyBuildOutputToPublishDirectory>
     <CopyOutputSymbolsToPublishDirectory>false</CopyOutputSymbolsToPublishDirectory>
     <RunCommand></RunCommand>
@@ -107,10 +103,6 @@
     <SelfContained>true</SelfContained>
     <RuntimeIdentifier>win-arm64</RuntimeIdentifier>
     <PublishReadyToRun>true</PublishReadyToRun>
-    <!-- sysprep fork: all managed assemblies in mRemoteNG.exe - one unsigned file for Smart App Control to judge
-         instead of ~90, and a faster first start. Native DLLs stay next to the exe (not extracted to %TEMP%). -->
-    <PublishSingleFile>true</PublishSingleFile>
-    <IncludeNativeLibrariesForSelfExtract>false</IncludeNativeLibrariesForSelfExtract>
     <CopyBuildOutputToPublishDirectory>true</CopyBuildOutputToPublishDirectory>
     <CopyOutputSymbolsToPublishDirectory>false</CopyOutputSymbolsToPublishDirectory>
     <RunCommand></RunCommand>
