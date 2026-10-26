@@ -90,6 +90,9 @@ namespace mRemoteNG.UI.Menu
             _mMenToolsUpdate.Click += mMenToolsUpdate_Click;
             _mMenToolsUpdate.Enabled = CommonRegistrySettings.AllowCheckForUpdates
                 && CommonRegistrySettings.AllowCheckForUpdatesManual;
+            // sysprep fork: hidden - the updater offers upstream mRemoteNG, updates come with Hyper-Lab's deploy
+            _mMenToolsUpdate.Available = false;
+            _mMenInfoSep3.Available = false;
             // 
             // mMenInfoSep1
             // 

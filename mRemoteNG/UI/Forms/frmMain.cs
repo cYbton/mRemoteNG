@@ -461,8 +461,9 @@ namespace mRemoteNG.UI.Forms
             new CredsAndConsSetup().LoadCredsAndCons();
             Application.Idle += PreloadRdpClientOnIdle;
 
-            PromptForUpdatesPreference();
-            await CheckForUpdates();
+            // sysprep fork: no update check - mRemoteNG's updater offers upstream mRemoteNG, which would replace
+            // the sysprep.io build. Hyper-Lab's deploy and the LabKit bring the latest sysprep.io release instead.
+            await Task.CompletedTask;
         }
 
         // sysprep fork: the first RDP connection after the start loaded the RDP ActiveX control (mstscax.dll)
