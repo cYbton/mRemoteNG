@@ -114,15 +114,23 @@
     <None Remove="UI\Font\HandelGotDBol.ttf" />
   </ItemGroup>
   <ItemGroup>
-    <COMReference Include="MSTSCLib">
-      <WrapperTool>aximp</WrapperTool>
-      <VersionMinor>0</VersionMinor>
-      <VersionMajor>1</VersionMajor>
-      <Guid>8c11efa1-92c3-11d1-bc1e-00c04fa31489</Guid>
-      <Lcid>0</Lcid>
-      <Isolated>false</Isolated>
-      <EmbedInteropTypes>false</EmbedInteropTypes>
-    </COMReference>
+    <!-- sysprep fork: the RDP interop assemblies, ObjectListView and the plugin contracts as fixed binaries from
+         libs\sysprep instead of being generated/built anew - aximp and the non-deterministic builds gave them a new
+         hash in every build, so Smart App Control judged them anew each time (and blocked them in some builds).
+         Fixed, they keep their hash and reputation across releases; only mRemoteNG.dll is new per release.
+         Rebuild them only when MSTSCLib, ObjectListView or mRemoteNG.PluginContracts really change. -->
+    <Reference Include="Interop.MSTSCLib">
+      <HintPath>libs\sysprep\Interop.MSTSCLib.dll</HintPath>
+    </Reference>
+    <Reference Include="AxInterop.MSTSCLib">
+      <HintPath>libs\sysprep\AxInterop.MSTSCLib.dll</HintPath>
+    </Reference>
+    <Reference Include="ObjectListView">
+      <HintPath>libs\sysprep\ObjectListView.dll</HintPath>
+    </Reference>
+    <Reference Include="mRp.Contracts">
+      <HintPath>libs\sysprep\mRp.Contracts.dll</HintPath>
+    </Reference>
   </ItemGroup>
    <ItemGroup>
     <PackageReference Include="BouncyCastle.Cryptography" />
@@ -529,8 +537,7 @@
   </ItemGroup>
   <ItemGroup>
     <!-- sysprep fork: no ExternalConnectors (external credential providers) - see RdpProtocol.FetchCredentialsFromProvider -->
-    <ProjectReference Include="..\mRemoteNG.PluginContracts\mRemoteNG.PluginContracts.csproj" />
-    <ProjectReference Include="..\ObjectListView\ObjectListView.NetCore.csproj" />
+
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="UI\Font\HandelGotDBol.ttf" /><!-- sysprep fork: logo font of the WinForms splash screen -->
