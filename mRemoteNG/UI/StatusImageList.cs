@@ -83,7 +83,7 @@ namespace mRemoteNG.UI
             return name;
         }
 
-        p        // sysprep fork: a green dot at the bottom right instead of the play button overlay. The icon is rendered
+        // sysprep fork: a green dot at the bottom right instead of the play button overlay. The icon is rendered
         // at the size of the image list, and the ring around the dot is cut out to transparent, so the dot stays
         // apart from the icon on any background.
         private static readonly Color ConnectedDotColor = Color.FromArgb(70, 200, 90);
@@ -92,7 +92,8 @@ namespace mRemoteNG.UI
         {
             Bitmap result;
             using (Icon sized = new(icon, size))
-                result = new Bitmap(sized.ToBitmap(), size);
+            using (Bitmap rendered = sized.ToBitmap())
+                result = new Bitmap(rendered, size);
 
             float dot = Math.Max(5f, Math.Min(size.Width, size.Height) * 0.45f);
             float ring = Math.Max(1.5f, dot * 0.2f);
@@ -113,7 +114,7 @@ namespace mRemoteNG.UI
             return result;
         }
 
-rivate static void FillImageList(ImageList imageList)
+        private static void FillImageList(ImageList imageList)
         {
             try
             {
