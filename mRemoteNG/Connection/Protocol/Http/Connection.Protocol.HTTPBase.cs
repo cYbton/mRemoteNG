@@ -218,11 +218,44 @@ namespace mRemoteNG.Connection.Protocol.Http
             e.Response.Password = info.Password ?? string.Empty;
         }
 
-        // sysprep fork: a slim bar above the page - "Log in" fills in the connection's username and password and
-        // presses Enter, for when the automatic login didn't catch the form (e.g. it appeared late)
+        // sysprep fork: a slim bar above the page - Reload, an address bar (shows the current URL, Enter goes to the
+        // typed one) and "Log in", which fills in the connection's username and password and presses Enter, for
+        // when the automatic login didn't catch the form (e.g. it appeared late)
         private void AddLoginBar(Microsoft.Web.WebView2.WinForms.WebView2 webView2)
         {
-            ToolStrip bar = new() { Dock = DockStyle.Top, GripStyle = ToolStripGripStyle.Hidden, RenderMode = ToolStripRenderMode.System };
+            ToolStrip bar = new()
+            {
+                Dock = DockStyle.Top,
+                GripStyle = ToolStripGripStyle.Hidden,
+                CanOverflow = false,
+                Padding = new Padding(4, 2, 4, 2)
+            };
+            ToolStripButton reload = new("Reload", mRemoteNG.Properties.Resources.Refresh_16x) { DisplayStyle = ToolStripItemDisplayStyle.ImageAndText };
+            reload.Click += (sender, args) => webView2.CoreWebView2?.Reload();
+
+            ToolStripTextBox address = new() { AutoSize = false, BorderStyle = BorderStyle.FixedSingle, Margin = new Padding(6, 1, 6, 1) };
+            address.KeyDown += (sender, args) =>
+            {
+                if (args.KeyCode != Keys.Enter || webView2.CoreWebView2 == null) return;
+                args.SuppressKeyPress = true;
+                string url = address.Text.Trim();
+                if (url.Length == 0) return;
+                if (!url.Contains("://")) url = httpOrS + "://" + url;
+                try
+                {
+                    webView2.CoreWebView2.Navigate(url);
+                    webView2.Focus();
+                }
+                catch (ArgumentException)
+                {
+                    Runtime.MessageCollector.AddMessage(mRemoteNG.Messages.MessageClass.WarningMsg, $"Not a valid address: {url}", true);
+                }
+            };
+            webView2.SourceChanged += (sender, args) =>
+            {
+                if (!address.Focused) address.Text = webView2.Source?.ToString() ?? "";
+            };
+
             ToolStripButton login = new("Log in", mRemoteNG.Properties.Resources.Key_16x)
             {
                 ToolTipText = "Fill in the connection's username and password and press Enter",
@@ -235,18 +268,29 @@ namespace mRemoteNG.Connection.Protocol.Http
                 if (!await _webLogin.LoginAsync(webView2.CoreWebView2, InterfaceControl.Info.Username ?? "", InterfaceControl.Info.Password ?? "", automatic: false))
                     Runtime.MessageCollector.AddMessage(mRemoteNG.Messages.MessageClass.InformationMsg, "No login form found on this page, or the connection has no username.", true);
             };
-            ToolStripButton reload = new("Reload", mRemoteNG.Properties.Resources.Refresh_16x) { DisplayStyle = ToolStripItemDisplayStyle.ImageAndText };
-            reload.Click += (sender, args) => webView2.CoreWebView2?.Reload();
-            bar.Items.AddRange([login, reload]);
+            bar.Items.AddRange([reload, address, login]);
+
+            // the address bar takes the width the buttons leave
+            bar.Layout += (sender, args) =>
+            {
+                int width = bar.DisplayRectangle.Width - reload.Width - reload.Margin.Horizontal - login.Width - login.Margin.Horizontal - address.Margin.Horizontal;
+                if (width > 50 && address.Width != width) address.Width = width;
+            };
 
             mRemoteNG.Themes.ThemeManager themeManager = mRemoteNG.Themes.ThemeManager.getInstance();
             if (themeManager.ThemingActive)
                 new WeifenLuo.WinFormsUI.Docking.VisualStudioToolStripExtender().SetStyle(bar, themeManager.ActiveTheme.Version, themeManager.ActiveTheme.Theme);
+            if (themeManager.ActiveAndExtended)
+            {
+                address.BackColor = themeManager.ActiveTheme.ExtendedPalette.getColor("TextBox_Background");
+                address.ForeColor = themeManager.ActiveTheme.ExtendedPalette.getColor("TextBox_Foreground");
+            }
+            // the icons' white fills dropped in a dark theme, as in the connection tree
+            mRemoteNG.UI.DarkThemeIcons.ApplyTo(bar);
 
             InterfaceControl.Controls.Add(bar);
             bar.SendToBack(); // docked before the page, so the page fills the space below the bar
         }
-
         // sysprep fork: tries the login form every second while the tab is new - forms of Angular apps like Citrix
         // Web Studio appear only after the page has loaded. WebLogin stops after a login or a failed one.
         private void StartAutomaticLogin(Microsoft.Web.WebView2.WinForms.WebView2 webView2)
