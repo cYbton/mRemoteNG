@@ -10,6 +10,25 @@ runtime needed.
 
 **Download:** [latest release](https://github.com/cYbton/mRemoteNG/releases/latest)
 
+## The lab's connections (Hyper-Lab)
+
+Hyper-Lab's generator writes `confCons.xml` from the lab configs; the file is all a training PC needs besides
+this build.
+
+- **One folder per lab** (e.g. `sh000`, `cx000`) holding the lab's username and password (Administrator of the lab
+  domain), with a subfolder per kind of connection that inherits them:
+  - **RDP** – every server and client of the lab, plus extra entries for the lab's test users where a course needs
+    them (e.g. `sh000-cl01 (cx000-user01)`).
+  - **SSH** – the appliances: the OPNsense firewall (root) and the Citrix NetScaler (nsroot).
+  - **Websites** – the lab's web interfaces as browser tabs with automatic login: OPNsense, Citrix Web Studio,
+    Director, StoreFront (also once per test user), Licensing Manager, WEM Web Console, NetScaler, Windows Admin
+    Center. A tab is named after the interface; the server behind it is in its description, and in its name only
+    where two servers of a lab offer the same interface. Interfaces that share a server keep their own icon
+    (StoreFront, Director and Licensing Manager next to the Delivery Controller's Web Studio).
+- **No host key question:** each SSH connection carries the appliance's host key fingerprint
+  (`-hostkey SHA256:…` in *SSH Options*), read from the running appliance when the file is generated. The exported
+  lab VMs keep their keys, so PuTTY connects without asking on every PC the lab and the file are copied to.
+
 ## What is different from upstream
 
 ### RDP
