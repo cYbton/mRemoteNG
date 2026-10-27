@@ -23,7 +23,7 @@ using System.Resources;
 [assembly: AssemblyCulture("")]
 
 // Version information
-[assembly: AssemblyVersion("1.78.2.12")]
-[assembly: AssemblyFileVersion("1.78.2.12")]
+[assembly: AssemblyVersion("1.78.2.13")]
+[assembly: AssemblyFileVersion("1.78.2.13")]
 [assembly: NeutralResourcesLanguageAttribute("en-US")]
-[assembly: AssemblyInformationalVersion("1.78.2 (sysprep.io.12) x64")]
+[assembly: AssemblyInformationalVersion("1.78.2 (sysprep.io.13) x64")]

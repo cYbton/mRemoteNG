@@ -498,15 +498,19 @@ namespace mRemoteNG.Config.Serializers.ConnectionSerializers.Xml
                     connectionInfo.Inheritance.RDPAlertIdleTimeout = xmlnode.GetAttributeAsBool("InheritRDPAlertIdleTimeout");
                 }
 
-                // sysprep fork: Hyper-Lab's generator writes ConfVersion 2.6 files that carry RedirectClipboard and
-                // RdpVersion. Those are read only from 2.7 on, so the saved default for new connections won (on an
-                // install upgraded from an older mRemoteNG: clipboard off) - an explicit value in the file wins now
+                // sysprep fork: Hyper-Lab's generator writes ConfVersion 2.6 files that carry RedirectClipboard,
+                // RdpVersion and SSHOptions. Those are read only from 2.7 on, so the saved default for new connections
+                // won (on an install upgraded from an older mRemoteNG: clipboard off) - an explicit value in the file
+                // wins now. SSHOptions holds "-hostkey <fingerprint>" for the lab appliances, so PuTTY does not ask
+                // for their host key on the PCs the file is copied to.
                 if (_confVersion < 2.7)
                 {
                     if (xmlnode.Attributes?["RedirectClipboard"] != null)
                         connectionInfo.RedirectClipboard = xmlnode.GetAttributeAsBool("RedirectClipboard");
                     if (xmlnode.Attributes?["RdpVersion"] != null)
                         connectionInfo.RdpVersion = xmlnode.GetAttributeAsEnum("RdpVersion", RdpVersion.Highest);
+                    if (xmlnode.Attributes?["SSHOptions"] != null)
+                        connectionInfo.SSHOptions = xmlnode.GetAttributeAsString("SSHOptions");
                 }
 
                 if (_confVersion >= 2.7)

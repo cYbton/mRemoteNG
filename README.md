@@ -41,6 +41,9 @@ runtime needed.
 ### SSH
 
 - The bundled PuTTY gets Consolas 12 as its default font unless one is set.
+- *SSH Options* are read from connection files of format 2.6 too (Hyper-Lab's generator): it puts
+  `-hostkey <fingerprint>` there for the lab appliances, so PuTTY does not ask for their host key on the PCs the
+  file is copied to.
 
 ### Look and feel
 
