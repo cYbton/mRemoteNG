@@ -24,8 +24,10 @@ runtime needed.
 - **Fast and calm connecting.** No white flash before the session shows (the connection area keeps the theme
   background), the session is repainted once it is connected, and the first connection after the start doesn't
   hang (the RDP client is loaded in advance).
-- **Defaults:** clipboard and Windows key combinations (Alt+Tab, Win+…) redirected, the newest RDP client on the
-  PC (*Highest*) – also for connection files of older formats.
+- **Sharp picture:** the client reports a LAN connection instead of upstream's fixed "modem" – with the H.264
+  graphics pipeline of the newest RDP client, "modem" made the server compress hard and blurred desktop text.
+- **Defaults:** clipboard and Windows key combinations (Alt+Tab, Win+…) redirected, 32-bit colour, the newest RDP
+  client on the PC (*Highest*) – also for connection files of older formats.
 
 ### Web interfaces (HTTP/HTTPS connections)
 

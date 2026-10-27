@@ -26,7 +26,10 @@ namespace mRemoteNG.Connection.Protocol.RDP
 
                 RdpClient7.AdvancedSettings8.AudioQualityMode = (uint)connectionInfo.SoundQuality;
                 RdpClient7.AdvancedSettings8.AudioCaptureRedirectionMode = connectionInfo.RedirectAudioCapture;
-                RdpClient7.AdvancedSettings8.NetworkConnectionType = (int)RdpNetworkConnectionType.Modem;
+                // sysprep fork: LAN instead of upstream's fixed "Modem" - with the RDP graphics pipeline (H.264/AVC,
+                // used by the newest client) "Modem" made the server compress the picture hard, and text on the
+                // desktop (BGInfo) came out blurred; the lab runs over a local Hyper-V switch
+                RdpClient7.AdvancedSettings8.NetworkConnectionType = (int)RdpNetworkConnectionType.Lan;
 
                 SetUseRedirectionServerName();
 

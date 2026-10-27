@@ -109,7 +109,7 @@ namespace mRemoteNG.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Colors16Bit")]
+        [global::System.Configuration.DefaultSettingValueAttribute("Colors32Bit")]
         public string ConDefaultColors {
             get {
                 return ((string)(this["ConDefaultColors"]));

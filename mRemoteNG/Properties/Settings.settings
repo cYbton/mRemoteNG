@@ -24,7 +24,7 @@
       <Value Profile="(Default)">SmartSize</Value>
     </Setting>
     <Setting Name="ConDefaultColors" Type="System.String" Scope="User">
-      <Value Profile="(Default)">Colors16Bit</Value>
+      <Value Profile="(Default)">Colors32Bit</Value>
     </Setting>
     <Setting Name="ConDefaultCacheBitmaps" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
