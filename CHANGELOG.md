@@ -7,7 +7,7 @@ The releases of this fork (`v1.78.2-sysprep.io.<n>`, based on upstream 1.78.2-de
 [releases page](https://github.com/cYbton/mRemoteNG/releases) and in [`sysprep/release-notes.md`](sysprep/release-notes.md);
 what the fork changes compared to upstream is summed up in the [README](README.md).
 
-- **sysprep.io.11** – sharp RDP pictures: connection type LAN instead of upstream's fixed "Modem" (blurred text with the H.264 graphics pipeline), 32-bit colour for new connections.
+- **sysprep.io.11** – sharp RDP pictures: connection type LAN instead of upstream's fixed "Modem" (blurred text with the H.264 graphics pipeline), full picture quality for new connections (32-bit colour, font smoothing, desktop composition, themes, wallpaper).
 - **sysprep.io.10** – window starts maximized, WinForms splash screen; web tabs with a browser-like bar, automatic login to web login forms, lab certificates accepted; RDP clipboard and key combinations on by default, newest RDP client; WPF, SQL Server/MySQL storage, VNC/ARD, update check, language selection and the Backup options page removed; only `mRemoteNG.dll` is new per release.
 - **sysprep.io.9** – green dot for connected sessions; external credential providers removed; signed NuGet originals instead of recompiled libraries; `--warmup`; no connection file backups by default; built on GitHub Actions.
 - **sysprep.io.8** – splash screen right at the start.

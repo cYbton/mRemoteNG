@@ -26,7 +26,7 @@ runtime needed.
   hang (the RDP client is loaded in advance).
 - **Sharp picture:** the client reports a LAN connection instead of upstream's fixed "modem" – with the H.264
   graphics pipeline of the newest RDP client, "modem" made the server compress hard and blurred desktop text.
-- **Defaults:** clipboard and Windows key combinations (Alt+Tab, Win+…) redirected, 32-bit colour, the newest RDP
+- **Defaults:** clipboard and Windows key combinations (Alt+Tab, Win+…) redirected, full picture quality (32-bit colour, font smoothing, desktop composition, themes, wallpaper), the newest RDP
   client on the PC (*Highest*) – also for connection files of older formats.
 
 ### Web interfaces (HTTP/HTTPS connections)
