@@ -6,9 +6,11 @@ name: sysprep.io build
 #   with Smart App Control on: every file must get through)
 # - push of the tag v<version>-sysprep.io.<n> (matching AssemblyInfo): no new build - the zip of the tested
 #   branch build of the same commit becomes the latest GitHub release, byte for byte what was tested.
-#   Hyper-Lab's deploy picks it up.
-# (workflow_dispatch needs the workflow on the fork's default branch, which stays upstream's)
+#   Hyper-Lab's deploy picks it up; with several tested runs of a commit, the newest successful one.
+# - Run workflow (Actions tab, sysprep): a new build of the same commit - mRemoteNG.dll carries the run id, so it is a
+#   new attempt when Smart App Control blocked the previous build
 on:
+  workflow_dispatch:
   push:
     branches:
       - sysprep

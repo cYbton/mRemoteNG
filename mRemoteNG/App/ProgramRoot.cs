@@ -416,6 +416,7 @@ namespace mRemoteNG.App
         private static int WarmUp()
         {
             const int ErrorSystemIntegrityPolicyViolation = 4551; // 0x11C7, "An Application Control policy has blocked this file"
+            const int ErrorBadExeFormat = 193, ErrorFileNotFound = 2, ErrorPathNotFound = 3;
             const uint DontResolveDllReferences = 0x1;
             string self = Environment.ProcessPath ?? string.Empty;
             int blocked = 0;
@@ -438,9 +439,12 @@ namespace mRemoteNG.App
                     FreeLibrary(module);
                     continue;
                 }
-                if (Marshal.GetLastWin32Error() == ErrorSystemIntegrityPolicyViolation)
+                // Any other failure counts as blocked too: inside this unsigned process a Smart App Control block
+                // didn't come back as 4551 (seen 2026-10-27) - only "not a loadable image" and "not found" are fine
+                int error = Marshal.GetLastWin32Error();
+                if (error != ErrorBadExeFormat && error != ErrorFileNotFound && error != ErrorPathNotFound)
                 {
-                    Console.Out.WriteLine(file);
+                    Console.Out.WriteLine(error == ErrorSystemIntegrityPolicyViolation ? file : $"{file} (error {error})");
                     blocked++;
                     continue;
                 }

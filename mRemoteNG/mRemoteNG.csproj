@@ -603,6 +603,19 @@
     </ItemGroup>
   </Target>
 
+  <!-- sysprep fork: on GitHub Actions the run id and attempt go into mRemoteNG.dll, so every run gives it a new hash.
+       Smart App Control judges each new file once and remembers the verdict per hash - when it blocks a build, a new
+       run of the same commit is a new attempt, no code change needed. -->
+  <Target Name="StampBuildRun" BeforeTargets="CoreCompile" Condition="'$(GITHUB_RUN_ID)' != ''">
+    <PropertyGroup>
+      <_BuildRunFile>$(IntermediateOutputPath)BuildRun.g.cs</_BuildRunFile>
+    </PropertyGroup>
+    <WriteLinesToFile File="$(_BuildRunFile)" Lines="[assembly: System.Reflection.AssemblyMetadata(&quot;BuildRun&quot;, &quot;$(GITHUB_RUN_ID).$(GITHUB_RUN_ATTEMPT)&quot;)]" Overwrite="true" />
+    <ItemGroup>
+      <Compile Include="$(_BuildRunFile)" />
+    </ItemGroup>
+  </Target>
+
   <!-- sysprep fork: ReadyToRun only for mRemoteNG's own assemblies. Precompiling a NuGet library rewrites it and
        drops its Authenticode signature (Microsoft, .NET Foundation, Bouncy Castle ...) - Smart App Control then
        sees ~50 unknown, unsigned files per build instead of the well-known originals, and blocked some of them. -->
