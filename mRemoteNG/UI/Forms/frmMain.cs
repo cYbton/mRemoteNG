@@ -257,6 +257,11 @@ namespace mRemoteNG.UI.Forms
 
             ShowHidePanelTabs();
 
+            // sysprep fork: the start always shows the connection tree, also when Config shares its place and was
+            // in front when mRemoteNG was closed
+            if (AppWindows.TreeForm.DockPanel != null && !AppWindows.TreeForm.IsHidden)
+                AppWindows.TreeForm.Activate();
+
             Runtime.ConnectionsService.ConnectionsLoaded += ConnectionsServiceOnConnectionsLoaded;
             Runtime.ConnectionsService.ConnectionsSaved += ConnectionsServiceOnConnectionsSaved;
 
@@ -914,9 +919,8 @@ namespace mRemoteNG.UI.Forms
             AppWindows.ConfigForm.Show(pnlDock, DockState.DockLeft);
             AppWindows.ErrorsForm.Show(pnlDock, DockState.DockBottomAutoHide);
 
-            // sysprep fork: only the connection tree is open by default. Config and Notifications keep their
-            // place (below the tree, auto-hide at the bottom) and come back through the View menu.
-            AppWindows.ConfigForm.Hide();
+            // sysprep fork: Connections and Config share the left side, Connections in front. Notifications keep
+            // their place (auto-hide at the bottom) but stay hidden - they come back through the View menu.
             AppWindows.ErrorsForm.Hide();
             viewMenu._mMenViewErrorsAndInfos.Checked = false;
             AppWindows.TreeForm.Activate();

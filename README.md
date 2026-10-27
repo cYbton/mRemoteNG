@@ -55,9 +55,10 @@ runtime needed.
   bearlikelion community set in `Icons/` (see [`Icons/NOTICE.md`](mRemoteNG/Icons/NOTICE.md)). The icon menu of
   a connection has a submenu per set and category and loads the pictures when opened; the scripts that render the
   lab icons from the sysprep.io draw.io stencils are in [`sysprep/IconBuilder`](sysprep/IconBuilder).
-- **Layout:** the window starts maximized on the main screen; on the first start only the connection tree
-  (250 px) is open – Config and Notifications are hidden and back via the *View* menu, which got entries for
-  them; the panel tab strip shows only when *Always show panel tabs* is set; no minimize arrow on the tabs.
+- **Layout:** the window starts maximized on the main screen; on the left (250 px) the connection tree and the
+  Config panel share their place, and every start shows the connection tree in front; Notifications are hidden
+  and back via the *View* menu, which got entries for Connections and Config; the panel tab strip shows only
+  when *Always show panel tabs* is set; no minimize arrow on the tabs.
 - **Start:** the splash screen shows right away, on the screen the window opens on; the log records how long the
   start took.
 
