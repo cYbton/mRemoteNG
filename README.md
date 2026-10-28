@@ -102,15 +102,18 @@ check (it would offer upstream mRemoteNG – updates come with Hyper-Lab). At th
 self-contained build.
 ## Smart App Control
 
-The build is not code-signed. On a Windows PC with Smart App Control turned on, Windows judges every new, unsigned
-file in the cloud and can block it. The build keeps that to a minimum:
+The build is not code-signed. On a Windows PC with Smart App Control turned on, Windows judges every unsigned file
+in the cloud and can block it – also later: `ObjectListView.dll`, unchanged and allowed since sysprep.io.10, was
+blocked one day. So the build ships as few files of its own as possible:
 
-- the NuGet libraries ship as their signed originals (not recompiled),
-- the RDP interop assemblies, ObjectListView and the plugin contracts are fixed binaries
-  (`mRemoteNG/libs/sysprep`) that keep their hash from release to release – built from
-  [`ObjectListView`](ObjectListView) and [`mRemoteNG.PluginContracts`](mRemoteNG.PluginContracts) in this repository
-  and from the RDP client's type library (MSTSCLib),
-- so per release only `mRemoteNG.dll` is new.
+- the NuGet libraries ship as their signed (or widely used) originals, not recompiled,
+- [`ObjectListView`](ObjectListView), the plugin contracts ([`mRemoteNG.PluginContracts`](mRemoteNG.PluginContracts))
+  and the RDP client's ActiveX wrappers (`mRemoteNG/libs/sysprep/AxMSTSCLib.cs`, generated with `AxImp.exe`) are
+  compiled into `mRemoteNG.dll`; the RDP client's COM types are embedded from `mRemoteNG/libs/sysprep/MSTSCLib.dll`,
+  which is only referenced,
+- so `mRemoteNG.exe` and `mRemoteNG.dll` are the only files of this build. If Windows blocks one of them, a new build
+  of the same commit gives it a new hash (the build run is stamped into `mRemoteNG.dll`).
+- Plugins built against `mRp.Contracts.dll` are not supported – there is no such DLL any more.
 
 `mRemoteNG.exe --warmup` loads every program file once without running it and ends; the exit code is the number of
 files Windows blocked, their paths come on stdout. Hyper-Lab runs it right after unpacking, so Windows checks the

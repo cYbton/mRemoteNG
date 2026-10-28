@@ -7,6 +7,7 @@ The releases of this fork (`v1.78.2-sysprep.io.<n>`, based on upstream 1.78.2-de
 [releases page](https://github.com/cYbton/mRemoteNG/releases) and in [`sysprep/release-notes.md`](sysprep/release-notes.md);
 what the fork changes compared to upstream is summed up in the [README](README.md).
 
+- **sysprep.io.14** – ObjectListView, the plugin contracts and the RDP client's ActiveX wrappers are compiled into `mRemoteNG.dll` and its COM types embedded: no `ObjectListView.dll`, `mRp.Contracts.dll`, `Interop.MSTSCLib.dll` or `AxInterop.MSTSCLib.dll` any more - Smart App Control had blocked the unchanged `ObjectListView.dll`. Only `mRemoteNG.exe` and `mRemoteNG.dll` are files of this build; plugins built against `mRp.Contracts.dll` are no longer supported.
 - **sysprep.io.13** – SSHOptions are read from connection files of format 2.6 too: Hyper-Lab's generator puts `-hostkey <fingerprint>` there, so PuTTY does not ask for the host key of the lab appliances (OPNsense, NetScaler).
 - **sysprep.io.12** – RedirectClipboard and RdpVersion are read from connection files of format 2.6 too (Hyper-Lab's generator), instead of the saved default for new connections; Config panel open as a tab next to the connection tree, which is in front on every start.
 - **sysprep.io.11** – sharp RDP pictures: connection type LAN instead of upstream's fixed "Modem" (blurred text with the H.264 graphics pipeline), full picture quality for new connections (32-bit colour, font smoothing, desktop composition, themes, wallpaper).

@@ -1,4 +1,6 @@
-﻿namespace mRemoteNG.PluginContracts;
+﻿using System.Collections.Generic;
+
+namespace mRemoteNG.PluginContracts;
 
 public interface IPluginConnection
 {

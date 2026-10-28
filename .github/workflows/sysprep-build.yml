@@ -91,11 +91,9 @@ jobs:
           $unsigned = $binaries | Where-Object { (Get-AuthenticodeSignature $_.FullName).Status -ne 'Valid' }
           Write-Host "$($binaries.Count) DLL/EXE files, $($unsigned.Count) without a valid signature:"
           $unsigned | ForEach-Object { Write-Host "  $($_.FullName.Substring($dir.Length + 1))" }
-          # the fixed binaries from libs\sysprep must ship unchanged (stable hash for Smart App Control)
-          foreach ($pinned in 'Interop.MSTSCLib.dll', 'AxInterop.MSTSCLib.dll', 'ObjectListView.dll', 'mRp.Contracts.dll') {
-            $published = Get-ChildItem $dir -Recurse -File -Filter $pinned | Select-Object -First 1
-            if (-not $published) { throw "Missing in the publish folder: $pinned" }
-            if ((Get-FileHash $published.FullName).Hash -ne (Get-FileHash "mRemoteNG\libs\sysprep\$pinned").Hash) { throw "$pinned differs from libs\sysprep\$pinned" }
+          # compiled into mRemoteNG.dll (fewer unsigned files for Smart App Control) - must not ship on their own
+          foreach ($folded in 'Interop.MSTSCLib.dll', 'MSTSCLib.dll', 'AxInterop.MSTSCLib.dll', 'ObjectListView.dll', 'mRp.Contracts.dll') {
+            if (Get-ChildItem $dir -Recurse -File -Filter $folded) { throw "Should not be in the publish folder: $folded" }
           }
           # NuGet libraries must keep their publisher's signature (no ReadyToRun rewrite) - see KeepPackageAssembliesOriginal
           foreach ($signedPackage in 'Assemblies\Newtonsoft.Json.dll', 'Assemblies\Microsoft.Data.Sqlite.dll', 'Assemblies\BouncyCastle.Cryptography.dll') {

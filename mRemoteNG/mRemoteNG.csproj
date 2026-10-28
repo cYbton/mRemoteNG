@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Platforms>x64;arm64</Platforms>
     <RuntimeIdentifiers>win-x64;win-arm64</RuntimeIdentifiers>
-    <NoWarn>$(NoWarn);NU1701;CA1416;CS0067;CS0414;CS0618;CS8597;CS8600;CS8601;CS8602;CS8603;CS8604;CS8605;CS8618;CS8622;CS8625;CS8632;CS8764;CS8765;CS8767;CS8777;SYSLIB0060</NoWarn>
+    <NoWarn>$(NoWarn);NU1701;CA1416;CS0067;CS0414;CS0618;CS8597;CS8600;CS8601;CS8602;CS8603;CS8604;CS8605;CS8618;CS8622;CS8625;CS8632;CS8764;CS8765;CS8767;CS8777;SYSLIB0060;WFO1000</NoWarn>
     <Nullable>disable</Nullable>
   </PropertyGroup>
   <PropertyGroup>
@@ -114,23 +114,25 @@
     <None Remove="UI\Font\HandelGotDBol.ttf" />
   </ItemGroup>
   <ItemGroup>
-    <!-- sysprep fork: the RDP interop assemblies, ObjectListView and the plugin contracts as fixed binaries from
-         libs\sysprep instead of being generated/built anew - aximp and the non-deterministic builds gave them a new
-         hash in every build, so Smart App Control judged them anew each time (and blocked them in some builds).
-         Fixed, they keep their hash and reputation across releases; only mRemoteNG.dll is new per release.
-         Rebuild them only when MSTSCLib, ObjectListView or mRemoteNG.PluginContracts really change. -->
-    <Reference Include="Interop.MSTSCLib">
-      <HintPath>libs\sysprep\Interop.MSTSCLib.dll</HintPath>
+    <!-- sysprep fork: no RDP interop DLLs in the build. The COM types of the RDP client are embedded into
+         mRemoteNG.dll (EmbedInteropTypes) from libs\sysprep\MSTSCLib.dll, which is only referenced and never shipped;
+         its ActiveX wrappers are compiled from libs\sysprep\AxMSTSCLib.cs. Both were generated once with
+         AxImp.exe mstscax.dll /source - regenerate them only when a newer RDP client interface is needed. -->
+    <Reference Include="MSTSCLib">
+      <HintPath>libs\sysprep\MSTSCLib.dll</HintPath>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+      <Private>False</Private>
     </Reference>
-    <Reference Include="AxInterop.MSTSCLib">
-      <HintPath>libs\sysprep\AxInterop.MSTSCLib.dll</HintPath>
-    </Reference>
-    <Reference Include="ObjectListView">
-      <HintPath>libs\sysprep\ObjectListView.dll</HintPath>
-    </Reference>
-    <Reference Include="mRp.Contracts">
-      <HintPath>libs\sysprep\mRp.Contracts.dll</HintPath>
-    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <!-- sysprep fork: ObjectListView and the plugin contracts compiled into mRemoteNG.dll instead of shipping as DLLs
+         of their own. Every unsigned file is judged by Smart App Control on its own, and the verdict for an unchanged
+         file can turn later (ObjectListView.dll, allowed since sysprep.io.10, was blocked on 2026-10-28) - so the
+         build ships as few unsigned files as possible. Their projects stay in the repository (GPL source). -->
+    <Compile Include="..\ObjectListView\**\*.cs" Exclude="..\ObjectListView\bin\**;..\ObjectListView\obj\**;..\ObjectListView\Properties\AssemblyInfo.cs;..\ObjectListView\AssemblyInfo.Version.cs" Link="ObjectListView\%(RecursiveDir)%(Filename)%(Extension)" />
+    <EmbeddedResource Include="..\ObjectListView\Properties\Resources.resx" Link="ObjectListView\Properties\Resources.resx" LogicalName="BrightIdeasSoftware.Properties.Resources.resources" />
+    <EmbeddedResource Include="..\ObjectListView\Utilities\ColumnSelectionForm.resx" Link="ObjectListView\Utilities\ColumnSelectionForm.resx" LogicalName="BrightIdeasSoftware.ColumnSelectionForm.resources" />
+    <Compile Include="..\mRemoteNG.PluginContracts\**\*.cs" Exclude="..\mRemoteNG.PluginContracts\bin\**;..\mRemoteNG.PluginContracts\obj\**" Link="PluginContracts\%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
    <ItemGroup>
     <PackageReference Include="BouncyCastle.Cryptography" />

@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace mRemoteNG.PluginContracts;
 
 public sealed class ConnectionPropertyDefinition
