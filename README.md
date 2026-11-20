@@ -128,6 +128,8 @@ local build on a PC with Smart App Control on gets its freshly built DLLs blocke
    release in [`sysprep/release-notes.md`](sysprep/release-notes.md).
 2. Push to the `sysprep` branch: the workflow builds the zip and attaches it to the run.
 3. Test that zip – including `mRemoteNG.exe --warmup` on a PC with Smart App Control on.
+   [`sysprep/Test-Build.ps1`](sysprep/Test-Build.ps1) `-TestPath <folder>` does the Smart App Control part: it
+   unpacks the newest run of the commit there, checks it and builds again until Windows allows a run.
 4. Push the tag `v1.78.2-sysprep.io.<n>`: the workflow publishes the zip of the tested build of that commit, byte
    for byte, as the latest release. It doesn't build again.
 
