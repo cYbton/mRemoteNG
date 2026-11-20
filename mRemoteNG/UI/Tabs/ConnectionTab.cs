@@ -35,6 +35,9 @@ namespace mRemoteNG.UI.Tabs
         {
             InitializeComponent();
             BackColor = InterfaceControl.ThemedBackColor; // sysprep fork: no white flash in a dark theme
+            // sysprep fork: dragging a tab never floats or docks it elsewhere - DockPaneStripNG only moves it
+            // left and right within the tab strip
+            AllowEndUserDocking = false;
             GotFocus += ConnectionTab_GotFocus;
             DockStateChanged += ConnectionTab_DockStateChanged;
         }

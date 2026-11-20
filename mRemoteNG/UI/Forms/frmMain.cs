@@ -722,6 +722,13 @@ namespace mRemoteNG.UI.Forms
                                 }
                             }
                         }
+                        // sysprep fork: activated without a click into the window (Alt+Tab, taskbar) - WinForms
+                        // gives the focus back to its last active control after this message, so the session gets
+                        // it afterwards; with the keyboard in the session the next Alt+Tab stays in the session
+                        else if (NativeMethods.LOWORD(m.WParam) == NativeMethods.WA_ACTIVE)
+                        {
+                            BeginInvoke(new MethodInvoker(() => ActivateConnection(true)));
+                        }
                         break;
                     case NativeMethods.WM_WINDOWPOSCHANGED:
                         // Ignore this message if the window wasn't activated
@@ -795,12 +802,16 @@ namespace mRemoteNG.UI.Forms
             return parentControl.GetChildAtPoint(clientPoint);
         }
 
-        private void ActivateConnection()
+        private void ActivateConnection() => ActivateConnection(false);
+
+        private void ActivateConnection(bool evenOutsidePanel)
         {
             ConnectionWindow cw = pnlDock.ActiveDocument as ConnectionWindow;
             DockPane dp = cw?.ActiveControl as DockPane;
 
-            if (dp?.ActiveContent is not ConnectionTab tab) return;
+            // sysprep fork: after Alt+Tab the panel's active tab also when the focus was outside the panel (tree, Config)
+            IDockContent content = dp?.ActiveContent ?? (evenOutsidePanel ? cw?.connDock.ActiveDocument : null);
+            if (content is not ConnectionTab tab) return;
             InterfaceControl ifc = InterfaceControl.FindInterfaceControl(tab);
             if (ifc == null) return;
 

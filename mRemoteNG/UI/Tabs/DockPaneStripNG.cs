@@ -93,6 +93,8 @@ namespace mRemoteNG.UI.Tabs
         private bool m_documentTabsOverflow;
         private static string m_toolTipSelect;
         private bool m_suspendDrag;
+        private IDockContent m_movedTab;
+        private int m_movedTabLastX;
 
         #endregion
 
@@ -1174,6 +1176,7 @@ namespace mRemoteNG.UI.Tabs
         protected override void OnMouseUp(MouseEventArgs e)
         {
             base.OnMouseUp(e);
+            m_movedTab = null;
             if (IsMouseDown)
                 IsMouseDown = false;
         }
@@ -1185,12 +1188,57 @@ namespace mRemoteNG.UI.Tabs
             m_suspendDrag = ActiveCloseHitTest(e.Location) || ActiveMinimizeHitTest(e.Location);
             if (!IsMouseDown)
                 IsMouseDown = true;
+
+            // sysprep fork: a connection tab is not docked by drag and drop (ConnectionTab), it only moves
+            // left and right within its strip
+            int index = HitTest(e.Location);
+            m_movedTab = e.Button == MouseButtons.Left && !m_suspendDrag && index != -1 &&
+                         Tabs[index].Content is ConnectionTab
+                ? Tabs[index].Content
+                : null;
+            m_movedTabLastX = e.X;
+        }
+
+        private void MoveTab(int x)
+        {
+            if (m_movedTab == null || !DockPane.Contents.Contains(m_movedTab))
+                return;
+
+            // the height of the tabs, so the mouse may leave the strip upwards or downwards while moving
+            int targetIndex = HitTest(new Point(x, TabsRectangle.Top + TabsRectangle.Height / 2));
+            if (targetIndex == -1)
+                return;
+
+            IDockContent target = Tabs[targetIndex].Content;
+            if (target == m_movedTab)
+            {
+                m_movedTabLastX = x;
+                return;
+            }
+
+            int from = DockPane.Contents.IndexOf(m_movedTab);
+            int to = DockPane.Contents.IndexOf(target);
+            bool toTheRight = to > from;
+            // only in the direction the mouse moves - tabs of different widths would swap back and forth
+            if (toTheRight ? x <= m_movedTabLastX : x >= m_movedTabLastX)
+                return;
+
+            m_movedTabLastX = x;
+            if (!toTheRight)
+                DockPane.SetContentIndex(m_movedTab, to);
+            else if (to + 1 < DockPane.Contents.Count)
+                DockPane.SetContentIndex(m_movedTab, to + 1);
+            else
+                DockPane.SetContentIndex(m_movedTab, -1);
         }
 
         protected override void OnMouseMove(MouseEventArgs e)
         {
             if (!m_suspendDrag)
                 base.OnMouseMove(e);
+
+            if (m_movedTab != null && e.Button == MouseButtons.Left)
+                MoveTab(e.X);
 
             int index = HitTest(PointToClient(MousePosition));
             string toolTip = string.Empty;
