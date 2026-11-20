@@ -309,10 +309,33 @@ namespace mRemoteNG.Connection.Protocol.RDP
                 {
                     Control.Focus();
                 }
+
+                FocusInputWindow();
             }
             catch (Exception ex)
             {
                 Runtime.MessageCollector.AddExceptionStackTrace(Language.RdpFocusFailed, ex);
+            }
+        }
+
+        // sysprep fork: the session gets the keys (also Alt+Tab, Windows key) only while the RDP client's input window
+        // (IHWindowClass, inside the ActiveX control) has the focus. After Alt+Tab into mRemoteNG WinForms gives the focus
+        // back to the ActiveX control's own window, which does not pass it on - so the next Alt+Tab left mRemoteNG.
+        private void FocusInputWindow()
+        {
+            if (!Control.IsHandleCreated || !Control.ContainsFocus)
+                return;
+
+            foreach (IntPtr child in new EnumWindows().EnumChildWindows(Control.Handle))
+            {
+                System.Text.StringBuilder className = new(64);
+                NativeMethods.GetClassName(child, className, className.Capacity);
+                if (className.ToString() != "IHWindowClass")
+                    continue;
+
+                if (NativeMethods.GetFocus() != child)
+                    NativeMethods.SetFocus(child);
+                return;
             }
         }
 
