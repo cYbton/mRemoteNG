@@ -14,7 +14,7 @@ using System.Resources;
 
 // General Information
 [assembly: AssemblyTitle("mRemoteNG")]
-[assembly: AssemblyDescription("Multi-Remote Next Generation Connection Manager")]
+// AssemblyDescription: target StampBuildRun in mRemoteNG.csproj (with the GitHub run)
 [assembly: AssemblyConfiguration("x64")]
 [assembly: AssemblyCompany("Profi-KOM Ltd.")]
 [assembly: AssemblyProduct("mRemoteNG Connection Manager")]

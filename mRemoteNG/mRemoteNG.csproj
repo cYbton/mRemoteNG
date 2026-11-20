@@ -607,12 +607,16 @@
 
   <!-- sysprep fork: on GitHub Actions the run id and attempt go into mRemoteNG.dll, so every run gives it a new hash.
        Smart App Control judges each new file once and remembers the verdict per hash - when it blocks a build, a new
-       run of the same commit is a new attempt, no code change needed. -->
-  <Target Name="StampBuildRun" BeforeTargets="CoreCompile" Condition="'$(GITHUB_RUN_ID)' != ''">
+       run of the same commit is a new attempt, no code change needed. The run is also part of the description
+       (Comments of the version resource): the SDK copies that resource into mRemoteNG.exe, so the exe gets a new
+       hash per run too - without it the exe only changed with the version. -->
+  <Target Name="StampBuildRun" BeforeTargets="CoreCompile">
     <PropertyGroup>
       <_BuildRunFile>$(IntermediateOutputPath)BuildRun.g.cs</_BuildRunFile>
+      <_BuildRunSuffix Condition="'$(GITHUB_RUN_ID)' != ''"> (build $(GITHUB_RUN_ID).$(GITHUB_RUN_ATTEMPT))</_BuildRunSuffix>
     </PropertyGroup>
-    <WriteLinesToFile File="$(_BuildRunFile)" Lines="[assembly: System.Reflection.AssemblyMetadata(&quot;BuildRun&quot;, &quot;$(GITHUB_RUN_ID).$(GITHUB_RUN_ATTEMPT)&quot;)]" Overwrite="true" />
+    <WriteLinesToFile File="$(_BuildRunFile)" Lines="[assembly: System.Reflection.AssemblyDescription(&quot;Multi-Remote Next Generation Connection Manager$(_BuildRunSuffix)&quot;)]" Overwrite="true" />
+    <WriteLinesToFile Condition="'$(GITHUB_RUN_ID)' != ''" File="$(_BuildRunFile)" Lines="[assembly: System.Reflection.AssemblyMetadata(&quot;BuildRun&quot;, &quot;$(GITHUB_RUN_ID).$(GITHUB_RUN_ATTEMPT)&quot;)]" Overwrite="false" />
     <ItemGroup>
       <Compile Include="$(_BuildRunFile)" />
     </ItemGroup>
